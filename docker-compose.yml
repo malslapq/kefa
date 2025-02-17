@@ -39,6 +39,22 @@ services:
     volumes:
       - redis_data:/data
 
+  jenkins:
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+    container_name: kefa_jenkins
+    restart: always
+    ports:
+      - "8282:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # 도커 사용을 위한 볼륨
+    environment:
+      - TZ=Asia/Seoul  # 타임존 설정
+
 volumes:
   postgres_data:
   redis_data:
+  jenkins_home:
