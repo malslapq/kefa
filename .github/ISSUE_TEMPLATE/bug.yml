@@ -1,0 +1,20 @@
+name: "🐞 Bug"
+description: "버그 리포트"
+labels: ["bug"]
+body:
+  - type: textarea
+    attributes:
+      label: 🐞 버그 내용
+      description: 어떤 버그가 발생했는지 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🎯 재현 방법
+      description: 버그가 발생하는 상황을 설명해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 📷 스크린샷
+      description: 가능한 경우 스크린샷을 첨부해주세요.
