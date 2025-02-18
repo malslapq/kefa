@@ -1,5 +1,4 @@
 services:
-
   app:
     build:
       context: .
@@ -7,26 +6,26 @@ services:
     container_name: kefa_app
     restart: always
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/kefa
-      SPRING_DATASOURCE_USERNAME: bongsan
-      SPRING_DATASOURCE_PASSWORD: 1111
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:${DB_PORT}/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_REDIS_HOST: redis
     depends_on:
-      - postgres
+      - db
       - redis
 
-  postgres:
+  db:
     image: postgres:latest
-    container_name: kefa_postgres
+    container_name: kefa_db
     restart: always
     environment:
-      POSTGRES_USER: bongsan
-      POSTGRES_PASSWORD: 1111
-      POSTGRES_DB: kefa
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -35,7 +34,7 @@ services:
     container_name: kefa_redis
     restart: always
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
 
@@ -45,14 +44,34 @@ services:
       dockerfile: Dockerfile
     container_name: kefa_jenkins
     restart: always
+    privileged: true
     ports:
-      - "8282:8080"
-      - "50000:50000"
+      - "${JENKINS_PORT}:8080"
+      - "${JENKINS_AGENT_PORT}:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock  # 도커 사용을 위한 볼륨
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.ssh:/var/jenkins_home/.ssh
     environment:
-      - TZ=Asia/Seoul  # 타임존 설정
+      - TZ=${TZ}
+      - JAVA_OPTS="-Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.PROXY_COMPATIBILITY=true"
+    command: |
+      bash -c '
+        /usr/local/bin/jenkins.sh &
+        sleep 10
+        chmod 666 /var/run/docker.sock
+        wait
+      '
+
+  smee-client:
+    image: deltaprojects/smee-client
+    container_name: kefa_smee
+    command: >
+      -u ${SMEE_URL}
+      -t ${SMEE_TARGET}
+    depends_on:
+      - jenkins
+    restart: always
 
 volumes:
   postgres_data:
