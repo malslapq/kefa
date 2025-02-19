@@ -29,6 +29,15 @@ pipeline {
                 }
             }
             stages {
+                stage('Build') {
+                    steps {
+                        checkout scm
+                        sh 'chmod +x ./gradlew'
+                        sh './gradlew clean build'
+                        sh 'ls -la build/libs/'
+                    }
+                }
+
                 stage('Environment Setup') {
                     steps {
                         script {
@@ -70,6 +79,11 @@ pipeline {
                 stage('Build and Push') {
                     steps {
                         script {
+                            // 현재 디렉토리 및 파일 확인
+                            sh 'pwd'
+                            sh 'ls -la'
+                            sh 'ls -la build/libs/'
+
                             sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                             sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
                             sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_IMAGE_NAME}:latest"
@@ -95,6 +109,7 @@ pipeline {
             sh 'rm -f .env'
             sh 'docker logout'
             sh 'docker image prune -f'
+            cleanWs()
         }
         success {
             echo 'Pipeline completed successfully'
