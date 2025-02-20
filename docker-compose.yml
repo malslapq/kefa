@@ -19,7 +19,7 @@ services:
       - app-network
 
   db:
-    image: postgres:latest
+    image: postgres:16.2
     container_name: kefa_db
     restart: always
     environment:
@@ -34,7 +34,7 @@ services:
       - app-network
 
   redis:
-    image: redis:latest
+    image: redis:7.2.4
     container_name: kefa_redis
     restart: always
     ports:
@@ -51,13 +51,13 @@ services:
     container_name: kefa_jenkins
     restart: always
     privileged: true
+    user: root
     ports:
       - "${JENKINS_PORT}:8080"
       - "${JENKINS_AGENT_PORT}:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - ~/.ssh:/var/jenkins_home/.ssh
     environment:
       - TZ=${TZ}
       - JAVA_OPTS="-Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.PROXY_COMPATIBILITY=true"
@@ -74,17 +74,6 @@ services:
       - redis
     networks:
       - app-network
-    command: |
-      bash -c '
-        DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
-        groupadd -g ${DOCKER_GID} docker || true
-        usermod -aG docker jenkins
-        mkdir -p /var/jenkins_home/jobs
-        mkdir -p /var/jenkins_home/workspace
-        chown -R jenkins:jenkins /var/jenkins_home
-        chmod -R 777 /var/jenkins_home
-        /usr/local/bin/jenkins.sh
-      '
 
   smee-client:
     image: deltaprojects/smee-client

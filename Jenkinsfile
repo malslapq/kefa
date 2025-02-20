@@ -9,7 +9,10 @@ pipeline {
     stages {
         stage('CI') {
             when {
-                changeRequest target: 'develop'
+                anyOf {
+                    changeRequest target: 'develop'
+                    changeRequest target: 'main'
+                }
             }
             steps {
                 checkout scm
@@ -21,10 +24,14 @@ pipeline {
 
         stage('CD') {
             when {
-                allOf {
-                    branch 'develop'
-                    not {
-                        changeRequest()
+                anyOf {
+                    allOf {
+                        branch 'develop'             // develop 브랜치일 때
+                        not { changeRequest() }      // PR이 아닐 때 (즉, 머지 후)
+                    }
+                    allOf {
+                        branch 'main'                // main 브랜치일 때
+                        not { changeRequest() }      // PR이 아닐 때 (즉, 머지 후)
                     }
                 }
             }
