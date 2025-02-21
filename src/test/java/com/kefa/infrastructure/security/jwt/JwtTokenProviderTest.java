@@ -1,6 +1,7 @@
 package com.kefa.infrastructure.security.jwt;
 
 import com.kefa.domain.type.Role;
+import com.kefa.infrastructure.security.auth.CustomUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,13 +9,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class JwtTokenProviderTest {
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
 
     private JwtTokenProvider jwtTokenProvider;
     private JwtTokenProvider expiredTokenProvider;
