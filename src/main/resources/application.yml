@@ -14,3 +14,8 @@ spring:
     show-sql: true
     properties:
       hibernate:
+
+jwt:
+  key: ${JWT_KEY}
+  access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
+  refresh-expiration-time: ${JWT_REFRESH_EXPIRATION_TIME}

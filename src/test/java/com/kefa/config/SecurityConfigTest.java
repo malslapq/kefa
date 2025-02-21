@@ -1,6 +1,6 @@
 package com.kefa.config;
 
-import com.kefa.security.config.SecurityConfig;
+import com.kefa.infrastructure.security.config.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

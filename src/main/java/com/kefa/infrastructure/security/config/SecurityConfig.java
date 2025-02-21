@@ -1,4 +1,4 @@
-package com.kefa.security.config;
+package com.kefa.infrastructure.security.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
