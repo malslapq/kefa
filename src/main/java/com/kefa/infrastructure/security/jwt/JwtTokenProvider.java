@@ -56,16 +56,20 @@ public class JwtTokenProvider {
             return true;
         } catch (SecurityException | io.jsonwebtoken.security.SecurityException e) {
             log.info("유효하지 않은 JWT 서명입니다.: {}", e.getMessage());
+            throw e;
         } catch (MalformedJwtException e) {
             log.info("잘못된 JWT 토큰입니다.: {}", e.getMessage());
+            throw e;
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.: {}", e.getMessage());
+            throw e;
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 JWT 토큰입니다.: {}", e.getMessage());
+            throw e;
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 비어있습니다.: {}", e.getMessage());
+            throw e;
         }
-        return false;
     }
 
     private Claims getClaims(String token) {
