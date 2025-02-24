@@ -1,9 +1,9 @@
 package com.kefa.infrastructure.security.jwt;
 
+import com.kefa.common.exception.JwtAuthenticationException;
 import com.kefa.domain.type.Role;
 import com.kefa.infrastructure.security.auth.CustomUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,6 @@ public class JwtTokenProviderTest {
     private CustomUserDetailsService customUserDetailsService;
 
     private JwtTokenProvider jwtTokenProvider;
-    private JwtTokenProvider expiredTokenProvider;
     private String expiredToken;
 
     @BeforeEach
@@ -40,7 +39,7 @@ public class JwtTokenProviderTest {
         ReflectionTestUtils.setField(expiredProperties, "key", "testSecretKeytestSecretKeytestSecretKeytestSecretKey");
         ReflectionTestUtils.setField(expiredProperties, "accessExpirationTime", 1L); // 1ms
         ReflectionTestUtils.setField(expiredProperties, "refreshExpirationTime", 1L);
-        expiredTokenProvider = new JwtTokenProvider(expiredProperties);
+        JwtTokenProvider expiredTokenProvider = new JwtTokenProvider(expiredProperties);
         expiredTokenProvider.init();
 
         // 만료된 토큰 생성
@@ -147,7 +146,7 @@ public class JwtTokenProviderTest {
         String testToken = "this is token";
 
         // when & then
-        assertThrows(MalformedJwtException.class, () ->
+        assertThrows(JwtAuthenticationException.class, () ->
             jwtTokenProvider.validateToken(testToken)
         );
     }
@@ -186,7 +185,7 @@ public class JwtTokenProviderTest {
     void validateTokenFailWithExpiredToken() {
 
         // when & then
-        assertThrows(ExpiredJwtException.class, () ->
+        assertThrows(JwtAuthenticationException.class, () ->
             jwtTokenProvider.validateToken(expiredToken)
         );
     }

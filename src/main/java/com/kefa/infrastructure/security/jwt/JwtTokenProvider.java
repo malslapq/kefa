@@ -1,5 +1,7 @@
 package com.kefa.infrastructure.security.jwt;
 
+import com.kefa.common.exception.ErrorCode;
+import com.kefa.common.exception.JwtAuthenticationException;
 import com.kefa.domain.type.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -56,19 +58,19 @@ public class JwtTokenProvider {
             return true;
         } catch (SecurityException | io.jsonwebtoken.security.SecurityException e) {
             log.info("유효하지 않은 JWT 서명입니다.: {}", e.getMessage());
-            throw e;
+            throw new JwtAuthenticationException(ErrorCode.INVALID_JWT_SIGNATURE);
         } catch (MalformedJwtException e) {
             log.info("잘못된 JWT 토큰입니다.: {}", e.getMessage());
-            throw e;
+            throw new JwtAuthenticationException(ErrorCode.MALFORMED_JWT_TOKEN);
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.: {}", e.getMessage());
-            throw e;
+            throw new JwtAuthenticationException(ErrorCode.EXPIRED_JWT_TOKEN);
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 JWT 토큰입니다.: {}", e.getMessage());
-            throw e;
+            throw new JwtAuthenticationException(ErrorCode.UNSUPPORTED_JWT_TOKEN);
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 비어있습니다.: {}", e.getMessage());
-            throw e;
+            throw new JwtAuthenticationException(ErrorCode.EMPTY_JWT_TOKEN);
         }
     }
 
