@@ -20,18 +20,20 @@ public class CustomUserDetails implements UserDetails {
     private final String subscriptionType;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
+    private final boolean deleted;
 
     public CustomUserDetails(Account account) {
         this.id = account.getId();
         this.name = account.getName();
         this.email = account.getEmail();
         this.password = account.getPassword();
-        this.subscriptionType = account.getSubscription_type().toString();
+        this.subscriptionType = account.getSubscriptionType().toString();
         this.authorities = Collections.singleton(
             new SimpleGrantedAuthority("ROLE_" + account.getRole().name())
         );
         this.createdAt = account.getCreatedAt();
         this.updatedAt = account.getUpdatedAt();
+        this.deleted = account.isDeleted();
     }
 
     @Override
@@ -66,6 +68,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return !deleted;
     }
 }
