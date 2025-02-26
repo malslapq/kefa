@@ -4,9 +4,9 @@ import com.kefa.infrastructure.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,8 +19,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(SecurityConfig.class)
-@MockBean(JpaMetamodelMappingContext.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class SecurityConfigTest {
 
     @MockBean
@@ -35,7 +35,7 @@ public class SecurityConfigTest {
     @Test
     @DisplayName("공개 엔드포인드 접근 가능 성공")
     void publicEndpointsSuccessTest() throws Exception {
-        // 공개 URL 목록
+
         List<String> publicUrls = Arrays.asList(
             "/auth/login",
             "/auth/join",
@@ -44,8 +44,9 @@ public class SecurityConfigTest {
 
         for (String url : publicUrls) {
             mockMvc.perform(get(url))
-                .andExpect(status().isNotFound()); // 추후 리소스 만든 후 isOk();로 변경해야 함
+                .andExpect(status().isNotFound());
         }
+
     }
 
     @Test
@@ -63,6 +64,7 @@ public class SecurityConfigTest {
                 .andExpect(status().isForbidden())
                 .andDo(print());
         }
+
     }
 
     @Test
