@@ -49,7 +49,11 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private boolean isDeleted = false;
+    @Column
+    private boolean verified;
+
+    @Column
+    private boolean isDeleted;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -58,6 +62,7 @@ public class Account {
     )
     @Column(name = "login_type")
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Set<LoginType> loginTypes = new HashSet<>();
 
     @CreatedDate
@@ -79,6 +84,10 @@ public class Account {
             this.loginTypes = new HashSet<>();
         }
         this.loginTypes.add(loginType);
+    }
+
+    public void verify() {
+        this.verified = true;
     }
 
 }

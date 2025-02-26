@@ -61,6 +61,7 @@ public class AuthenticationUseCase {
             .name(email.split("@")[0])
             .password(passwordEncoder.encode(UUID.randomUUID().toString()))
             .subscriptionType(SubscriptionType.FREE)
+            .verified(true)
             .role(Role.ACCOUNT)
             .loginTypes(new HashSet<>(Set.of(loginType)))
             .build()
