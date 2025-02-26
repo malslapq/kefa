@@ -3,6 +3,8 @@ package com.kefa.infrastructure.security.jwt;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.JwtAuthenticationException;
 import com.kefa.domain.type.Role;
+import com.kefa.infrastructure.security.cipher.CipherService;
+import com.kefa.infrastructure.security.config.JwtProperties;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -20,25 +22,33 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
+    private final CipherService cipherService;
     private SecretKey key;
 
     @PostConstruct
     public void init() {
+
         byte[] keyByte = Decoders.BASE64.decode(jwtProperties.getKey());
         this.key = Keys.hmacShaKeyFor(keyByte);
+
     }
 
     private String createToken(Long id, Role role, long expirationTime) {
+
         Date nowDate = new Date();
         Date expirationDate = new Date(nowDate.getTime() + expirationTime);
 
+        String encryptedId = cipherService.encrypt(String.valueOf(id));
+        String encryptedRole = cipherService.encrypt(String.valueOf(role));
+
         return Jwts.builder()
-            .subject(String.valueOf(id))
-            .claim("role", role.name())
+            .subject(encryptedId)
+            .claim("role", encryptedRole)
             .issuedAt(nowDate)
             .expiration(expirationDate)
             .signWith(key)
             .compact();
+
     }
 
     public String createAccessToken(Long id, Role role) {
@@ -83,11 +93,12 @@ public class JwtTokenProvider {
     }
 
     public Long getId(String token) {
-        String subject = getClaims(token).getSubject();
-        return Long.valueOf(subject);
+        String encryptedSubject = getClaims(token).getSubject();
+        return Long.valueOf(cipherService.decrypt(encryptedSubject));
     }
 
     public Role getRole(String token) {
-        return Role.valueOf(getClaims(token).get("role", String.class));
+        String encryptedRole = getClaims(token).get("role", String.class);
+        return Role.valueOf(cipherService.decrypt(encryptedRole));
     }
 }

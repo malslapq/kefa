@@ -1,4 +1,4 @@
-package com.kefa.infrastructure.security.jwt;
+package com.kefa.infrastructure.security.config;
 
 import lombok.Getter;
 import lombok.Setter;

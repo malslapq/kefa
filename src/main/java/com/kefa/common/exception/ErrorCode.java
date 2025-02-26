@@ -15,6 +15,8 @@ public enum ErrorCode {
     UNSUPPORTED_SOCIAL_PROVIDER(400, "지원하지 않는 소셜 로그인 제공자입니다"),
     ACCOUNT_NOT_FOUND(404, "계정을 찾을 수 없습니다"),
     EMAIL_VERIFICATION_REQUIRED(403, "이메일 인증이 필요합니다"),
+    UNAUTHORIZED(401, "인증이 필요한 서비스입니다"),
+    ACCESS_DENIED(403, "접근 권한이 없습니다"),
 
     // jwt 에러
     INVALID_JWT_SIGNATURE(401, "유효하지 않은 JWT 서명입니다"),
@@ -24,7 +26,9 @@ public enum ErrorCode {
     EMPTY_JWT_TOKEN(401, "JWT 토큰이 비어있습니다"),
 
     // 서버 에러
-    SERVER_ERROR(500, "서버 내부 오류 발생");
+    SERVER_ERROR(500, "서버 내부 오류 발생"),
+    ENCRYPTION_FAILED(500, "데이터 암호화 처리 중 오류가 발생했습니다"),
+    DECRYPTION_FAILED(500, "데이터 복호화 처리 중 오류가 발생했습니다");
 
 
     private final int status;
