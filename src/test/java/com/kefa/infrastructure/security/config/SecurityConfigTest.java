@@ -61,7 +61,7 @@ public class SecurityConfigTest {
 
         for (String url : protectedUrls) {
             mockMvc.perform(get(url))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
         }
 

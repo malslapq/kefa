@@ -54,7 +54,7 @@ public class SecurityConfig {
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.setContentType("application/json;charset=UTF-8");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
                     ApiResponse<Void> apiResponse = ApiResponse.error(ErrorResponse.of(ErrorCode.ACCESS_DENIED));
 
