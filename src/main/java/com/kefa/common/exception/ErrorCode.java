@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum ErrorCode {
 
     //인증 관련
+    INVALID_EMAIL_VERIFICATION_TOKEN(400, "유효하지 않은 메일 인증 토큰입니다."),
     INVALID_ROLE(400, "유효하지 않은 권한입니다."),
     DUPLICATE_EMAIL(400, "이미 존재하는 이메일입니다"),
     INVALID_EMAIL_FORMAT(400, "잘못된 이메일 형식입니다"),
