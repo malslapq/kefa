@@ -61,7 +61,19 @@ pipeline {
                                 string(credentialsId: 'JENKINS_AGENT_PORT', variable: 'JENKINS_AGENT_PORT'),
                                 string(credentialsId: 'TZ', variable: 'TZ'),
                                 string(credentialsId: 'SMEE_URL', variable: 'SMEE_URL'),
-                                string(credentialsId: 'SMEE_TARGET', variable: 'SMEE_TARGET')
+                                string(credentialsId: 'SMEE_TARGET', variable: 'SMEE_TARGET'),
+                                string(credentialsId: 'JWT_KEY', variable: 'JWT_KEY'),
+                                string(credentialsId: 'JWT_ACCESS_EXPIRATION_TIME', variable: 'JWT_ACCESS_EXPIRATION_TIME'),
+                                string(credentialsId: 'JWT_REFRESH_EXPIRATION_TIME', variable: 'JWT_REFRESH_EXPIRATION_TIME'),
+                                string(credentialsId: 'MAIL_USERNAME', variable: 'MAIL_USERNAME'),
+                                string(credentialsId: 'MAIL_PASSWORD', variable: 'MAIL_PASSWORD'),
+                                string(credentialsId: 'GOOGLE_CLIENT_ID', variable: 'GOOGLE_CLIENT_ID'),
+                                string(credentialsId: 'GOOGLE_CLIENT_SECRET', variable: 'GOOGLE_CLIENT_SECRET'),
+                                string(credentialsId: 'KAKAO_CLIENT_ID', variable: 'KAKAO_CLIENT_ID'),
+                                string(credentialsId: 'KAKAO_CLIENT_SECRET', variable: 'KAKAO_CLIENT_SECRET'),
+                                string(credentialsId: 'OAUTH2_MAIN_PAGE_URI', variable: 'OAUTH2_MAIN_PAGE_URI'),
+                                string(credentialsId: 'CIPHER_SECRET_KEY', variable: 'CIPHER_SECRET_KEY'),
+                                string(credentialsId: 'CIPHER_IV', variable: 'CIPHER_IV')
                             ]) {
                                 sh '''
                                     echo "DB_HOST=${DB_HOST}" > .env
@@ -77,6 +89,18 @@ pipeline {
                                     echo "TZ=${TZ}" >> .env
                                     echo "SMEE_URL=${SMEE_URL}" >> .env
                                     echo "SMEE_TARGET=${SMEE_TARGET}" >> .env
+                                    echo "JWT_KEY=${JWT_KEY}" >> .env
+                                    echo "JWT_ACCESS_EXPIRATION_TIME=${JWT_ACCESS_EXPIRATION_TIME}" >> .env
+                                    echo "JWT_REFRESH_EXPIRATION_TIME=${JWT_REFRESH_EXPIRATION_TIME}" >> .env
+                                    echo "MAIL_USERNAME=${MAIL_USERNAME}" >> .env
+                                    echo "MAIL_PASSWORD=${MAIL_PASSWORD}" >> .env
+                                    echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> .env
+                                    echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> .env
+                                    echo "KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}" >> .env
+                                    echo "KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}" >> .env
+                                    echo "OAUTH2_MAIN_PAGE_URI=${OAUTH2_MAIN_PAGE_URI}" >> .env
+                                    echo "CIPHER_SECRET_KEY=${CIPHER_SECRET_KEY}" >> .env
+                                    echo "CIPHER_IV=${CIPHER_IV}" >> .env
                                 '''
                             }
                         }
