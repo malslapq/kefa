@@ -1,5 +1,6 @@
 package com.kefa.common.handler;
 
+import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.JwtAuthenticationException;
 import com.kefa.common.response.ApiResponse;
@@ -13,6 +14,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthException(AuthenticationException e) {
+        log.error("AuthenticationException: {}", e.getMessage());
+        ErrorCode errorCode = e.getErrorCode();
+        return ResponseEntity
+            .status(errorCode.getStatus())
+            .body(ApiResponse.error(ErrorResponse.of(errorCode)));
+    }
+
     @ExceptionHandler(JwtAuthenticationException.class)
     public ResponseEntity<ApiResponse<?>> handleJwtException(JwtAuthenticationException e) {
         log.error("JwtException: {}", e.getMessage());
@@ -21,5 +31,4 @@ public class GlobalExceptionHandler {
             .status(errorCode.getStatus())
             .body(ApiResponse.error(ErrorResponse.of(errorCode)));
     }
-
 }

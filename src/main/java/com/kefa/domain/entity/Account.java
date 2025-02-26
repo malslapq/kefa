@@ -1,8 +1,11 @@
 package com.kefa.domain.entity;
 
+import com.kefa.domain.type.LoginType;
 import com.kefa.domain.type.Role;
 import com.kefa.domain.type.SubscriptionType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
@@ -12,14 +15,18 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "accounts")
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE accounts SET is_deleted = true, deleted_at = NOW() WHERE id = ?")
-@SQLRestriction("is_deleted = false")  // 수정: is_deleted로 변경
+@SQLRestriction("is_deleted = false")
 public class Account {
 
     @Id
@@ -44,6 +51,15 @@ public class Account {
 
     private boolean isDeleted = false;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "account_login_types",
+        joinColumns = @JoinColumn(name = "account_id")
+    )
+    @Column(name = "login_type")
+    @Enumerated(EnumType.STRING)
+    private Set<LoginType> loginTypes = new HashSet<>();
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -57,4 +73,12 @@ public class Account {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void addLoginType(LoginType loginType) {
+        if (this.loginTypes == null) {
+            this.loginTypes = new HashSet<>();
+        }
+        this.loginTypes.add(loginType);
+    }
+
 }
