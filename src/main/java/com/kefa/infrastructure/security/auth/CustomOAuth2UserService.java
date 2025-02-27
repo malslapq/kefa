@@ -34,11 +34,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
         attributes.put("accountId", accountVO.getId());
+        attributes.put("email", email);
+
+        String nameAttributeKey = switch (socialProvider) {
+            case "google" -> "sub";
+            case "kakao" -> "id";
+            default -> throw new OAuth2AuthenticationException(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER.getMessage());
+        };
 
         return new DefaultOAuth2User(
             Collections.singleton(new SimpleGrantedAuthority("ROLE_" + accountVO.getRole())),
             attributes,
-            email
+            nameAttributeKey
         );
 
     }
