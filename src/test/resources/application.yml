@@ -8,6 +8,10 @@ spring:
     password:
     driver-class-name: org.h2.Driver
 
+  h2:
+    console:
+      enabled: true
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -16,7 +20,46 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  security:
+    oauth2:
+      client:
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+        registration:
+          google:
+            client-id: asdsadsad
+            client-secret: asdasdsadsad
+            redirect-uri: "localhost:8080/oauth2/google/callback"
+            scope:
+              - email
+              - profile
+          kakao:
+            client-id: asdasdasd
+            client-secret: asdasdasd
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            redirect-uri: "localhost:8080/oauth2/kakao/callback"
+            scope:
+              - profile_nickname
+              - account_email
+
 jwt:
-  key: testSecretKeytestSecretKeytestSecretKeytestSecretKeytestSecretKeytestSecretKey
+  key: VGhpc0lzVGVzdFNlY3JldEtleUZvckp3dFRva2VuR2VuZXJhdGlvbkFuZFZhbGlkYXRpb25Qcm9jZXNzMjAyNA==
   access-expiration-time: 3600000
   refresh-expiration-time: 1209600000
+
+oauth2:
+  main-page-uri: http://localhost:8080
+
+cipher:
+  secret-key: "TestSecretKey123456TestSecretKey12"
+  iv: "TestIvKey1234567"

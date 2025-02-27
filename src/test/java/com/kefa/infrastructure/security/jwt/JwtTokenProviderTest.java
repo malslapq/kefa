@@ -2,36 +2,48 @@ package com.kefa.infrastructure.security.jwt;
 
 import com.kefa.common.exception.JwtAuthenticationException;
 import com.kefa.domain.type.Role;
-import com.kefa.infrastructure.security.auth.CustomUserDetailsService;
+import com.kefa.infrastructure.security.cipher.CipherService;
+import com.kefa.infrastructure.security.config.JwtProperties;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtTokenProviderTest {
 
-    @MockBean
-    private CustomUserDetailsService customUserDetailsService;
+    @Mock
+    private CipherService cipherService;
 
     private JwtTokenProvider jwtTokenProvider;
     private String expiredToken;
 
     @BeforeEach
     void setUp() throws InterruptedException {
+        lenient().when(cipherService.encrypt(anyString())).thenAnswer(i ->
+            Base64.getEncoder().encodeToString(i.getArgument(0).toString().getBytes())
+        );
+        lenient().when(cipherService.decrypt(anyString())).thenAnswer(i ->
+            new String(Base64.getDecoder().decode(i.getArgument(0).toString()))
+        );
+
         // 일반 토큰 Provider
         JwtProperties properties = new JwtProperties();
         ReflectionTestUtils.setField(properties, "key", "testSecretKeytestSecretKeytestSecretKeytestSecretKey");
         ReflectionTestUtils.setField(properties, "accessExpirationTime", 3600L);
         ReflectionTestUtils.setField(properties, "refreshExpirationTime", 72000L);
-        jwtTokenProvider = new JwtTokenProvider(properties);
+        jwtTokenProvider = new JwtTokenProvider(properties, cipherService);
         jwtTokenProvider.init();
 
         // 만료 토큰 Provider
@@ -39,7 +51,7 @@ public class JwtTokenProviderTest {
         ReflectionTestUtils.setField(expiredProperties, "key", "testSecretKeytestSecretKeytestSecretKeytestSecretKey");
         ReflectionTestUtils.setField(expiredProperties, "accessExpirationTime", 1L); // 1ms
         ReflectionTestUtils.setField(expiredProperties, "refreshExpirationTime", 1L);
-        JwtTokenProvider expiredTokenProvider = new JwtTokenProvider(expiredProperties);
+        JwtTokenProvider expiredTokenProvider = new JwtTokenProvider(expiredProperties, cipherService);
         expiredTokenProvider.init();
 
         // 만료된 토큰 생성
