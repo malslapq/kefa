@@ -43,11 +43,16 @@ public class Account {
     private String password;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private SubscriptionType subscriptionType;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "account")
+    private Set<RefreshToken> refreshTokens = new HashSet<>();
 
     @Column
     private boolean verified;
@@ -80,14 +85,19 @@ public class Account {
     }
 
     public void addLoginType(LoginType loginType) {
-        if (this.loginTypes == null) {
-            this.loginTypes = new HashSet<>();
-        }
         this.loginTypes.add(loginType);
     }
 
     public void verify() {
         this.verified = true;
+    }
+
+    public void addRefreshToken(RefreshToken refreshToken) {
+        this.refreshTokens.add(refreshToken);
+    }
+
+    public void removeRefreshToken(RefreshToken refreshToken) {
+        this.refreshTokens.remove(refreshToken);
     }
 
 }
