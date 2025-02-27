@@ -1,15 +1,20 @@
 package com.kefa.application.usecase;
 
+import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
 import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
+import com.kefa.domain.entity.RefreshToken;
 import com.kefa.domain.type.LoginType;
 import com.kefa.domain.type.Role;
 import com.kefa.domain.type.SubscriptionType;
 import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.AccountRepository;
+import com.kefa.infrastructure.repository.RefreshTokenRepository;
+import com.kefa.infrastructure.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +30,51 @@ import java.util.UUID;
 public class AuthenticationUseCase {
 
     private final AccountRepository accountRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
+
+    public TokenResponse login(AccountLoginRequestDto accountLoginRequestDto) {
+
+        Account account = getAccount(accountLoginRequestDto);
+        validatePassword(accountLoginRequestDto.getPassword(), account.getPassword());
+        TokenResponse tokenResponse = issueJwt(account);
+
+        RefreshToken refreshTokenEntity = createRefreshTokenEntity(account, tokenResponse, accountLoginRequestDto.getDeviceId());
+
+        account.addRefreshToken(refreshTokenEntity);
+
+        refreshTokenRepository.save(refreshTokenEntity);
+
+        return tokenResponse;
+    }
+
+    private RefreshToken createRefreshTokenEntity(Account account, TokenResponse tokenResponse, String deviceId) {
+
+        return RefreshToken.builder()
+            .token(tokenResponse.getRefreshToken())
+            .account(account)
+            .deviceId(deviceId)
+            .expiresAt(jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()))
+            .build();
+    }
+
+    private TokenResponse issueJwt(Account account){
+        return TokenResponse.builder()
+            .accessToken(jwtProvider.createAccessToken(account.getId(), account.getRole()))
+            .refreshToken(jwtProvider.createAccessToken(account.getId(), account.getRole()))
+            .build();
+    }
+
+    private Account getAccount(AccountLoginRequestDto accountLoginRequestDto) {
+        return accountRepository.findByEmail(accountLoginRequestDto.getEmail()).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
+    }
+
+    private void validatePassword(String inputPassword, String savedPassword) {
+        if(!passwordEncoder.matches(inputPassword, savedPassword)){
+            throw new AuthenticationException(ErrorCode.INVALID_CREDENTIALS);
+        }
+    }
 
     public AccountSignupResponseDto signup(AccountSignupRequestDto request) {
 

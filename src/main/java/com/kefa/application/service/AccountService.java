@@ -1,7 +1,9 @@
 package com.kefa.application.service;
 
+import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
 import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
 import lombok.RequiredArgsConstructor;
@@ -25,4 +27,7 @@ public class AccountService {
 
     }
 
+    public TokenResponse login(AccountLoginRequestDto accountLoginRequestDto) {
+        return authenticationUseCase.login(accountLoginRequestDto);
+    }
 }

@@ -35,7 +35,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             String roleString = authentication.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
-                .orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_ROLE))
+                .orElseThrow(() -> new AuthenticationException(ErrorCode.ACCESS_DENIED))
                 .replace("ROLE_", "");
             Role role = Role.valueOf(roleString);
 
