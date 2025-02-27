@@ -1,6 +1,7 @@
 package com.kefa.infrastructure.security.config;
 
 import com.kefa.infrastructure.security.jwt.JwtTokenProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,16 @@ public class SecurityConfigTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final String password = "passwordTest";
-    private final String encodedPassword = passwordEncoder.encode(password);
+    private PasswordEncoder passwordEncoder;
+    private String password;
+    private String encodedPassword;
+
+    @BeforeEach
+    void setUp() {
+        passwordEncoder = new BCryptPasswordEncoder();
+        password = "passwordTest";
+        encodedPassword = passwordEncoder.encode(password);
+    }
 
     @Test
     @DisplayName("공개 엔드포인드 접근 가능 성공")

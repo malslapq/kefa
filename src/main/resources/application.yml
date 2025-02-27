@@ -54,6 +54,11 @@ spring:
     properties:
       hibernate:
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT}
+
 jwt:
   key: ${JWT_KEY}
   access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
