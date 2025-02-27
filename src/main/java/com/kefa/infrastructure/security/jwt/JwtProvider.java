@@ -19,7 +19,7 @@ import java.util.Date;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtTokenProvider {
+public class JwtProvider {
 
     private final JwtProperties jwtProperties;
     private final CipherService cipherService;

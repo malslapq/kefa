@@ -21,12 +21,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtTokenProviderTest {
+public class TokenResponseProviderTest {
 
     @Mock
     private CipherService cipherService;
 
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtProvider jwtProvider;
     private String expiredToken;
 
     @BeforeEach
@@ -43,15 +43,15 @@ public class JwtTokenProviderTest {
         ReflectionTestUtils.setField(properties, "key", "testSecretKeytestSecretKeytestSecretKeytestSecretKey");
         ReflectionTestUtils.setField(properties, "accessExpirationTime", 3600L);
         ReflectionTestUtils.setField(properties, "refreshExpirationTime", 72000L);
-        jwtTokenProvider = new JwtTokenProvider(properties, cipherService);
-        jwtTokenProvider.init();
+        jwtProvider = new JwtProvider(properties, cipherService);
+        jwtProvider.init();
 
         // 만료 토큰 Provider
         JwtProperties expiredProperties = new JwtProperties();
         ReflectionTestUtils.setField(expiredProperties, "key", "testSecretKeytestSecretKeytestSecretKeytestSecretKey");
         ReflectionTestUtils.setField(expiredProperties, "accessExpirationTime", 1L); // 1ms
         ReflectionTestUtils.setField(expiredProperties, "refreshExpirationTime", 1L);
-        JwtTokenProvider expiredTokenProvider = new JwtTokenProvider(expiredProperties, cipherService);
+        JwtProvider expiredTokenProvider = new JwtProvider(expiredProperties, cipherService);
         expiredTokenProvider.init();
 
         // 만료된 토큰 생성
@@ -67,13 +67,13 @@ public class JwtTokenProviderTest {
         Role role = Role.ACCOUNT;
 
         // when
-        String token = jwtTokenProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role);
 
         // then
         assertThat(token).isNotNull();
-        assertThat(jwtTokenProvider.validateToken(token)).isTrue();
-        assertThat(jwtTokenProvider.getId(token)).isEqualTo(id);
-        assertThat(jwtTokenProvider.getRole(token)).isEqualTo(role);
+        assertThat(jwtProvider.validateToken(token)).isTrue();
+        assertThat(jwtProvider.getId(token)).isEqualTo(id);
+        assertThat(jwtProvider.getRole(token)).isEqualTo(role);
     }
 
     @Test
@@ -84,13 +84,13 @@ public class JwtTokenProviderTest {
         Role role = Role.ACCOUNT;
 
         // when
-        String token = jwtTokenProvider.createRefreshToken(id, role);
+        String token = jwtProvider.createRefreshToken(id, role);
 
         // then
         assertThat(token).isNotNull();
-        assertThat(jwtTokenProvider.validateToken(token)).isTrue();
-        assertThat(jwtTokenProvider.getId(token)).isEqualTo(id);
-        assertThat(jwtTokenProvider.getRole(token)).isEqualTo(role);
+        assertThat(jwtProvider.validateToken(token)).isTrue();
+        assertThat(jwtProvider.getId(token)).isEqualTo(id);
+        assertThat(jwtProvider.getRole(token)).isEqualTo(role);
     }
 
     @Test
@@ -101,11 +101,11 @@ public class JwtTokenProviderTest {
         Role role = Role.ADMIN;
 
         // when
-        String token = jwtTokenProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role);
 
         // then
-        assertThat(jwtTokenProvider.getRole(token)).isEqualTo(Role.ADMIN);
-        assertThat(jwtTokenProvider.getRole(token).getRole()).isEqualTo("관리자");
+        assertThat(jwtProvider.getRole(token)).isEqualTo(Role.ADMIN);
+        assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("관리자");
     }
 
     @Test
@@ -116,11 +116,11 @@ public class JwtTokenProviderTest {
         Role role = Role.EXPERT;
 
         // when
-        String token = jwtTokenProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role);
 
         // then
-        assertThat(jwtTokenProvider.getRole(token)).isEqualTo(Role.EXPERT);
-        assertThat(jwtTokenProvider.getRole(token).getRole()).isEqualTo("전문가");
+        assertThat(jwtProvider.getRole(token)).isEqualTo(Role.EXPERT);
+        assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("전문가");
     }
 
     @Test
@@ -131,21 +131,21 @@ public class JwtTokenProviderTest {
         Role role = Role.STAFF;
 
         // when
-        String token = jwtTokenProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role);
 
         // then
-        assertThat(jwtTokenProvider.getRole(token)).isEqualTo(Role.STAFF);
-        assertThat(jwtTokenProvider.getRole(token).getRole()).isEqualTo("직원");
+        assertThat(jwtProvider.getRole(token)).isEqualTo(Role.STAFF);
+        assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("직원");
     }
 
     @Test
     @DisplayName("유효한 토큰 검증 성공 테스트")
     void validateTokenSuccess() {
         // given
-        String token = jwtTokenProvider.createAccessToken(1L, Role.ACCOUNT);
+        String token = jwtProvider.createAccessToken(1L, Role.ACCOUNT);
 
         // when
-        boolean isValid = jwtTokenProvider.validateToken(token);
+        boolean isValid = jwtProvider.validateToken(token);
 
         // then
         assertThat(isValid).isTrue();
@@ -159,7 +159,7 @@ public class JwtTokenProviderTest {
 
         // when & then
         assertThrows(JwtAuthenticationException.class, () ->
-            jwtTokenProvider.validateToken(testToken)
+            jwtProvider.validateToken(testToken)
         );
     }
 
@@ -168,10 +168,10 @@ public class JwtTokenProviderTest {
     void getIdFromTokenSuccess() {
         // given
         Long id = 1L;
-        String token = jwtTokenProvider.createAccessToken(id, Role.ACCOUNT);
+        String token = jwtProvider.createAccessToken(id, Role.ACCOUNT);
 
         // when
-        Long getId = jwtTokenProvider.getId(token);
+        Long getId = jwtProvider.getId(token);
 
         // then
         assertThat(getId).isEqualTo(id);
@@ -182,10 +182,10 @@ public class JwtTokenProviderTest {
     void getRoleSuccess() {
         // given
         Role role = Role.ACCOUNT;
-        String token = jwtTokenProvider.createAccessToken(1L, role);
+        String token = jwtProvider.createAccessToken(1L, role);
 
         // when
-        Role getRole = jwtTokenProvider.getRole(token);
+        Role getRole = jwtProvider.getRole(token);
 
         // then
         assertThat(getRole).isEqualTo(role);
@@ -198,7 +198,7 @@ public class JwtTokenProviderTest {
 
         // when & then
         assertThrows(JwtAuthenticationException.class, () ->
-            jwtTokenProvider.validateToken(expiredToken)
+            jwtProvider.validateToken(expiredToken)
         );
     }
 
@@ -207,8 +207,8 @@ public class JwtTokenProviderTest {
     void getInfoFromExpiredTokenThrowsException() {
 
         // when & then
-        assertThrows(ExpiredJwtException.class, () -> jwtTokenProvider.getId(expiredToken));
-        assertThrows(ExpiredJwtException.class, () -> jwtTokenProvider.getRole(expiredToken));
+        assertThrows(ExpiredJwtException.class, () -> jwtProvider.getId(expiredToken));
+        assertThrows(ExpiredJwtException.class, () -> jwtProvider.getRole(expiredToken));
     }
 
 }

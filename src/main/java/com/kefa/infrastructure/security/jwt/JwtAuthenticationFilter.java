@@ -23,7 +23,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         throws ServletException, IOException {
         String token = getTokenFromRequest(request);
 
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
             Authentication authentication = createAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -44,8 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private Authentication createAuthentication(String token) {
 
-        Long id = jwtTokenProvider.getId(token);
-        Role role = jwtTokenProvider.getRole(token);
+        Long id = jwtProvider.getId(token);
+        Role role = jwtProvider.getRole(token);
         Collection<GrantedAuthority> authorities = createAuthorities(role);
 
         return new UsernamePasswordAuthenticationToken(
