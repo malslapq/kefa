@@ -8,6 +8,10 @@ spring:
     password:
     driver-class-name: org.h2.Driver
 
+  h2:
+    console:
+      enabled: true
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -15,6 +19,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
   security:
     oauth2:
