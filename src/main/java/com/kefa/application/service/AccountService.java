@@ -30,4 +30,12 @@ public class AccountService {
     public TokenResponse login(AccountLoginRequestDto accountLoginRequestDto) {
         return authenticationUseCase.login(accountLoginRequestDto);
     }
+
+    public void emailVerify(String token) {
+        emailVerificationUseCase.verify(token);
+    }
+
+    public void resendVerificationEmail(String email) {
+        emailVerificationUseCase.resendEmail(email);
+    }
 }

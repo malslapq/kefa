@@ -7,8 +7,10 @@ import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,6 +24,19 @@ public class AccountController {
     @PostMapping("/auth/signup")
     public ApiResponse<AccountSignupResponseDto> addAccount(@RequestBody @Valid AccountSignupRequestDto accountSignupRequestDto) {
         return ApiResponse.success(accountService.signup(accountSignupRequestDto));
+    }
+
+    @GetMapping("/auth/email-verify")
+    public void emailVerify(@RequestParam String token, HttpServletResponse response) {
+        accountService.emailVerify(token);
+        response.setStatus(HttpStatus.FOUND.value());
+        response.setHeader("Location", "http://localhost:8080/index");
+    }
+
+    @PostMapping("/auth/email-verify/resend")
+    public ApiResponse<Void> resendEmailVerification(@RequestParam String email) {
+        accountService.resendVerificationEmail(email);
+        return ApiResponse.success();
     }
 
     @PostMapping("/auth/login")

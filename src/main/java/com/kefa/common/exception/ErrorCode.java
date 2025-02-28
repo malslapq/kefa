@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum ErrorCode {
 
     //인증 관련
+    ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다."),
     INVALID_CREDENTIALS(401, "이메일 또는 비밀번호가 일치하지 않습니다"),
     INVALID_PASSWORD(401, "비밀번호가 일치하지 않습니다"),
     INVALID_EMAIL_VERIFICATION_TOKEN(400, "유효하지 않은 메일 인증 토큰입니다."),

@@ -42,7 +42,7 @@ public class SecurityConfigTest {
         List<String> publicUrls = Arrays.asList(
             "/auth/login",
             "/auth/join",
-            "/public/index"
+            "/index"
         );
 
         for (String url : publicUrls) {
