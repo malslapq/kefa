@@ -3,7 +3,7 @@ package com.kefa.infrastructure.mail;
 public class EmailTemplate {
 
     public static String createVerificationEmailContent(String token) {
-        String verificationUrl = String.format("http://localhost:8080/auth/verify?token=%s", token);
+        String verificationUrl = String.format("http://localhost:8080/auth/email-verify?token=%s", token);
 
         return """
             <html>

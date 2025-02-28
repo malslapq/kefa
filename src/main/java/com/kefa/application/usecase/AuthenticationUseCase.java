@@ -20,9 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +36,7 @@ public class AuthenticationUseCase {
 
         Account account = getAccount(accountLoginRequestDto);
         validatePassword(accountLoginRequestDto.getPassword(), account.getPassword());
+        validateEmailVerified(account);
         TokenResponse tokenResponse = issueJwt(account);
 
         RefreshToken refreshTokenEntity = createRefreshTokenEntity(account, tokenResponse, accountLoginRequestDto.getDeviceId());
@@ -47,6 +46,11 @@ public class AuthenticationUseCase {
         refreshTokenRepository.save(refreshTokenEntity);
 
         return tokenResponse;
+    }
+
+    private void validateEmailVerified(Account account){
+        if(!account.isEmailVerified())
+            throw new AuthenticationException(ErrorCode.EMAIL_VERIFICATION_REQUIRED);
     }
 
     private RefreshToken createRefreshTokenEntity(Account account, TokenResponse tokenResponse, String deviceId) {
@@ -110,7 +114,7 @@ public class AuthenticationUseCase {
             .name(email.split("@")[0])
             .password(passwordEncoder.encode(UUID.randomUUID().toString()))
             .subscriptionType(SubscriptionType.FREE)
-            .verified(true)
+            .emailVerified(true)
             .role(Role.ACCOUNT)
             .loginTypes(new HashSet<>(Set.of(loginType)))
             .build()

@@ -8,8 +8,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
 import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
 import com.kefa.common.exception.AuthenticationException;
@@ -32,6 +34,32 @@ public class AccountServiceTest {
 
     @InjectMocks
     private AccountService accountService;
+
+
+    @Test
+    @DisplayName("일반 로그인 성공")
+    void login_success(){
+        //given
+        AccountLoginRequestDto accountLoginRequestDto = AccountLoginRequestDto.builder()
+            .email("test@test.com")
+            .password("password")
+            .deviceId("device1")
+            .build();
+        TokenResponse tokenResponse = TokenResponse.builder()
+            .accessToken("accessToken")
+            .refreshToken("refreshToken")
+            .build();
+        when(authenticationUseCase.login(accountLoginRequestDto)).thenReturn(tokenResponse);
+
+        //when
+        TokenResponse result = accountService.login(accountLoginRequestDto);
+
+        //then
+        assertThat(result).isEqualTo(tokenResponse);
+        verify(authenticationUseCase).login(accountLoginRequestDto);
+
+    }
+
 
     @Test
     @DisplayName("일반 회원가입 성공시 이메일 인증메일을 발송한다")

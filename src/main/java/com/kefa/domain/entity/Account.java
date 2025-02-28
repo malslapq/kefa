@@ -55,7 +55,7 @@ public class Account {
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
     @Column
-    private boolean verified;
+    private boolean emailVerified;
 
     @Column
     private boolean isDeleted;
@@ -89,7 +89,7 @@ public class Account {
     }
 
     public void verify() {
-        this.verified = true;
+        this.emailVerified = true;
     }
 
     public void addRefreshToken(RefreshToken refreshToken) {
