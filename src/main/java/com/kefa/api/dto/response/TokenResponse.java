@@ -1,4 +1,4 @@
-package com.kefa.infrastructure.security.jwt;
+package com.kefa.api.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JwtToken {
+public class TokenResponse {
 
     private String accessToken;
     private String refreshToken;

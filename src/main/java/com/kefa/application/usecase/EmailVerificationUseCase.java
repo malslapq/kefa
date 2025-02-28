@@ -21,14 +21,18 @@ public class EmailVerificationUseCase {
     private final AccountRepository accountRepository;
 
     public void sendVerificationEmail(String email) {
+
         String token = UUID.randomUUID().toString();
         emailVerificationRedisRepository.saveEmailToken(token, email);
         emailSender.sendVerificationEmail(email, token);
+
     }
 
     @Transactional
-    public void verifyEmail(String token) {
+    public void verify(String token) {
+
         String email = emailVerificationRedisRepository.getEmailByToken(token);
+
         if (email == null) {
             throw new AuthenticationException(ErrorCode.INVALID_EMAIL_VERIFICATION_TOKEN);
         }
@@ -38,5 +42,19 @@ public class EmailVerificationUseCase {
 
         account.verify();
         emailVerificationRedisRepository.removeEmailToken(token);
+
+    }
+
+    public void resendEmail(String email) {
+
+        Account account = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        if (account.isEmailVerified()) {
+            throw new AuthenticationException(ErrorCode.ALREADY_VERIFIED_EMAIL);
+        }
+
+        sendVerificationEmail(email);
+
     }
 }

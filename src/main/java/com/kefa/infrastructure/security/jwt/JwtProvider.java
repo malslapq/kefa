@@ -14,12 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtTokenProvider {
+public class JwtProvider {
 
     private final JwtProperties jwtProperties;
     private final CipherService cipherService;
@@ -101,4 +103,15 @@ public class JwtTokenProvider {
         String encryptedRole = getClaims(token).get("role", String.class);
         return Role.valueOf(cipherService.decrypt(encryptedRole));
     }
+
+    public LocalDateTime getTokenExpiration(String token) {
+
+        Date expirationDate = getClaims(token).getExpiration();
+
+        return LocalDateTime.ofInstant(
+            expirationDate.toInstant(),
+            ZoneId.systemDefault()
+        );
+    }
+
 }

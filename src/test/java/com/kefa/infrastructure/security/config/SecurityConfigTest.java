@@ -2,7 +2,7 @@ package com.kefa.infrastructure.security.config;
 
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.infrastructure.security.auth.OAuth2SuccessHandler;
-import com.kefa.infrastructure.security.jwt.JwtTokenProvider;
+import com.kefa.infrastructure.security.jwt.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class SecurityConfigTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtProvider jwtProvider;
 
     @MockBean
     private OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -42,7 +42,7 @@ public class SecurityConfigTest {
         List<String> publicUrls = Arrays.asList(
             "/auth/login",
             "/auth/join",
-            "/public/index"
+            "/index"
         );
 
         for (String url : publicUrls) {
