@@ -1,15 +1,15 @@
 package com.kefa.application.service;
 
+import com.kefa.api.dto.AccountUpdateRequestDto;
 import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
 import com.kefa.api.dto.response.AccountResponseDto;
+import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.response.AccountUpdateResponseDto;
 import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
-import com.kefa.common.exception.AuthenticationException;
-import com.kefa.common.exception.ErrorCode;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +22,10 @@ public class AccountService {
     private final AccountUseCase accountUseCase;
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
+
+    public AccountUpdateResponseDto updateAccount(Long targetId, AccountUpdateRequestDto accountUpdateRequestDto, AuthenticationInfo authenticationInfo) {
+        return accountUseCase.updateAccount(targetId, accountUpdateRequestDto, authenticationInfo);
+    }
 
     public AccountResponseDto getAccount(Long targetId, AuthenticationInfo authenticationInfo) {
         return accountUseCase.getAccount(targetId, authenticationInfo);

@@ -88,4 +88,8 @@ public class Account {
         this.emailVerified = true;
     }
 
+    public void updateName(String name){
+        this.name = name;
+    }
+
 }
