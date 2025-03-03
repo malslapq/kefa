@@ -50,17 +50,13 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "account")
-    private Set<RefreshToken> refreshTokens = new HashSet<>();
-
     @Column
     private boolean emailVerified;
 
     @Column
     private boolean isDeleted;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "account_login_types",
         joinColumns = @JoinColumn(name = "account_id")
@@ -90,14 +86,6 @@ public class Account {
 
     public void verify() {
         this.emailVerified = true;
-    }
-
-    public void addRefreshToken(RefreshToken refreshToken) {
-        this.refreshTokens.add(refreshToken);
-    }
-
-    public void removeRefreshToken(RefreshToken refreshToken) {
-        this.refreshTokens.remove(refreshToken);
     }
 
 }

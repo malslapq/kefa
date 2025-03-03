@@ -2,15 +2,18 @@ package com.kefa.api.controller;
 
 import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
+import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.AccountSignupResponseDto;
 import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
+import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -20,6 +23,14 @@ import java.util.UUID;
 public class AccountController {
 
     private final AccountService accountService;
+
+    @GetMapping("/account/{id}")
+    public ApiResponse<AccountResponseDto> getAccount(@PathVariable Long id, Authentication authentication) {
+
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
+
+        return ApiResponse.success(accountService.getAccount(id, authenticationInfo));
+    }
 
     @PostMapping("/auth/signup")
     public ApiResponse<AccountSignupResponseDto> addAccount(@RequestBody @Valid AccountSignupRequestDto accountSignupRequestDto) {
