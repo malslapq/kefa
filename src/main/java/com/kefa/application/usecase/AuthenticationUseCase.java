@@ -41,8 +41,6 @@ public class AuthenticationUseCase {
 
         RefreshToken refreshTokenEntity = createRefreshTokenEntity(account, tokenResponse, accountLoginRequestDto.getDeviceId());
 
-        account.addRefreshToken(refreshTokenEntity);
-
         refreshTokenRepository.save(refreshTokenEntity);
 
         return tokenResponse;
@@ -57,7 +55,7 @@ public class AuthenticationUseCase {
 
         return RefreshToken.builder()
             .token(tokenResponse.getRefreshToken())
-            .account(account)
+            .accountId(account.getId())
             .deviceId(deviceId)
             .expiresAt(jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()))
             .build();

@@ -51,7 +51,7 @@ class AuthenticationUseCaseTest {
     private AuthenticationUseCase authenticationUseCase;
 
     private AccountSignupRequestDto signupRequestDto;
-    AccountLoginRequestDto loginRequest;
+    private AccountLoginRequestDto loginRequest;
 
 
     @BeforeEach
@@ -101,7 +101,7 @@ class AuthenticationUseCaseTest {
         verify(refreshTokenRepository).save(argThat(savedToken ->
             savedToken.getToken().equals(refreshToken) &&
                 savedToken.getDeviceId().equals(loginRequest.getDeviceId()) &&
-                savedToken.getAccount().equals(account) &&
+                savedToken.getAccountId().equals(account.getId()) &&
                 savedToken.getExpiresAt().equals(expirationTime)
         ));
     }

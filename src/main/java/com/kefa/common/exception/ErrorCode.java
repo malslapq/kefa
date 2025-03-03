@@ -20,6 +20,7 @@ public enum ErrorCode {
     EMAIL_VERIFICATION_REQUIRED(403, "이메일 인증이 필요합니다"),
     UNAUTHORIZED(401, "인증이 필요한 서비스입니다"),
     ACCESS_DENIED(403, "접근 권한이 없습니다"),
+    AUTHORITY_NOT_FOUND(401, "권한 정보를 찾을 수 없습니다"),
 
     // jwt 에러
     INVALID_JWT_SIGNATURE(401, "유효하지 않은 JWT 서명입니다"),
@@ -32,7 +33,6 @@ public enum ErrorCode {
     SERVER_ERROR(500, "서버 내부 오류 발생"),
     ENCRYPTION_FAILED(500, "데이터 암호화 처리 중 오류가 발생했습니다"),
     DECRYPTION_FAILED(500, "데이터 복호화 처리 중 오류가 발생했습니다");
-
 
     private final int status;
     private final String message;

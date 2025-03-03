@@ -3,9 +3,14 @@ package com.kefa.application.service;
 import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
 import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
+import com.kefa.common.exception.AuthenticationException;
+import com.kefa.common.exception.ErrorCode;
+import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AccountService {
 
+    private final AccountUseCase accountUseCase;
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
+
+    public AccountResponseDto getAccount(Long targetId, AuthenticationInfo authenticationInfo) {
+        return accountUseCase.getAccount(targetId, authenticationInfo);
+    }
 
     @Transactional
     public AccountSignupResponseDto signup(AccountSignupRequestDto request) {
