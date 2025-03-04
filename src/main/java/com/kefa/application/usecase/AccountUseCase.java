@@ -1,9 +1,10 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.request.AccountUpdateRequestDto;
-import com.kefa.api.dto.request.PasswordUpdateRequestDto;
+import com.kefa.api.dto.request.UpdatePasswordRequestDto;
 import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.AccountUpdateResponseDto;
+import com.kefa.api.dto.response.UpdatePasswordResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
@@ -22,20 +23,21 @@ public class AccountUseCase {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void updatePassword(PasswordUpdateRequestDto passwordUpdateRequestDto, AuthenticationInfo authenticationInfo) {
+    public UpdatePasswordResponse updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto, AuthenticationInfo authenticationInfo) {
 
         Account account = getAccount(authenticationInfo.getId());
 
-        if(!passwordEncoder.matches(passwordUpdateRequestDto.getPrevPassword(), account.getPassword())){
+        if(!passwordEncoder.matches(updatePasswordRequestDto.getPrevPassword(), account.getPassword())){
             throw new AuthenticationException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        if (passwordUpdateRequestDto.getPrevPassword().equals(passwordUpdateRequestDto.getNewPassword())) {
+        if (updatePasswordRequestDto.getPrevPassword().equals(updatePasswordRequestDto.getNewPassword())) {
             throw new AuthenticationException(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT);
         }
 
-        account.updatePassword(passwordEncoder.encode(passwordUpdateRequestDto.getNewPassword()));
+        account.updatePassword(passwordEncoder.encode(updatePasswordRequestDto.getNewPassword()));
 
+        return new UpdatePasswordResponse();
     }
 
     @Transactional

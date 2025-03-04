@@ -3,11 +3,8 @@ package com.kefa.application.service;
 import com.kefa.api.dto.request.AccountUpdateRequestDto;
 import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.request.PasswordUpdateRequestDto;
-import com.kefa.api.dto.response.AccountResponseDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
-import com.kefa.api.dto.response.AccountUpdateResponseDto;
-import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.api.dto.request.UpdatePasswordRequestDto;
+import com.kefa.api.dto.response.*;
 import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
@@ -24,8 +21,8 @@ public class AccountService {
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
 
-    public void updatePassword(PasswordUpdateRequestDto passwordUpdateRequestDto, AuthenticationInfo authenticationInfo) {
-        accountUseCase.updatePassword(passwordUpdateRequestDto, authenticationInfo);
+    public UpdatePasswordResponse updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto, AuthenticationInfo authenticationInfo) {
+        return accountUseCase.updatePassword(updatePasswordRequestDto, authenticationInfo);
     }
 
     public AccountUpdateResponseDto updateAccount(Long targetId, AccountUpdateRequestDto accountUpdateRequestDto, AuthenticationInfo authenticationInfo) {

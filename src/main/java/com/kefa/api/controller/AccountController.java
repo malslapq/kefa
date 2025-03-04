@@ -3,11 +3,8 @@ package com.kefa.api.controller;
 import com.kefa.api.dto.request.AccountUpdateRequestDto;
 import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.request.PasswordUpdateRequestDto;
-import com.kefa.api.dto.response.AccountResponseDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
-import com.kefa.api.dto.response.AccountUpdateResponseDto;
-import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.api.dto.request.UpdatePasswordRequestDto;
+import com.kefa.api.dto.response.*;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
@@ -28,12 +25,10 @@ public class AccountController {
     private final AccountService accountService;
 
     @PutMapping("/account/password")
-    public ApiResponse<String> updatePassword(@RequestBody @Valid PasswordUpdateRequestDto passwordUpdateRequestDto, Authentication authentication){
+    public ApiResponse<UpdatePasswordResponse> updatePassword(@RequestBody @Valid UpdatePasswordRequestDto updatePasswordRequestDto, Authentication authentication){
         AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
-        accountService.updatePassword(passwordUpdateRequestDto, authenticationInfo);
-        return ApiResponse.success("비밀번호 변경 성공");
+        return ApiResponse.success(accountService.updatePassword(updatePasswordRequestDto, authenticationInfo));
     }
-
 
     @PutMapping("/account/{id}")
     public ApiResponse<AccountUpdateResponseDto> update(@PathVariable String id, @RequestBody @Valid AccountUpdateRequestDto accountUpdateRequestDto, Authentication authentication){

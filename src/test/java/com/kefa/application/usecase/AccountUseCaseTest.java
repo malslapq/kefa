@@ -2,9 +2,10 @@ package com.kefa.application.usecase;
 
 
 import com.kefa.api.dto.request.AccountUpdateRequestDto;
-import com.kefa.api.dto.request.PasswordUpdateRequestDto;
+import com.kefa.api.dto.request.UpdatePasswordRequestDto;
 import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.AccountUpdateResponseDto;
+import com.kefa.api.dto.response.UpdatePasswordResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
@@ -59,7 +60,7 @@ public class AccountUseCaseTest {
         String prevPassword = "prevPass123!";
         String newPassword = "newPass456@";
         String encodedNewPassword = "encodedNewPassword";
-        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+        UpdatePasswordRequestDto request = UpdatePasswordRequestDto.builder()
             .prevPassword(prevPassword)
             .newPassword(newPassword)
             .build();
@@ -72,10 +73,13 @@ public class AccountUseCaseTest {
         given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
 
         // when
-        accountUseCase.updatePassword(request, authInfo);
+        UpdatePasswordResponse response = accountUseCase.updatePassword(request, authInfo);
 
         // then
         assertThat(account.getPassword()).isEqualTo(encodedNewPassword);
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo("비밀번호 변경 완료");
+        assertThat(response.getUpdateAt()).isNotNull();
 
     }
 
@@ -84,7 +88,7 @@ public class AccountUseCaseTest {
     void updatePasswordFailWrongPassword() {
         // given
         Long targetId = 1L;
-        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+        UpdatePasswordRequestDto request = UpdatePasswordRequestDto.builder()
             .prevPassword("wrongPass123!")
             .newPassword("newPass456@")
             .build();
@@ -109,7 +113,7 @@ public class AccountUseCaseTest {
         // given
         Long targetId = 1L;
         String password = "samePass123!";
-        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+        UpdatePasswordRequestDto request = UpdatePasswordRequestDto.builder()
             .prevPassword(password)
             .newPassword(password)
             .build();
@@ -133,7 +137,7 @@ public class AccountUseCaseTest {
     void updatePasswordFailAccountNotFound() {
         // given
         Long targetId = 1L;
-        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+        UpdatePasswordRequestDto request = UpdatePasswordRequestDto.builder()
             .prevPassword("prevPass123!")
             .newPassword("newPass456@")
             .build();

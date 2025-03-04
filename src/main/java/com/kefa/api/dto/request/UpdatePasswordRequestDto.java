@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PasswordUpdateRequestDto {
+public class UpdatePasswordRequestDto {
 
     @NotBlank(message = "비밀번호는 필수입니다")
     private String prevPassword;
