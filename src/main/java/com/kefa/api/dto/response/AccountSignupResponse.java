@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AccountSignupResponseDto {
+public class AccountSignupResponse {
 
     private Long id;
     private String name;
@@ -19,8 +19,8 @@ public class AccountSignupResponseDto {
     private String subscriptionType;
     private LocalDateTime createdAt;
 
-    public static AccountSignupResponseDto from(Account account) {
-        return AccountSignupResponseDto.builder()
+    public static AccountSignupResponse from(Account account) {
+        return AccountSignupResponse.builder()
             .id(account.getId())
             .name(account.getName())
             .email(account.getEmail())

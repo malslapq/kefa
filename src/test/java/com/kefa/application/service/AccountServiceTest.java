@@ -8,9 +8,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kefa.api.dto.request.AccountLoginRequestDto;
-import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.request.AccountLoginRequest;
+import com.kefa.api.dto.request.AccountSignupRequest;
+import com.kefa.api.dto.response.AccountSignupResponse;
 import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
@@ -40,7 +40,7 @@ public class AccountServiceTest {
     @DisplayName("일반 로그인 성공")
     void login_success(){
         //given
-        AccountLoginRequestDto accountLoginRequestDto = AccountLoginRequestDto.builder()
+        AccountLoginRequest accountLoginRequest = AccountLoginRequest.builder()
             .email("test@test.com")
             .password("password")
             .deviceId("device1")
@@ -49,14 +49,14 @@ public class AccountServiceTest {
             .accessToken("accessToken")
             .refreshToken("refreshToken")
             .build();
-        when(authenticationUseCase.login(accountLoginRequestDto)).thenReturn(tokenResponse);
+        when(authenticationUseCase.login(accountLoginRequest)).thenReturn(tokenResponse);
 
         //when
-        TokenResponse result = accountService.login(accountLoginRequestDto);
+        TokenResponse result = accountService.login(accountLoginRequest);
 
         //then
         assertThat(result).isEqualTo(tokenResponse);
-        verify(authenticationUseCase).login(accountLoginRequestDto);
+        verify(authenticationUseCase).login(accountLoginRequest);
 
     }
 
@@ -65,13 +65,13 @@ public class AccountServiceTest {
     @DisplayName("일반 회원가입 성공시 이메일 인증메일을 발송한다")
     void signup_success() {
         // given
-        AccountSignupRequestDto request = AccountSignupRequestDto.builder()
+        AccountSignupRequest request = AccountSignupRequest.builder()
             .email("test@email.com")
             .password("password")
             .name("name")
             .build();
 
-        AccountSignupResponseDto expectedResponse = AccountSignupResponseDto.builder()
+        AccountSignupResponse expectedResponse = AccountSignupResponse.builder()
             .id(1L)
             .email("test@email.com")
             .name("name")
@@ -81,7 +81,7 @@ public class AccountServiceTest {
         doNothing().when(emailVerificationUseCase).sendVerificationEmail(request.getEmail());
 
         // when
-        AccountSignupResponseDto response = accountService.signup(request);
+        AccountSignupResponse response = accountService.signup(request);
 
         // then
         assertThat(response).isEqualTo(expectedResponse);
@@ -93,7 +93,7 @@ public class AccountServiceTest {
     @DisplayName("회원가입 실패시 이메일 발송하지 않는다")
     void signup_fail() {
         // given
-        AccountSignupRequestDto request = AccountSignupRequestDto.builder()
+        AccountSignupRequest request = AccountSignupRequest.builder()
             .email("test@email.com")
             .password("password")
             .name("name")

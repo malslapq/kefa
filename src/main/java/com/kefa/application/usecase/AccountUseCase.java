@@ -1,14 +1,19 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.AccountUpdateRequestDto;
-import com.kefa.api.dto.response.AccountResponseDto;
-import com.kefa.api.dto.response.AccountUpdateResponseDto;
+import com.kefa.api.dto.request.AccountDeleteRequest;
+import com.kefa.api.dto.request.AccountUpdateRequest;
+import com.kefa.api.dto.request.AccountUpdatePasswordRequest;
+import com.kefa.api.dto.response.AccountDeleteResponse;
+import com.kefa.api.dto.response.AccountResponse;
+import com.kefa.api.dto.response.AccountUpdateResponse;
+import com.kefa.api.dto.response.AccountUpdatePasswordResponseDto;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,28 +22,61 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountUseCase {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public AccountUpdateResponseDto updateAccount(Long targetId, AccountUpdateRequestDto accountUpdateRequestDto, AuthenticationInfo authenticationInfo) {
-        validateAccountAccess(targetId, authenticationInfo.getId());
-        Account account = getAccount(targetId);
-        account.updateName(accountUpdateRequestDto.getName());
-        return AccountUpdateResponseDto.from(account);
+    public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, AuthenticationInfo authenticationInfo) {
+
+        Account account = getAccount(authenticationInfo.getId());
+
+        validatePassword(account.getPassword(), accountDeleteRequest.getPassword());
+
+        accountRepository.delete(account);
+
+        return AccountDeleteResponse.builder()
+            .email(account.getEmail())
+            .build();
+    }
+
+    @Transactional
+    public AccountUpdatePasswordResponseDto updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
+
+        Account account = getAccount(authenticationInfo.getId());
+
+        validatePassword(account.getPassword(), accountUpdatePasswordRequest.getPrevPassword());
+
+        if (accountUpdatePasswordRequest.getPrevPassword().equals(accountUpdatePasswordRequest.getNewPassword())) {
+            throw new AuthenticationException(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT);
+        }
+
+        account.updatePassword(passwordEncoder.encode(accountUpdatePasswordRequest.getNewPassword()));
+
+        return new AccountUpdatePasswordResponseDto();
+    }
+
+    @Transactional
+    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, AuthenticationInfo authenticationInfo) {
+
+        Account account = getAccount(authenticationInfo.getId());
+        account.updateName(accountUpdateRequest.getName());
+
+        return AccountUpdateResponse.from(account);
+
     }
 
     @Transactional(readOnly = true)
-    public AccountResponseDto getAccount(Long targetId, AuthenticationInfo authenticationInfo) {
-        validateAccountAccess(targetId, authenticationInfo.getId());
-        return AccountResponseDto.from(getAccount(targetId));
+    public AccountResponse findByAccountId(AuthenticationInfo authenticationInfo) {
+        return AccountResponse.from(getAccount(authenticationInfo.getId()));
+    }
+
+    private void validatePassword(String encodedPassword, String inputPassword) {
+        if (!passwordEncoder.matches(inputPassword, encodedPassword)) {
+            throw new AuthenticationException(ErrorCode.INVALID_CREDENTIALS);
+        }
     }
 
     private Account getAccount(Long targetId) {
         return accountRepository.findById(targetId).orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
     }
 
-    private void validateAccountAccess(Long targetId, Long loginUserId) {
-        if (!targetId.equals(loginUserId)) {
-            throw new AuthenticationException(ErrorCode.ACCESS_DENIED);
-        }
-    }
 }

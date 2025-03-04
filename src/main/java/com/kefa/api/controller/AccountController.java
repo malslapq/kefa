@@ -1,12 +1,7 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.AccountUpdateRequestDto;
-import com.kefa.api.dto.request.AccountLoginRequestDto;
-import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.response.AccountResponseDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
-import com.kefa.api.dto.response.AccountUpdateResponseDto;
-import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.api.dto.request.*;
+import com.kefa.api.dto.response.*;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
@@ -26,23 +21,29 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @PutMapping("/account/{id}")
-    public ApiResponse<AccountUpdateResponseDto> updateAccount(@PathVariable String id, @RequestBody @Valid AccountUpdateRequestDto accountUpdateRequestDto, Authentication authentication){
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
-        return ApiResponse.success(accountService.updateAccount(Long.valueOf(id), accountUpdateRequestDto, authenticationInfo));
+    @DeleteMapping("/account")
+    public ApiResponse<AccountDeleteResponse> delete(AccountDeleteRequest accountDeleteRequest, Authentication authentication){
+        return ApiResponse.success(accountService.delete(accountDeleteRequest, AuthenticationInfo.from(authentication)));
     }
 
-    @GetMapping("/account/{id}")
-    public ApiResponse<AccountResponseDto> getAccount(@PathVariable Long id, Authentication authentication) {
+    @PutMapping("/account/password")
+    public ApiResponse<AccountUpdatePasswordResponseDto> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, Authentication authentication){
+        return ApiResponse.success(accountService.updatePassword(accountUpdatePasswordRequest, AuthenticationInfo.from(authentication)));
+    }
 
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
+    @PutMapping("/account")
+    public ApiResponse<AccountUpdateResponse> update(@RequestBody @Valid AccountUpdateRequest accountUpdateRequest, Authentication authentication){
+        return ApiResponse.success(accountService.updateAccount(accountUpdateRequest, AuthenticationInfo.from(authentication)));
+    }
 
-        return ApiResponse.success(accountService.getAccount(id, authenticationInfo));
+    @GetMapping("/account")
+    public ApiResponse<AccountResponse> get(Authentication authentication) {
+        return ApiResponse.success(accountService.getAccount(AuthenticationInfo.from(authentication)));
     }
 
     @PostMapping("/auth/signup")
-    public ApiResponse<AccountSignupResponseDto> addAccount(@RequestBody @Valid AccountSignupRequestDto accountSignupRequestDto) {
-        return ApiResponse.success(accountService.signup(accountSignupRequestDto));
+    public ApiResponse<AccountSignupResponse> join(@RequestBody @Valid AccountSignupRequest accountSignupRequest) {
+        return ApiResponse.success(accountService.signup(accountSignupRequest));
     }
 
     @GetMapping("/auth/email-verify")
@@ -59,14 +60,14 @@ public class AccountController {
     }
 
     @PostMapping("/auth/login")
-    public ApiResponse<TokenResponse> login(@RequestBody @Valid AccountLoginRequestDto accountLoginRequestDto,
+    public ApiResponse<TokenResponse> login(@RequestBody @Valid AccountLoginRequest accountLoginRequest,
                                             HttpServletRequest request
     ) {
 
         String userAgent = request.getHeader("User-Agent");
-        accountLoginRequestDto.setDeviceId(generateDeviceId(userAgent));
+        accountLoginRequest.setDeviceId(generateDeviceId(userAgent));
 
-        return ApiResponse.success(accountService.login(accountLoginRequestDto));
+        return ApiResponse.success(accountService.login(accountLoginRequest));
     }
 
     private String generateDeviceId(String userAgent) {

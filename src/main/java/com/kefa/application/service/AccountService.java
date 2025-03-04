@@ -1,12 +1,7 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.AccountUpdateRequestDto;
-import com.kefa.api.dto.request.AccountLoginRequestDto;
-import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.response.AccountResponseDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
-import com.kefa.api.dto.response.AccountUpdateResponseDto;
-import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.api.dto.request.*;
+import com.kefa.api.dto.response.*;
 import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
@@ -23,26 +18,34 @@ public class AccountService {
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
 
-    public AccountUpdateResponseDto updateAccount(Long targetId, AccountUpdateRequestDto accountUpdateRequestDto, AuthenticationInfo authenticationInfo) {
-        return accountUseCase.updateAccount(targetId, accountUpdateRequestDto, authenticationInfo);
+    public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, AuthenticationInfo authenticationInfo) {
+        return accountUseCase.delete(accountDeleteRequest, authenticationInfo);
     }
 
-    public AccountResponseDto getAccount(Long targetId, AuthenticationInfo authenticationInfo) {
-        return accountUseCase.getAccount(targetId, authenticationInfo);
+    public AccountUpdatePasswordResponseDto updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
+        return accountUseCase.updatePassword(accountUpdatePasswordRequest, authenticationInfo);
+    }
+
+    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, AuthenticationInfo authenticationInfo) {
+        return accountUseCase.updateAccount(accountUpdateRequest, authenticationInfo);
+    }
+
+    public AccountResponse getAccount(AuthenticationInfo authenticationInfo) {
+        return accountUseCase.findByAccountId(authenticationInfo);
     }
 
     @Transactional
-    public AccountSignupResponseDto signup(AccountSignupRequestDto request) {
+    public AccountSignupResponse signup(AccountSignupRequest request) {
 
-        AccountSignupResponseDto response = authenticationUseCase.signup(request);
+        AccountSignupResponse response = authenticationUseCase.signup(request);
         emailVerificationUseCase.sendVerificationEmail(request.getEmail());
 
         return response;
 
     }
 
-    public TokenResponse login(AccountLoginRequestDto accountLoginRequestDto) {
-        return authenticationUseCase.login(accountLoginRequestDto);
+    public TokenResponse login(AccountLoginRequest accountLoginRequest) {
+        return authenticationUseCase.login(accountLoginRequest);
     }
 
     public void emailVerify(String token) {

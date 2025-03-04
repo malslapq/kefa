@@ -7,6 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    //회원 관련
+    NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다."),
+
     //인증 관련
     ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다."),
     INVALID_CREDENTIALS(401, "이메일 또는 비밀번호가 일치하지 않습니다"),

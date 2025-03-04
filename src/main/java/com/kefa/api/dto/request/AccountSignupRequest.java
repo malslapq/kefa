@@ -18,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountSignupRequestDto {
+public class AccountSignupRequest {
 
     @NotBlank(message = "이름은 필수입니다")
     private String name;
