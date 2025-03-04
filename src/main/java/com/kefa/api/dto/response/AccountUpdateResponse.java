@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AccountUpdateResponseDto {
+public class AccountUpdateResponse {
 
     private Long id;
     private String email;
@@ -19,8 +19,8 @@ public class AccountUpdateResponseDto {
     private SubscriptionType subscriptionType;
     private LocalDateTime updatedAt;
 
-    public static AccountUpdateResponseDto from(Account account) {
-        return AccountUpdateResponseDto.builder()
+    public static AccountUpdateResponse from(Account account) {
+        return AccountUpdateResponse.builder()
             .id(account.getId())
             .email(account.getEmail())
             .name(account.getName())

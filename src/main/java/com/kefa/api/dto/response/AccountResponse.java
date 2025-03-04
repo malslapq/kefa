@@ -14,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AccountResponseDto {
+public class AccountResponse {
 
     private Long id;
     private String email;
@@ -26,8 +26,8 @@ public class AccountResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static AccountResponseDto from(Account account) {
-        return AccountResponseDto.builder()
+    public static AccountResponse from(Account account) {
+        return AccountResponse.builder()
             .id(account.getId())
             .email(account.getEmail())
             .name(account.getName())

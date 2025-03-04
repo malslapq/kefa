@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class AccountUpdateRequestDto {
+public class AccountUpdateRequest {
 
     @NotBlank(message = "공백은 불가능합니다.")
     private String name;

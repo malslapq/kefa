@@ -1,8 +1,8 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.request.AccountLoginRequestDto;
-import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.request.AccountLoginRequest;
+import com.kefa.api.dto.request.AccountSignupRequest;
+import com.kefa.api.dto.response.AccountSignupResponse;
 import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
@@ -50,18 +50,18 @@ class AuthenticationUseCaseTest {
     @InjectMocks
     private AuthenticationUseCase authenticationUseCase;
 
-    private AccountSignupRequestDto signupRequestDto;
-    private AccountLoginRequestDto loginRequest;
+    private AccountSignupRequest signupRequestDto;
+    private AccountLoginRequest loginRequest;
 
 
     @BeforeEach
     void setUp() {
-        signupRequestDto = AccountSignupRequestDto.builder()
+        signupRequestDto = AccountSignupRequest.builder()
             .email("test@example.com")
             .password("password123")
             .build();
 
-        loginRequest = AccountLoginRequestDto.builder()
+        loginRequest = AccountLoginRequest.builder()
             .email("test@test.com")
             .password("password")
             .deviceId("device1")
@@ -110,7 +110,7 @@ class AuthenticationUseCaseTest {
     @DisplayName("존재하지 않는 이메일로 로그인 실패")
     void loginFailWhenEmailNotFound() {
         // given
-        AccountLoginRequestDto loginRequest = AccountLoginRequestDto.builder()
+        AccountLoginRequest loginRequest = AccountLoginRequest.builder()
             .email("empty@example.com")
             .password("password123")
             .deviceId("device1")
@@ -128,7 +128,7 @@ class AuthenticationUseCaseTest {
     @DisplayName("비밀번호 다름으로 인한 로그인 실패")
     void loginFailWhenPasswordWrong() {
         // given
-        AccountLoginRequestDto loginRequest = AccountLoginRequestDto.builder()
+        AccountLoginRequest loginRequest = AccountLoginRequest.builder()
             .email("test@example.com")
             .password("wrongPassword")
             .deviceId("device1")
@@ -158,7 +158,7 @@ class AuthenticationUseCaseTest {
     @DisplayName("이메일 미인증 계정으로 로그인 시도시 실패")
     void loginFailWhenAccountNotVerified() {
         // given
-        AccountLoginRequestDto loginRequest = AccountLoginRequestDto.builder()
+        AccountLoginRequest loginRequest = AccountLoginRequest.builder()
             .email("test@example.com")
             .password("password123")
             .deviceId("device1")
@@ -195,7 +195,7 @@ class AuthenticationUseCaseTest {
         when(accountRepository.save(any(Account.class))).thenReturn(account);
 
         // when
-        AccountSignupResponseDto responseDto = authenticationUseCase.signup(signupRequestDto);
+        AccountSignupResponse responseDto = authenticationUseCase.signup(signupRequestDto);
 
         // then
         assertThat(responseDto.getEmail()).isEqualTo(signupRequestDto.getEmail());

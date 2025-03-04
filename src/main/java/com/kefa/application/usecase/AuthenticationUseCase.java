@@ -1,8 +1,8 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.request.AccountLoginRequestDto;
-import com.kefa.api.dto.request.AccountSignupRequestDto;
-import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.request.AccountLoginRequest;
+import com.kefa.api.dto.request.AccountSignupRequest;
+import com.kefa.api.dto.response.AccountSignupResponse;
 import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
@@ -32,14 +32,14 @@ public class AuthenticationUseCase {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public TokenResponse login(AccountLoginRequestDto accountLoginRequestDto) {
+    public TokenResponse login(AccountLoginRequest accountLoginRequest) {
 
-        Account account = getAccount(accountLoginRequestDto);
-        validatePassword(accountLoginRequestDto.getPassword(), account.getPassword());
+        Account account = getAccount(accountLoginRequest);
+        validatePassword(accountLoginRequest.getPassword(), account.getPassword());
         validateEmailVerified(account);
         TokenResponse tokenResponse = issueJwt(account);
 
-        RefreshToken refreshTokenEntity = createRefreshTokenEntity(account, tokenResponse, accountLoginRequestDto.getDeviceId());
+        RefreshToken refreshTokenEntity = createRefreshTokenEntity(account, tokenResponse, accountLoginRequest.getDeviceId());
 
         refreshTokenRepository.save(refreshTokenEntity);
 
@@ -68,8 +68,8 @@ public class AuthenticationUseCase {
             .build();
     }
 
-    private Account getAccount(AccountLoginRequestDto accountLoginRequestDto) {
-        return accountRepository.findByEmail(accountLoginRequestDto.getEmail()).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
+    private Account getAccount(AccountLoginRequest accountLoginRequest) {
+        return accountRepository.findByEmail(accountLoginRequest.getEmail()).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
     }
 
     private void validatePassword(String inputPassword, String savedPassword) {
@@ -78,11 +78,11 @@ public class AuthenticationUseCase {
         }
     }
 
-    public AccountSignupResponseDto signup(AccountSignupRequestDto request) {
+    public AccountSignupResponse signup(AccountSignupRequest request) {
 
         validateDuplicateEmail(request.getEmail());
         Account account = createAccount(request);
-        return AccountSignupResponseDto.from(account);
+        return AccountSignupResponse.from(account);
 
     }
 
@@ -96,7 +96,7 @@ public class AuthenticationUseCase {
 
     }
 
-    private Account createAccount(AccountSignupRequestDto request) {
+    private Account createAccount(AccountSignupRequest request) {
 
         return accountRepository.save(
             request.toEntity(passwordEncoder.encode(request.getPassword())
