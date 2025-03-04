@@ -1,6 +1,7 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.AccountUpdateRequestDto;
+import com.kefa.api.dto.request.AccountUpdateRequestDto;
+import com.kefa.api.dto.request.PasswordUpdateRequestDto;
 import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.AccountUpdateResponseDto;
 import com.kefa.common.exception.AuthenticationException;
@@ -9,6 +10,7 @@ import com.kefa.domain.entity.Account;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountUseCase {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public void updatePassword(PasswordUpdateRequestDto passwordUpdateRequestDto, AuthenticationInfo authenticationInfo) {
+
+        Account account = getAccount(authenticationInfo.getId());
+
+        if(!passwordEncoder.matches(passwordUpdateRequestDto.getPrevPassword(), account.getPassword())){
+            throw new AuthenticationException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+        if (passwordUpdateRequestDto.getPrevPassword().equals(passwordUpdateRequestDto.getNewPassword())) {
+            throw new AuthenticationException(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT);
+        }
+
+        account.updatePassword(passwordEncoder.encode(passwordUpdateRequestDto.getNewPassword()));
+
+    }
 
     @Transactional
     public AccountUpdateResponseDto updateAccount(Long targetId, AccountUpdateRequestDto accountUpdateRequestDto, AuthenticationInfo authenticationInfo) {

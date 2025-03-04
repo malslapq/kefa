@@ -1,7 +1,8 @@
 package com.kefa.application.usecase;
 
 
-import com.kefa.api.dto.AccountUpdateRequestDto;
+import com.kefa.api.dto.request.AccountUpdateRequestDto;
+import com.kefa.api.dto.request.PasswordUpdateRequestDto;
 import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.AccountUpdateResponseDto;
 import com.kefa.common.exception.AuthenticationException;
@@ -9,7 +10,6 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -35,6 +36,9 @@ public class AccountUseCaseTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     private Account account;
 
     @BeforeEach
@@ -43,7 +47,107 @@ public class AccountUseCaseTest {
             .id(1L)
             .email("test@test.com")
             .name("test")
+            .password("encodedPassword")
             .build();
+    }
+
+    @DisplayName("비밀번호 변경 성공")
+    @Test
+    void updatePasswordSuccess() {
+        // given
+        Long targetId = 1L;
+        String prevPassword = "prevPass123!";
+        String newPassword = "newPass456@";
+        String encodedNewPassword = "encodedNewPassword";
+        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+            .prevPassword(prevPassword)
+            .newPassword(newPassword)
+            .build();
+        AuthenticationInfo authInfo = AuthenticationInfo.builder()
+            .id(targetId)
+            .build();
+
+        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
+        given(passwordEncoder.matches(prevPassword, account.getPassword())).willReturn(true);
+        given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
+
+        // when
+        accountUseCase.updatePassword(request, authInfo);
+
+        // then
+        assertThat(account.getPassword()).isEqualTo(encodedNewPassword);
+
+    }
+
+    @DisplayName("비밀번호 변경 실패 - 이전 비밀번호 불일치")
+    @Test
+    void updatePasswordFailWrongPassword() {
+        // given
+        Long targetId = 1L;
+        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+            .prevPassword("wrongPass123!")
+            .newPassword("newPass456@")
+            .build();
+        AuthenticationInfo authInfo = AuthenticationInfo.builder()
+            .id(targetId)
+            .build();
+
+        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
+        given(passwordEncoder.matches(request.getPrevPassword(), account.getPassword())).willReturn(false);
+
+        // when & then
+        assertThatThrownBy(() ->
+            accountUseCase.updatePassword(request, authInfo)
+        )
+            .isInstanceOf(AuthenticationException.class)
+            .hasMessage(ErrorCode.INVALID_CREDENTIALS.getMessage());
+    }
+
+    @DisplayName("비밀번호 변경 실패 - 새 비밀번호가 현재와 동일")
+    @Test
+    void updatePasswordFailSamePassword() {
+        // given
+        Long targetId = 1L;
+        String password = "samePass123!";
+        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+            .prevPassword(password)
+            .newPassword(password)
+            .build();
+        AuthenticationInfo authInfo = AuthenticationInfo.builder()
+            .id(targetId)
+            .build();
+
+        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
+        given(passwordEncoder.matches(password, account.getPassword())).willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() ->
+            accountUseCase.updatePassword(request, authInfo)
+        )
+            .isInstanceOf(AuthenticationException.class)
+            .hasMessage(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT.getMessage());
+    }
+
+    @DisplayName("비밀번호 변경 실패 - 계정 없음")
+    @Test
+    void updatePasswordFailAccountNotFound() {
+        // given
+        Long targetId = 1L;
+        PasswordUpdateRequestDto request = PasswordUpdateRequestDto.builder()
+            .prevPassword("prevPass123!")
+            .newPassword("newPass456@")
+            .build();
+        AuthenticationInfo authInfo = AuthenticationInfo.builder()
+            .id(targetId)
+            .build();
+        given(accountRepository.findById(targetId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() ->
+            accountUseCase.updatePassword(request, authInfo)
+        )
+            .isInstanceOf(AuthenticationException.class)
+            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
     }
 
     @DisplayName("회원 정보 수정 성공 - 본인")

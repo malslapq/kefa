@@ -92,4 +92,8 @@ public class Account {
         this.name = name;
     }
 
+    public void updatePassword(String encodedPassword){
+        this.password = encodedPassword;
+    }
+
 }

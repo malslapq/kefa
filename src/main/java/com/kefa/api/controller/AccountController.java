@@ -1,8 +1,9 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.AccountUpdateRequestDto;
+import com.kefa.api.dto.request.AccountUpdateRequestDto;
 import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
+import com.kefa.api.dto.request.PasswordUpdateRequestDto;
 import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.AccountSignupResponseDto;
 import com.kefa.api.dto.response.AccountUpdateResponseDto;
@@ -26,14 +27,22 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    @PutMapping("/account/password")
+    public ApiResponse<String> updatePassword(@RequestBody @Valid PasswordUpdateRequestDto passwordUpdateRequestDto, Authentication authentication){
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
+        accountService.updatePassword(passwordUpdateRequestDto, authenticationInfo);
+        return ApiResponse.success("비밀번호 변경 성공");
+    }
+
+
     @PutMapping("/account/{id}")
-    public ApiResponse<AccountUpdateResponseDto> updateAccount(@PathVariable String id, @RequestBody @Valid AccountUpdateRequestDto accountUpdateRequestDto, Authentication authentication){
+    public ApiResponse<AccountUpdateResponseDto> update(@PathVariable String id, @RequestBody @Valid AccountUpdateRequestDto accountUpdateRequestDto, Authentication authentication){
         AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
         return ApiResponse.success(accountService.updateAccount(Long.valueOf(id), accountUpdateRequestDto, authenticationInfo));
     }
 
     @GetMapping("/account/{id}")
-    public ApiResponse<AccountResponseDto> getAccount(@PathVariable Long id, Authentication authentication) {
+    public ApiResponse<AccountResponseDto> get(@PathVariable Long id, Authentication authentication) {
 
         AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
 
@@ -41,7 +50,7 @@ public class AccountController {
     }
 
     @PostMapping("/auth/signup")
-    public ApiResponse<AccountSignupResponseDto> addAccount(@RequestBody @Valid AccountSignupRequestDto accountSignupRequestDto) {
+    public ApiResponse<AccountSignupResponseDto> join(@RequestBody @Valid AccountSignupRequestDto accountSignupRequestDto) {
         return ApiResponse.success(accountService.signup(accountSignupRequestDto));
     }
 

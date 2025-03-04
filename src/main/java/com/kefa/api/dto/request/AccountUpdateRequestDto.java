@@ -1,4 +1,4 @@
-package com.kefa.api.dto;
+package com.kefa.api.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
