@@ -54,7 +54,7 @@ public class AccountUseCaseTest {
             .build();
     }
 
-    @DisplayName("계정 삭제 성공")
+    @DisplayName("회원 탈퇴 성공")
     @Test
     void deleteAccountSuccess() {
         // given
@@ -81,7 +81,7 @@ public class AccountUseCaseTest {
         assertThat(response.getDeletedAt()).isNotNull();
     }
 
-    @DisplayName("계정 삭제 실패 - 계정 없음")
+    @DisplayName("회원 탈퇴 실패 - 계정 없음")
     @Test
     void deleteAccountFailAccountNotFound() {
         // given
