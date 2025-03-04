@@ -1,9 +1,11 @@
 package com.kefa.api.controller;
 
+import com.kefa.api.dto.AccountUpdateRequestDto;
 import com.kefa.api.dto.request.AccountLoginRequestDto;
 import com.kefa.api.dto.request.AccountSignupRequestDto;
 import com.kefa.api.dto.response.AccountResponseDto;
 import com.kefa.api.dto.response.AccountSignupResponseDto;
+import com.kefa.api.dto.response.AccountUpdateResponseDto;
 import com.kefa.api.dto.response.TokenResponse;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
@@ -23,6 +25,12 @@ import java.util.UUID;
 public class AccountController {
 
     private final AccountService accountService;
+
+    @PutMapping("/account/{id}")
+    public ApiResponse<AccountUpdateResponseDto> updateAccount(@PathVariable String id, @RequestBody @Valid AccountUpdateRequestDto accountUpdateRequestDto, Authentication authentication){
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.from(authentication);
+        return ApiResponse.success(accountService.updateAccount(Long.valueOf(id), accountUpdateRequestDto, authenticationInfo));
+    }
 
     @GetMapping("/account/{id}")
     public ApiResponse<AccountResponseDto> getAccount(@PathVariable Long id, Authentication authentication) {

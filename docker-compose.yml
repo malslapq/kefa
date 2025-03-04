@@ -7,11 +7,8 @@ services:
     restart: always
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:${DB_PORT}/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_REDIS_HOST: redis
+    env_file:
+      - .env
     depends_on:
       - db
       - redis
@@ -58,17 +55,10 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
     environment:
-      - TZ=${TZ}
       - JAVA_OPTS="-Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.PROXY_COMPATIBILITY=true"
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_PORT=${DB_PORT}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:${DB_PORT}/${DB_NAME}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - SPRING_REDIS_HOST=redis
     depends_on:
       - db
       - redis
