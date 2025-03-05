@@ -1,4 +1,4 @@
-package com.kefa.api.dto.response;
+package com.kefa.api.dto.response.account;
 
 import com.kefa.domain.entity.Account;
 import lombok.*;

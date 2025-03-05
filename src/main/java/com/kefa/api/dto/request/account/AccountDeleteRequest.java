@@ -1,4 +1,4 @@
-package com.kefa.api.dto.request;
+package com.kefa.api.dto.request.account;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

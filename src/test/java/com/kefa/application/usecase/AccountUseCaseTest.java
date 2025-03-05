@@ -1,13 +1,13 @@
 package com.kefa.application.usecase;
 
 
-import com.kefa.api.dto.request.AccountDeleteRequest;
-import com.kefa.api.dto.request.AccountUpdateRequest;
-import com.kefa.api.dto.request.AccountUpdatePasswordRequest;
-import com.kefa.api.dto.response.AccountDeleteResponse;
-import com.kefa.api.dto.response.AccountResponse;
-import com.kefa.api.dto.response.AccountUpdateResponse;
-import com.kefa.api.dto.response.AccountUpdatePasswordResponseDto;
+import com.kefa.api.dto.request.account.AccountDeleteRequest;
+import com.kefa.api.dto.request.account.AccountUpdateRequest;
+import com.kefa.api.dto.request.account.AccountUpdatePasswordRequest;
+import com.kefa.api.dto.response.account.AccountDeleteResponse;
+import com.kefa.api.dto.response.account.AccountResponse;
+import com.kefa.api.dto.response.account.AccountUpdateResponse;
+import com.kefa.api.dto.response.account.AccountUpdatePasswordResponseDto;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
