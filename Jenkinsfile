@@ -73,7 +73,9 @@ pipeline {
                                 string(credentialsId: 'KAKAO_CLIENT_SECRET', variable: 'KAKAO_CLIENT_SECRET'),
                                 string(credentialsId: 'OAUTH2_MAIN_PAGE_URI', variable: 'OAUTH2_MAIN_PAGE_URI'),
                                 string(credentialsId: 'CIPHER_SECRET_KEY', variable: 'CIPHER_SECRET_KEY'),
-                                string(credentialsId: 'CIPHER_IV', variable: 'CIPHER_IV')
+                                string(credentialsId: 'CIPHER_IV', variable: 'CIPHER_IV'),
+                                string(credentialsId: 'NTS_API_KEY', variable: 'NTS_API_KEY'),
+                                string(credentialsId: 'NTS_BASE_URL', variable: 'NTS_BASE_URL')
                             ]) {
                                 sh '''
                                     echo "DB_HOST=${DB_HOST}" > .env
@@ -101,6 +103,8 @@ pipeline {
                                     echo "OAUTH2_MAIN_PAGE_URI=${OAUTH2_MAIN_PAGE_URI}" >> .env
                                     echo "CIPHER_SECRET_KEY=${CIPHER_SECRET_KEY}" >> .env
                                     echo "CIPHER_IV=${CIPHER_IV}" >> .env
+                                    echo "NTS_API_KEY=${NTS_API_KEY}" >> .env
+                                    echo "NTS_BASE_URL=${NTS_BASE_URL}" >> .env
                                 '''
                             }
                         }
