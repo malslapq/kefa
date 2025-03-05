@@ -1,7 +1,8 @@
 package com.kefa.application.service;
 
+import com.kefa.api.dto.account.request.*;
+import com.kefa.api.dto.account.response.*;
 import com.kefa.api.dto.request.account.*;
-import com.kefa.api.dto.response.account.*;
 import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
@@ -22,7 +23,7 @@ public class AccountService {
         return accountUseCase.delete(accountDeleteRequest, authenticationInfo);
     }
 
-    public AccountUpdatePasswordResponseDto updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
+    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
         return accountUseCase.updatePassword(accountUpdatePasswordRequest, authenticationInfo);
     }
 

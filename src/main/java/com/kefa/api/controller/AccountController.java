@@ -1,7 +1,8 @@
 package com.kefa.api.controller;
 
+import com.kefa.api.dto.account.request.*;
+import com.kefa.api.dto.account.response.*;
 import com.kefa.api.dto.request.account.*;
-import com.kefa.api.dto.response.account.*;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
@@ -27,7 +28,7 @@ public class AccountController {
     }
 
     @PutMapping("/accounts/password")
-    public ApiResponse<AccountUpdatePasswordResponseDto> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, Authentication authentication){
+    public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, Authentication authentication){
         return ApiResponse.success(accountService.updatePassword(accountUpdatePasswordRequest, AuthenticationInfo.from(authentication)));
     }
 

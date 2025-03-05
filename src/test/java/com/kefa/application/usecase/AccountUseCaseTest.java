@@ -1,13 +1,13 @@
 package com.kefa.application.usecase;
 
 
-import com.kefa.api.dto.request.account.AccountDeleteRequest;
-import com.kefa.api.dto.request.account.AccountUpdateRequest;
-import com.kefa.api.dto.request.account.AccountUpdatePasswordRequest;
-import com.kefa.api.dto.response.account.AccountDeleteResponse;
-import com.kefa.api.dto.response.account.AccountResponse;
-import com.kefa.api.dto.response.account.AccountUpdateResponse;
-import com.kefa.api.dto.response.account.AccountUpdatePasswordResponseDto;
+import com.kefa.api.dto.account.request.AccountDeleteRequest;
+import com.kefa.api.dto.account.request.AccountUpdateRequest;
+import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
+import com.kefa.api.dto.account.response.AccountDeleteResponse;
+import com.kefa.api.dto.account.response.AccountResponse;
+import com.kefa.api.dto.account.response.AccountUpdateResponse;
+import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
@@ -150,7 +150,7 @@ public class AccountUseCaseTest {
         given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
 
         // when
-        AccountUpdatePasswordResponseDto response = accountUseCase.updatePassword(request, authInfo);
+        AccountUpdatePasswordResponse response = accountUseCase.updatePassword(request, authInfo);
 
         // then
         assertThat(account.getPassword()).isEqualTo(encodedNewPassword);
