@@ -2,7 +2,6 @@ package com.kefa.application.service;
 
 import com.kefa.api.dto.account.request.*;
 import com.kefa.api.dto.account.response.*;
-import com.kefa.api.dto.request.account.*;
 import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
