@@ -70,3 +70,8 @@ oauth2:
 cipher:
   secret-key: ${CIPHER_SECRET_KEY}
   iv: ${CIPHER_IV}
+
+nts:
+  api:
+    key: ${NTS_API_KEY}
+    base-url: ${NTS_BASE_URL}

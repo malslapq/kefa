@@ -63,3 +63,8 @@ oauth2:
 cipher:
   secret-key: "TestSecretKey123456TestSecretKey12"
   iv: "TestIvKey1234567"
+
+nts:
+  api:
+    key: asdoihwqihdoqwdqwdqwdadsafoihasdoifhoasidfhoewfwef
+    base-url: "https://api.odcloud.kr"
