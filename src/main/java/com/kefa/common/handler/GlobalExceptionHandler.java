@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
+        NtsException.class,
         CompanyException.class,
         EmailException.class,
         CipherException.class,
