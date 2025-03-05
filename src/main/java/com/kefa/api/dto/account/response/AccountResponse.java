@@ -1,4 +1,4 @@
-package com.kefa.api.dto.response;
+package com.kefa.api.dto.account.response;
 
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.type.LoginType;

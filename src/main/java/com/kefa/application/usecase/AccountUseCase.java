@@ -1,12 +1,12 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.request.AccountDeleteRequest;
-import com.kefa.api.dto.request.AccountUpdateRequest;
-import com.kefa.api.dto.request.AccountUpdatePasswordRequest;
-import com.kefa.api.dto.response.AccountDeleteResponse;
-import com.kefa.api.dto.response.AccountResponse;
-import com.kefa.api.dto.response.AccountUpdateResponse;
-import com.kefa.api.dto.response.AccountUpdatePasswordResponseDto;
+import com.kefa.api.dto.account.request.AccountDeleteRequest;
+import com.kefa.api.dto.account.request.AccountUpdateRequest;
+import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
+import com.kefa.api.dto.account.response.AccountDeleteResponse;
+import com.kefa.api.dto.account.response.AccountResponse;
+import com.kefa.api.dto.account.response.AccountUpdateResponse;
+import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
@@ -39,7 +39,7 @@ public class AccountUseCase {
     }
 
     @Transactional
-    public AccountUpdatePasswordResponseDto updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
+    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
 
         Account account = getAccount(authenticationInfo.getId());
 
@@ -51,7 +51,7 @@ public class AccountUseCase {
 
         account.updatePassword(passwordEncoder.encode(accountUpdatePasswordRequest.getNewPassword()));
 
-        return new AccountUpdatePasswordResponseDto();
+        return new AccountUpdatePasswordResponse();
     }
 
     @Transactional

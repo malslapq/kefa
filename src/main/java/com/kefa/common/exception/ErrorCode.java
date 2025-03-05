@@ -7,6 +7,18 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    //NTS API 관런
+    NTS_PARSING_ERROR(500, "국세청 API 응답 파싱 중 오류가 발생했습니다"),
+    BUSINESS_NUMBER_NOT_FOUND(404, "존재하지 않는 사업자등록번호입니다"),
+    INACTIVE_BUSINESS_NUMBER(400, "휴업 또는 폐업된 사업자등록번호입니다"),
+    EXTERNAL_API_ERROR(500, "외부 API 호출 중 오류가 발생했습니다"),
+    NTS_BAD_JSON_REQUEST(400, "잘못된 JSON 형식입니다"),
+    NTS_SERVICE_NOT_FOUND(404, "서비스를 찾을 수 없습니다"),
+    NTS_MISSING_PARAMETER(411, "필수 파라미터가 누락되었습니다"),
+    NTS_TOO_MANY_BUSINESS_NUMBERS(413, "사업자등록번호는 최대 100개까지만 조회 가능합니다"),
+    NTS_INTERNAL_ERROR(500, "국세청 서버 내부 오류가 발생했습니다"),
+    NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
+
     //회원 관련
     NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다."),
 

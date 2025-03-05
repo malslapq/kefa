@@ -8,10 +8,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kefa.api.dto.request.AccountLoginRequest;
-import com.kefa.api.dto.request.AccountSignupRequest;
-import com.kefa.api.dto.response.AccountSignupResponse;
-import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.api.dto.account.request.AccountLoginRequest;
+import com.kefa.api.dto.account.request.AccountSignupRequest;
+import com.kefa.api.dto.account.response.AccountSignupResponse;
+import com.kefa.api.dto.account.response.TokenResponse;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
 import com.kefa.common.exception.AuthenticationException;

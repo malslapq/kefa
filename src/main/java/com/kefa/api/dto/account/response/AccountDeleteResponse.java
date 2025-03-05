@@ -1,4 +1,4 @@
-package com.kefa.api.dto.response;
+package com.kefa.api.dto.account.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -3,7 +3,7 @@ package com.kefa.infrastructure.security.auth;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.type.Role;
-import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.api.dto.account.response.TokenResponse;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

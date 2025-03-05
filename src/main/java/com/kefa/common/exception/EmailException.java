@@ -1,12 +1,12 @@
 package com.kefa.common.exception;
 
-public class EmailException extends RuntimeException {
+import lombok.Getter;
 
-    private final ErrorCode errorCode;
+@Getter
+public class EmailException extends CustomException {
 
     public EmailException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+        super(errorCode);
     }
 
 }

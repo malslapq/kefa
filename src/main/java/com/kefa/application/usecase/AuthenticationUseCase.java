@@ -1,9 +1,9 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.request.AccountLoginRequest;
-import com.kefa.api.dto.request.AccountSignupRequest;
-import com.kefa.api.dto.response.AccountSignupResponse;
-import com.kefa.api.dto.response.TokenResponse;
+import com.kefa.api.dto.account.request.AccountLoginRequest;
+import com.kefa.api.dto.account.request.AccountSignupRequest;
+import com.kefa.api.dto.account.response.AccountSignupResponse;
+import com.kefa.api.dto.account.response.TokenResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;

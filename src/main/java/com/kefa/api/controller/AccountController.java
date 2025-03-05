@@ -1,7 +1,7 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.request.*;
-import com.kefa.api.dto.response.*;
+import com.kefa.api.dto.account.request.*;
+import com.kefa.api.dto.account.response.*;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
@@ -21,22 +21,22 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @DeleteMapping("/account")
-    public ApiResponse<AccountDeleteResponse> delete(AccountDeleteRequest accountDeleteRequest, Authentication authentication){
+    @DeleteMapping("/accounts")
+    public ApiResponse<AccountDeleteResponse> delete(@RequestBody @Valid AccountDeleteRequest accountDeleteRequest, Authentication authentication){
         return ApiResponse.success(accountService.delete(accountDeleteRequest, AuthenticationInfo.from(authentication)));
     }
 
-    @PutMapping("/account/password")
-    public ApiResponse<AccountUpdatePasswordResponseDto> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, Authentication authentication){
+    @PutMapping("/accounts/password")
+    public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, Authentication authentication){
         return ApiResponse.success(accountService.updatePassword(accountUpdatePasswordRequest, AuthenticationInfo.from(authentication)));
     }
 
-    @PutMapping("/account")
+    @PutMapping("/accounts")
     public ApiResponse<AccountUpdateResponse> update(@RequestBody @Valid AccountUpdateRequest accountUpdateRequest, Authentication authentication){
         return ApiResponse.success(accountService.updateAccount(accountUpdateRequest, AuthenticationInfo.from(authentication)));
     }
 
-    @GetMapping("/account")
+    @GetMapping("/accounts")
     public ApiResponse<AccountResponse> get(Authentication authentication) {
         return ApiResponse.success(accountService.getAccount(AuthenticationInfo.from(authentication)));
     }
@@ -54,9 +54,9 @@ public class AccountController {
     }
 
     @PostMapping("/auth/email-verify/resend")
-    public ApiResponse<Void> resendEmailVerification(@RequestParam String email) {
+    public ApiResponse<String> resendEmailVerification(@RequestParam String email) {
         accountService.resendVerificationEmail(email);
-        return ApiResponse.success();
+        return ApiResponse.success("메일을 재전송됐습니다.");
     }
 
     @PostMapping("/auth/login")

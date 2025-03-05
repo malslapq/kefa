@@ -8,13 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,10 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Table(name = "accounts")
-@EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE accounts SET is_deleted = true, deleted_at = NOW() WHERE id = ?")
-@SQLRestriction("is_deleted = false")
-public class Account {
+public class Account extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,9 +44,6 @@ public class Account {
     @Column
     private boolean emailVerified;
 
-    @Column
-    private boolean isDeleted;
-
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "account_login_types",
@@ -66,20 +54,6 @@ public class Account {
     @Builder.Default
     private Set<LoginType> loginTypes = new HashSet<>();
 
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    private LocalDateTime deletedAt;
-
-    public void delete() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
-
     public void addLoginType(LoginType loginType) {
         this.loginTypes.add(loginType);
     }
@@ -88,11 +62,11 @@ public class Account {
         this.emailVerified = true;
     }
 
-    public void updateName(String name){
+    public void updateName(String name) {
         this.name = name;
     }
 
-    public void updatePassword(String encodedPassword){
+    public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
 
