@@ -2,10 +2,13 @@ package com.kefa.application.usecase;
 
 import com.kefa.api.dto.company.request.CompanyAddRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
+import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.common.exception.AuthenticationException;
+import com.kefa.common.exception.CompanyException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.NtsException;
 import com.kefa.domain.entity.Account;
+import com.kefa.domain.entity.Company;
 import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
 import com.kefa.infrastructure.client.nts.BusinessStatusData;
 import com.kefa.infrastructure.repository.AccountRepository;
@@ -41,6 +44,157 @@ public class CompanyUseCaseTest {
 
 
     @Test
+    @DisplayName("회사 단일 조회 성공")
+    void getMyCompanySuccess() {
+        //given
+        Long companyId = 1L;
+        Long accountId = 1L;
+
+        Account account = Account.builder()
+            .id(accountId)
+            .build();
+
+        Company company = Company.builder()
+            .id(companyId)
+            .name("test")
+            .businessNumber("123-456-78901")
+            .address("주소테스트")
+            .industry("업종테스트")
+            .revenueMillion(1000L)
+            .account(account)  // account 설정
+            .build();
+
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(accountId)  // 동일한 accountId
+            .build();
+
+        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+
+        //when
+        CompanyResponse response = companyUseCase.getMyCompany(companyId, authenticationInfo);
+
+        //then
+        assertThat(response.getId()).isEqualTo(company.getId());
+        assertThat(response.getName()).isEqualTo(company.getName());
+        assertThat(response.getBusinessNumber()).isEqualTo(company.getBusinessNumber());
+        assertThat(response.getAddress()).isEqualTo(company.getAddress());
+        assertThat(response.getIndustry()).isEqualTo(company.getIndustry());
+        assertThat(response.getRevenueMillion()).isEqualTo(company.getRevenueMillion());
+    }
+
+    @Test
+    @DisplayName("회사 단일 조회 실패 - 회사가 존재하지 않음")
+    void getMyCompanyFailNotFound() {
+        //given
+        Long companyId = 1L;
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(1L)
+            .build();
+
+        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> companyUseCase.getMyCompany(companyId, authenticationInfo))
+            .isInstanceOf(CompanyException.class)
+            .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("회사 단일 조회 실패 - 권한 없음")
+    void getMyCompanyFailUnauthorized() {
+        //given
+        Long companyId = 1L;
+        Long accountId = 1L;
+        Long differentAccountId = 2L;
+
+        Company company = Company.builder()
+            .id(companyId)
+            .name("test")
+            .account(Account.builder()
+                .id(accountId)
+                .build())
+            .build();
+
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(differentAccountId)  // 다른 계정 ID로 조회 시도
+            .build();
+
+        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+
+        //when & then
+        assertThatThrownBy(() -> companyUseCase.getMyCompany(companyId, authenticationInfo))
+            .isInstanceOf(CompanyException.class)
+            .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
+    }
+
+    @Test
+    @DisplayName("회사 목록 조회 성공")
+    void findAllByAccountIdSuccess() {
+        //given
+        Long accountId = 1L;
+        List<Company> companies = List.of(
+            Company.builder()
+                .id(1L)
+                .name("test1")
+                .businessNumber("123-456-78901")
+                .address("주소테스트1")
+                .industry("업종테스트1")
+                .revenueMillion(1000L)
+                .build(),
+            Company.builder()
+                .id(2L)
+                .name("test2")
+                .businessNumber("123-456-78902")
+                .address("주소테스트2")
+                .industry("업종테스트2")
+                .revenueMillion(2000L)
+                .build()
+        );
+
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(accountId)
+            .build();
+
+        when(companyRepository.findAllByAccountId(accountId)).thenReturn(companies);
+
+        //when
+        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authenticationInfo);
+
+        //then
+        assertNotNull(responses);
+        assertThat(responses).hasSize(2);
+        assertThat(responses.get(0).getName()).isEqualTo(companies.get(0).getName());
+        assertThat(responses.get(0).getBusinessNumber()).isEqualTo(companies.get(0).getBusinessNumber());
+        assertThat(responses.get(0).getAddress()).isEqualTo(companies.get(0).getAddress());
+        assertThat(responses.get(0).getIndustry()).isEqualTo(companies.get(0).getIndustry());
+        assertThat(responses.get(0).getRevenueMillion()).isEqualTo(companies.get(0).getRevenueMillion());
+        assertThat(responses.get(1).getName()).isEqualTo(companies.get(1).getName());
+        assertThat(responses.get(1).getBusinessNumber()).isEqualTo(companies.get(1).getBusinessNumber());
+        assertThat(responses.get(1).getAddress()).isEqualTo(companies.get(1).getAddress());
+        assertThat(responses.get(1).getIndustry()).isEqualTo(companies.get(1).getIndustry());
+        assertThat(responses.get(1).getRevenueMillion()).isEqualTo(companies.get(1).getRevenueMillion());
+    }
+
+    @Test
+    @DisplayName("회사 목록 조회 - 데이터가 없는 경우 빈 리스트 반환")
+    void findAllByAccountIdEmpty() {
+        //given
+        Long accountId = 1L;
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(accountId)
+            .build();
+
+        when(companyRepository.findAllByAccountId(accountId)).thenReturn(Collections.emptyList());
+
+        //when
+        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authenticationInfo);
+
+        //then
+        assertNotNull(responses);
+        assertThat(responses).isEmpty();
+    }
+
+    @Test
     @DisplayName("회사 등록 성공")
     void addSuccess() {
         //given
@@ -67,11 +221,11 @@ public class CompanyUseCaseTest {
 
         //then
         assertNotNull(response);
-        assertThat(response.getName()).isEqualTo("test");
-        assertThat(response.getBusinessNumber()).isEqualTo("213-854-66870");
-        assertThat(response.getAddress()).isEqualTo("주소테스트");
-        assertThat(response.getIndustry()).isEqualTo("업종테스트");
-        assertThat(response.getRevenueMillion()).isEqualTo(1000L);
+        assertThat(response.getName()).isEqualTo(request.getName());
+        assertThat(response.getBusinessNumber()).isEqualTo(request.getBusinessNumber());
+        assertThat(response.getAddress()).isEqualTo(request.getAddress());
+        assertThat(response.getIndustry()).isEqualTo(request.getIndustry());
+        assertThat(response.getRevenueMillion()).isEqualTo(request.getRevenueMillion());
     }
 
     @Test

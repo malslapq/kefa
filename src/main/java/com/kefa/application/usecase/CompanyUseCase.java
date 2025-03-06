@@ -2,7 +2,9 @@ package com.kefa.application.usecase;
 
 import com.kefa.api.dto.company.request.CompanyAddRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
+import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.common.exception.AuthenticationException;
+import com.kefa.common.exception.CompanyException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.NtsException;
 import com.kefa.domain.entity.Account;
@@ -15,12 +17,29 @@ import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CompanyUseCase {
 
     private final CompanyRepository companyRepository;
+
     private final AccountRepository accountRepository;
+
+    public CompanyResponse getMyCompany(Long targetId, AuthenticationInfo authenticationInfo) {
+
+        Company company = companyRepository.findCompanyById(targetId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));
+
+        validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
+
+        return CompanyResponse.from(company);
+
+    }
+
+    public List<CompanyResponse> getMyCompanies(AuthenticationInfo authenticationInfo) {
+        return companyRepository.findAllByAccountId(authenticationInfo.getId()).stream().map(CompanyResponse::from).toList();
+    }
 
     public CompanyAddResponse add(CompanyAddRequest request, AuthenticationInfo authenticationInfo) {
 
@@ -30,6 +49,7 @@ public class CompanyUseCase {
         companyRepository.save(company);
 
         return CompanyAddResponse.from(company);
+
     }
 
     public void validateBusinessNumber(BusinessNoValidateResponse ntsApiResponse) {
@@ -40,6 +60,12 @@ public class CompanyUseCase {
 
         validateBusinessNumberActive(data);
 
+    }
+
+    private void validateCompanyOwnership(Long loginUserId, Long companyAccountId) {
+        if(!companyAccountId.equals(loginUserId)){
+            throw new CompanyException(ErrorCode.NOT_COMPANY_OWNER);
+        }
     }
 
     private void validateResponseData(BusinessNoValidateResponse response) {
