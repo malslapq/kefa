@@ -1,12 +1,14 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.company.request.CompanyAddRequest;
+import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.CompanyException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.NtsException;
+import com.kefa.common.response.ApiResponse;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.Company;
 import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
@@ -16,6 +18,7 @@ import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,9 +30,23 @@ public class CompanyUseCase {
 
     private final AccountRepository accountRepository;
 
+    @Transactional
+    public CompanyResponse update(CompanyUpdateRequest request, AuthenticationInfo authenticationInfo) {
+
+        Company company = getCompanyById(request.getId());
+
+        validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
+
+        company.update(request);
+
+        return CompanyResponse.from(company);
+
+    }
+
+    @Transactional(readOnly = true)
     public CompanyResponse getMyCompany(Long targetId, AuthenticationInfo authenticationInfo) {
 
-        Company company = companyRepository.findCompanyById(targetId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));
+        Company company = getCompanyById(targetId);
 
         validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
 
@@ -37,6 +54,7 @@ public class CompanyUseCase {
 
     }
 
+    @Transactional(readOnly = true)
     public List<CompanyResponse> getMyCompanies(AuthenticationInfo authenticationInfo) {
         return companyRepository.findAllByAccountId(authenticationInfo.getId()).stream().map(CompanyResponse::from).toList();
     }
@@ -84,5 +102,9 @@ public class CompanyUseCase {
             throw new NtsException(ErrorCode.INACTIVE_BUSINESS_NUMBER);
         }
 
+    }
+
+    private Company getCompanyById(Long companyId) {
+        return companyRepository.findCompanyById(companyId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));
     }
 }

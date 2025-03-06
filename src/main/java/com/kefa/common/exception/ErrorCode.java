@@ -9,7 +9,7 @@ public enum ErrorCode {
 
     //회사 관련
     COMPANY_NOT_FOUND(404, "회사를 찾을 수 없습니다"),
-    NOT_COMPANY_OWNER(400, "본인 회사만 조회 할 수 있습니다"),
+    NOT_COMPANY_OWNER(400, "본인 회사만 가능합니다"),
 
     //NTS API 관런
     NTS_PARSING_ERROR(500, "국세청 API 응답 파싱 중 오류가 발생했습니다"),

@@ -19,7 +19,8 @@ public class CompanyAddRequest {
     @NotBlank(message = "회사명은 필수입니다.")
     private String name;
 
-    @Pattern(regexp = "^\\d{3}-\\d{2}-\\d{5}$", message = "올바른 사업자등록번호 형식이 아닙니다.")
+    @NotBlank(message = "사업자번호는 필수입니다")
+    @Pattern(regexp = "^[0-9]{10}$", message = "사업자번호는 10자리 숫자여야 합니다")
     private String businessNumber;
 
     @NotBlank(message = "주소는 필수입니다.")

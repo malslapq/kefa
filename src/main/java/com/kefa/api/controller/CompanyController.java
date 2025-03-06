@@ -2,6 +2,7 @@ package com.kefa.api.controller;
 
 import com.kefa.api.dto.company.request.BusinessNumberValidateRequest;
 import com.kefa.api.dto.company.request.CompanyAddRequest;
+import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
@@ -20,6 +21,13 @@ import java.util.List;
 public class CompanyController {
 
     private final CompanyService companyService;
+
+
+
+    @PutMapping("/company")
+    public ApiResponse<CompanyResponse> updateCompany(@RequestBody @Valid CompanyUpdateRequest request, Authentication authentication){
+        return ApiResponse.success(companyService.updateCompany(request, AuthenticationInfo.from(authentication)));
+    }
 
     @GetMapping("/companies/{companyId}")
     public ApiResponse<CompanyResponse> getCompany(@PathVariable Long companyId, Authentication authentication) {

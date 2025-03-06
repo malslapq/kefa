@@ -1,5 +1,6 @@
 package com.kefa.domain.entity;
 
+import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,5 +37,12 @@ public class Company extends BaseEntity {
 
     @Column(nullable = false)
     private Long revenueMillion;
+
+    public void update(CompanyUpdateRequest request) {
+        this.name = request.getName();
+        this.address = request.getAddress();
+        this.industry = request.getIndustry();
+        this.revenueMillion = request.getRevenueMillion();
+    }
 
 }
