@@ -1,6 +1,7 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.company.request.CompanyAddRequest;
+import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.common.exception.AuthenticationException;
@@ -42,6 +43,118 @@ public class CompanyUseCaseTest {
     @InjectMocks
     private CompanyUseCase companyUseCase;
 
+
+    @Test
+    @DisplayName("회사 정보 수정 성공")
+    void updateSuccess() {
+        //given
+        Long companyId = 1L;
+        Long accountId = 1L;
+
+        CompanyUpdateRequest request = CompanyUpdateRequest.builder()
+            .id(companyId)
+            .name("수정된이름")
+            .address("수정된주소")
+            .industry("수정된업종")
+            .revenueMillion(2000L)
+            .build();
+
+        Account account = Account.builder()
+            .id(accountId)
+            .build();
+
+        Company company = Company.builder()
+            .id(companyId)
+            .name("기존이름")
+            .address("기존주소")
+            .industry("기존업종")
+            .revenueMillion(1000L)
+            .account(account)
+            .build();
+
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(accountId)
+            .build();
+
+        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+
+        //when
+        CompanyResponse response = companyUseCase.update(request, authenticationInfo);
+
+        //then
+        assertThat(response.getId()).isEqualTo(request.getId());
+        assertThat(response.getName()).isEqualTo(request.getName());
+        assertThat(response.getAddress()).isEqualTo(request.getAddress());
+        assertThat(response.getIndustry()).isEqualTo(request.getIndustry());
+        assertThat(response.getRevenueMillion()).isEqualTo(request.getRevenueMillion());
+    }
+
+    @Test
+    @DisplayName("회사 정보 수정 실패 - 회사가 존재하지 않음")
+    void updateFailCompanyNotFound() {
+        //given
+        Long companyId = 1L;
+
+        CompanyUpdateRequest request = CompanyUpdateRequest.builder()
+            .id(companyId)
+            .name("수정된이름")
+            .address("수정된주소")
+            .industry("수정된업종")
+            .revenueMillion(2000L)
+            .build();
+
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(1L)
+            .build();
+
+        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> companyUseCase.update(request, authenticationInfo))
+            .isInstanceOf(CompanyException.class)
+            .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("회사 정보 수정 실패 - 권한 없음")
+    void updateFailUnauthorized() {
+        //given
+        Long companyId = 1L;
+        Long accountId = 1L;
+        Long differentAccountId = 2L;
+
+        CompanyUpdateRequest request = CompanyUpdateRequest.builder()
+            .id(companyId)
+            .name("수정된이름")
+            .address("수정된주소")
+            .industry("수정된업종")
+            .revenueMillion(2000L)
+            .build();
+
+        Account account = Account.builder()
+            .id(accountId)
+            .build();
+
+        Company company = Company.builder()
+            .id(companyId)
+            .name("기존이름")
+            .address("기존주소")
+            .industry("기존업종")
+            .revenueMillion(1000L)
+            .account(account)
+            .build();
+
+        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
+            .id(differentAccountId)  // 다른 계정 ID
+            .build();
+
+        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+
+        //when & then
+        assertThatThrownBy(() -> companyUseCase.update(request, authenticationInfo))
+            .isInstanceOf(CompanyException.class)
+            .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
+    }
 
     @Test
     @DisplayName("회사 단일 조회 성공")
@@ -176,7 +289,7 @@ public class CompanyUseCaseTest {
     }
 
     @Test
-    @DisplayName("회사 목록 조회 - 데이터가 없는 경우 빈 리스트 반환")
+    @DisplayName("회사 목록 조회 회사가 없을 경우 빈 리스트")
     void findAllByAccountIdEmpty() {
         //given
         Long accountId = 1L;
@@ -270,7 +383,7 @@ public class CompanyUseCaseTest {
     }
 
     @Test
-    @DisplayName("사업자번호가 존재하지 않을 경우 BUSINESS_NUMBER_NOT_FOUND 예외")
+    @DisplayName("사업자번호가 존재하지 않을 경우 예외")
     void validateBusinessNumberEmptyData() {
         // given
         BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
@@ -284,7 +397,7 @@ public class CompanyUseCaseTest {
     }
 
     @Test
-    @DisplayName("사업자번호가 미등록 상태일 경우 BUSINESS_NUMBER_NOT_FOUND 예외")
+    @DisplayName("사업자번호가 미등록 상태일 경우 예외")
     void validateBusinessNumberNotRegistered() {
         // given
         BusinessStatusData data = BusinessStatusData.builder()
@@ -302,7 +415,7 @@ public class CompanyUseCaseTest {
     }
 
     @Test
-    @DisplayName("사업자번호가 휴/폐업 상태일 경우 INACTIVE_BUSINESS_NUMBER 예외")
+    @DisplayName("사업자번호가 휴/폐업 상태일 경우 예외")
     void validateBusinessNumberInactive() {
         // given
         BusinessStatusData data = BusinessStatusData.builder()
