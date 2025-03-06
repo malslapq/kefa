@@ -1,11 +1,11 @@
 package com.kefa.domain.entity;
 
+import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
@@ -26,16 +26,23 @@ public class Company extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String businessNumber;
 
-    @Column
+    @Column(nullable = false)
     private String address;
 
-    @Column
+    @Column(nullable = false)
     private String industry;
 
-    @Column
+    @Column(nullable = false)
     private Long revenueMillion;
+
+    public void update(CompanyUpdateRequest request) {
+        this.name = request.getName();
+        this.address = request.getAddress();
+        this.industry = request.getIndustry();
+        this.revenueMillion = request.getRevenueMillion();
+    }
 
 }
