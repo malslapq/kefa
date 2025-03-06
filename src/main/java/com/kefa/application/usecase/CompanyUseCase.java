@@ -1,6 +1,7 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.company.request.CompanyAddRequest;
+import com.kefa.api.dto.company.request.CompanyDeleteRequest;
 import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
@@ -17,6 +18,7 @@ import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,20 @@ public class CompanyUseCase {
     private final CompanyRepository companyRepository;
 
     private final AccountRepository accountRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public void delete(Long companyId, CompanyDeleteRequest request, AuthenticationInfo authenticationInfo) {
+
+        Company company = getCompanyById(companyId);
+
+        validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
+        validatePasswrod(request.getPassword(), company.getAccount().getPassword());
+
+        companyRepository.delete(company);
+
+    }
 
     @Transactional
     public CompanyResponse update(CompanyUpdateRequest request, AuthenticationInfo authenticationInfo) {
@@ -78,6 +94,12 @@ public class CompanyUseCase {
 
         validateBusinessNumberActive(data);
 
+    }
+
+    private void validatePasswrod(String inputPassword, String encodedPassword) {
+        if(!passwordEncoder.matches(inputPassword, encodedPassword)) {
+            throw new AuthenticationException(ErrorCode.INVALID_PASSWORD);
+        }
     }
 
     private void validateCompanyOwnership(Long loginUserId, Long companyAccountId) {

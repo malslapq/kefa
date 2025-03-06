@@ -2,12 +2,13 @@ package com.kefa.api.controller;
 
 import com.kefa.api.dto.company.request.BusinessNumberValidateRequest;
 import com.kefa.api.dto.company.request.CompanyAddRequest;
+import com.kefa.api.dto.company.request.CompanyDeleteRequest;
 import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
-import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
 import com.kefa.application.service.CompanyService;
 import com.kefa.common.response.ApiResponse;
+import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,14 @@ public class CompanyController {
 
     private final CompanyService companyService;
 
-
+    @DeleteMapping("/companies/{companyId}")
+    public ApiResponse<Void> deleteCompany(@PathVariable Long companyId, @RequestBody @Valid CompanyDeleteRequest request, Authentication authentication) {
+        companyService.delete(companyId, request, AuthenticationInfo.from(authentication));
+        return ApiResponse.success();
+    }
 
     @PutMapping("/company")
-    public ApiResponse<CompanyResponse> updateCompany(@RequestBody @Valid CompanyUpdateRequest request, Authentication authentication){
+    public ApiResponse<CompanyResponse> updateCompany(@RequestBody @Valid CompanyUpdateRequest request, Authentication authentication) {
         return ApiResponse.success(companyService.updateCompany(request, AuthenticationInfo.from(authentication)));
     }
 
