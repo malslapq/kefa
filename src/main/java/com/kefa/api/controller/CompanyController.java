@@ -1,14 +1,11 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.company.request.BusinessNumberValidateRequest;
-import com.kefa.api.dto.company.request.CompanyAddRequest;
-import com.kefa.api.dto.company.request.CompanyDeleteRequest;
-import com.kefa.api.dto.company.request.CompanyUpdateRequest;
+import com.kefa.api.dto.company.request.*;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.application.service.CompanyService;
 import com.kefa.common.response.ApiResponse;
-import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +24,11 @@ public class CompanyController {
     public ApiResponse<Void> deleteCompany(@PathVariable Long companyId, @RequestBody @Valid CompanyDeleteRequest request, Authentication authentication) {
         companyService.delete(companyId, request, AuthenticationInfo.from(authentication));
         return ApiResponse.success();
+    }
+
+    @PatchMapping("/company/{companyId}")
+    public ApiResponse<CompanyResponse> updateBusinessNumber(@PathVariable Long companyId, @RequestBody @Valid BusinessValidateRequest request, Authentication authentication) {
+        return ApiResponse.success(companyService.updateBusinessNumber(companyId, request, AuthenticationInfo.from(authentication)));
     }
 
     @PutMapping("/company")
@@ -50,7 +52,7 @@ public class CompanyController {
     }
 
     @PostMapping("/companies/validate-business-number")
-    public ApiResponse<BusinessNoValidateResponse> validateBusinessNumber(@RequestBody @Valid BusinessNumberValidateRequest request) {
+    public ApiResponse<BusinessStatusResponse> validateBusinessNumber(@RequestBody @Valid BusinessNumberValidateRequest request) {
         return ApiResponse.success(companyService.validateBusinessNumber(request));
     }
 

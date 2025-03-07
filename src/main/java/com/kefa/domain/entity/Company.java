@@ -45,4 +45,8 @@ public class Company extends BaseEntity {
         this.revenueMillion = request.getRevenueMillion();
     }
 
+    public void updateBusinessNumber(String businessNumber) {
+        this.businessNumber = businessNumber;
+    }
+
 }

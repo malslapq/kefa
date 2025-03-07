@@ -1,4 +1,4 @@
-package com.kefa.infrastructure.client.nts;
+package com.kefa.infrastructure.client.nts.dto.status;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BusinessNoValidateResponse {
+public class BusinessStatusResponse {
 
     private String status_code;
     private int match_cnt;

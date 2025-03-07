@@ -11,8 +11,8 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.NtsException;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.Company;
-import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
-import com.kefa.infrastructure.client.nts.BusinessStatusData;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusData;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
@@ -408,7 +408,7 @@ public class CompanyUseCaseTest {
             .businessStatus(BUSINESS_STATUS_ACTIVE)
             .build();
 
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(List.of(data))
             .build();
 
@@ -420,7 +420,7 @@ public class CompanyUseCaseTest {
     @DisplayName("사업자번호가 존재하지 않을 경우 예외")
     void validateBusinessNumberEmptyData() {
         // given
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(Collections.emptyList())
             .build();
 
@@ -438,7 +438,7 @@ public class CompanyUseCaseTest {
             .taxType(TAX_TYPE_NOT_REGISTERED)
             .build();
 
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(List.of(data))
             .build();
 
@@ -456,7 +456,7 @@ public class CompanyUseCaseTest {
             .businessStatus(BUSINESS_STATUS_CLOSED)
             .build();
 
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(List.of(data))
             .build();
 

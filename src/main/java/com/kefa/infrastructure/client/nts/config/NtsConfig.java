@@ -1,4 +1,4 @@
-package com.kefa.infrastructure.client.nts;
+package com.kefa.infrastructure.client.nts.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
