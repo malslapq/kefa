@@ -1,6 +1,5 @@
 package com.kefa.infrastructure.repository;
 
-import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.domain.entity.Company;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +16,5 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     @EntityGraph(attributePaths = "account")
     Optional<Company> findCompanyById(Long id);
 
+    boolean existsByBusinessNumberAndDeletedFalse(String businessNumber);
 }

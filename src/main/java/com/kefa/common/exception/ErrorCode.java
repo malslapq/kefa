@@ -10,6 +10,9 @@ public enum ErrorCode {
     //회사 관련
     COMPANY_NOT_FOUND(404, "회사를 찾을 수 없습니다"),
     NOT_COMPANY_OWNER(400, "본인 회사만 가능합니다"),
+    DUPLICATE_BUSINESS_NUMBER(400, "이미 존재하는 사업자 등록 번호 입니다"),
+    INVALID_REPRESENTATIVE_INFO(400, "국세청에 등록된 대표자명과 일치하지 않습니다"),
+    INVALID_COMPANY_INFO(400, "국세청에 등록된 상호명과 일치하지 않습니다"),
 
     //NTS API 관런
     NTS_PARSING_ERROR(500, "국세청 API 응답 파싱 중 오류가 발생했습니다"),

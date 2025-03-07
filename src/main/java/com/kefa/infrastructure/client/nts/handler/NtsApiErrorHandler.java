@@ -1,9 +1,7 @@
-package com.kefa.infrastructure.client.nts;
+package com.kefa.infrastructure.client.nts.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.NtsException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
@@ -11,16 +9,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-@RequiredArgsConstructor
 public class NtsApiErrorHandler {
 
-    private final ObjectMapper objectMapper;
-
     public void errorHandler(HttpRequest request, ClientHttpResponse response) {
-
-        NtsErrorResponse ntsErrorResponse = getNtsErrorResponse(response);
-
-        validateBusinessNumberNotFound(ntsErrorResponse);
 
         try {
             ErrorCode errorCode = getErrorCode(response.getStatusCode().value());
@@ -28,27 +19,6 @@ public class NtsApiErrorHandler {
         } catch (IOException e) {
             throw new NtsException(ErrorCode.NTS_HTTP_ERROR);
         }
-
-    }
-
-    private NtsErrorResponse getNtsErrorResponse(ClientHttpResponse response) {
-        try {
-            return objectMapper.readValue(response.getBody(), NtsErrorResponse.class);
-        } catch (Exception e) {
-            throw new NtsException(ErrorCode.NTS_PARSING_ERROR);
-        }
-    }
-
-    private void validateBusinessNumberNotFound(NtsErrorResponse response) {
-
-        if (response == null) {
-            throw new NtsException(ErrorCode.BUSINESS_NUMBER_NOT_FOUND);
-        }
-
-        if (response.getData().isEmpty()) {
-            throw new NtsException(ErrorCode.BUSINESS_NUMBER_NOT_FOUND);
-        }
-
     }
 
     private ErrorCode getErrorCode(int httpStatus) {

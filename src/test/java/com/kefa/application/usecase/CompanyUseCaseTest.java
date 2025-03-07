@@ -1,6 +1,7 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.company.request.CompanyAddRequest;
+import com.kefa.api.dto.company.request.CompanyDeleteRequest;
 import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
@@ -10,8 +11,8 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.NtsException;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.Company;
-import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
-import com.kefa.infrastructure.client.nts.BusinessStatusData;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusData;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,10 +31,37 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyUseCaseTest {
+
+    private static final Long COMPANY_ID = 1L;
+    private static final Long COMPANY_ID_2 = 2L;
+    private static final Long ACCOUNT_ID = 1L;
+    private static final Long DIFFERENT_ACCOUNT_ID = 2L;
+    private static final Long REVENUE = 1000L;
+    private static final Long REVENUE_2 = 2000L;
+    private static final Long UPDATED_REVENUE = 2000L;
+
+    private static final String PASSWORD = "password123";
+    private static final String WRONG_PASSWORD = "wrongPassword";
+    private static final String ENCODED_PASSWORD = "encodedPassword123";
+    private static final String COMPANY_NAME = "test";
+    private static final String COMPANY_NAME_2 = "test2";
+    private static final String UPDATED_COMPANY_NAME = "수정된이름";
+    private static final String BUSINESS_NUMBER = "123-456-78901";
+    private static final String BUSINESS_NUMBER_2 = "123-456-78902";
+    private static final String ADDRESS = "주소테스트";
+    private static final String ADDRESS_2 = "주소테스트2";
+    private static final String UPDATED_ADDRESS = "수정된주소";
+    private static final String INDUSTRY = "업종테스트";
+    private static final String INDUSTRY_2 = "업종테스트2";
+    private static final String UPDATED_INDUSTRY = "수정된업종";
+    private static final String BUSINESS_STATUS_ACTIVE = "계속사업자";
+    private static final String BUSINESS_STATUS_CLOSED = "폐업자";
+    private static final String TAX_TYPE_NOT_REGISTERED = "국세청에 등록되지 않은 사업자등록번호입니다.";
 
     @Mock
     private CompanyRepository companyRepository;
@@ -40,46 +69,150 @@ public class CompanyUseCaseTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private CompanyUseCase companyUseCase;
 
+    private Account createAccount(Long accountId, String password) {
+        return Account.builder()
+            .id(accountId)
+            .password(password)
+            .build();
+    }
+
+    private Company createCompany(Long companyId, String name, String businessNumber,
+                                  String address, String industry, Long revenue, Account account) {
+        return Company.builder()
+            .id(companyId)
+            .name(name)
+            .businessNumber(businessNumber)
+            .address(address)
+            .industry(industry)
+            .revenueMillion(revenue)
+            .account(account)
+            .build();
+    }
+
+    private CompanyUpdateRequest createUpdateRequest(Long companyId) {
+        return CompanyUpdateRequest.builder()
+            .id(companyId)
+            .name(UPDATED_COMPANY_NAME)
+            .address(UPDATED_ADDRESS)
+            .industry(UPDATED_INDUSTRY)
+            .revenueMillion(UPDATED_REVENUE)
+            .build();
+    }
+
+    private CompanyAddRequest createAddRequest() {
+        return CompanyAddRequest.builder()
+            .name(COMPANY_NAME)
+            .businessNumber(BUSINESS_NUMBER)
+            .address(ADDRESS)
+            .industry(INDUSTRY)
+            .revenueMillion(REVENUE)
+            .build();
+    }
+
+    private AuthenticationInfo createAuthInfo(Long accountId) {
+        return AuthenticationInfo.builder()
+            .id(accountId)
+            .build();
+    }
+
+    private CompanyDeleteRequest createDeleteRequest(String password) {
+        return CompanyDeleteRequest.builder()
+            .password(password)
+            .build();
+    }
+
+    @Test
+    @DisplayName("회사 삭제 성공")
+    void deleteSuccess() {
+        //given
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
+        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+            ADDRESS, INDUSTRY, REVENUE, account);
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
+        CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
+
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
+        when(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
+
+        //when
+        companyUseCase.delete(COMPANY_ID, request, authInfo);
+
+        //then
+        verify(companyRepository).delete(company);
+    }
+
+    @Test
+    @DisplayName("회사 삭제 실패 - 회사가 존재하지 않음")
+    void deleteFailCompanyNotFound() {
+        //given
+        CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
+
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, authInfo))
+            .isInstanceOf(CompanyException.class)
+            .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("회사 삭제 실패 - 권한 없음")
+    void deleteFailUnauthorized() {
+        //given
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
+        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+            ADDRESS, INDUSTRY, REVENUE, account);
+        AuthenticationInfo authInfo = createAuthInfo(DIFFERENT_ACCOUNT_ID);
+        CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
+
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
+
+        //when & then
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, authInfo))
+            .isInstanceOf(CompanyException.class)
+            .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
+    }
+
+    @Test
+    @DisplayName("회사 삭제 실패 - 비밀번호 불일치")
+    void deleteFailInvalidPassword() {
+        //given
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
+        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+            ADDRESS, INDUSTRY, REVENUE, account);
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
+        CompanyDeleteRequest request = createDeleteRequest(WRONG_PASSWORD);
+
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
+        when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
+
+        //when & then
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, authInfo))
+            .isInstanceOf(AuthenticationException.class)
+            .hasMessage(ErrorCode.INVALID_PASSWORD.getMessage());
+    }
 
     @Test
     @DisplayName("회사 정보 수정 성공")
     void updateSuccess() {
         //given
-        Long companyId = 1L;
-        Long accountId = 1L;
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
+        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+            ADDRESS, INDUSTRY, REVENUE, account);
+        CompanyUpdateRequest request = createUpdateRequest(COMPANY_ID);
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
-        CompanyUpdateRequest request = CompanyUpdateRequest.builder()
-            .id(companyId)
-            .name("수정된이름")
-            .address("수정된주소")
-            .industry("수정된업종")
-            .revenueMillion(2000L)
-            .build();
-
-        Account account = Account.builder()
-            .id(accountId)
-            .build();
-
-        Company company = Company.builder()
-            .id(companyId)
-            .name("기존이름")
-            .address("기존주소")
-            .industry("기존업종")
-            .revenueMillion(1000L)
-            .account(account)
-            .build();
-
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(accountId)
-            .build();
-
-        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when
-        CompanyResponse response = companyUseCase.update(request, authenticationInfo);
+        CompanyResponse response = companyUseCase.update(request, authInfo);
 
         //then
         assertThat(response.getId()).isEqualTo(request.getId());
@@ -93,24 +226,13 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 정보 수정 실패 - 회사가 존재하지 않음")
     void updateFailCompanyNotFound() {
         //given
-        Long companyId = 1L;
+        CompanyUpdateRequest request = createUpdateRequest(COMPANY_ID);
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
-        CompanyUpdateRequest request = CompanyUpdateRequest.builder()
-            .id(companyId)
-            .name("수정된이름")
-            .address("수정된주소")
-            .industry("수정된업종")
-            .revenueMillion(2000L)
-            .build();
-
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(1L)
-            .build();
-
-        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.empty());
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.update(request, authenticationInfo))
+        assertThatThrownBy(() -> companyUseCase.update(request, authInfo))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
     }
@@ -119,39 +241,16 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 정보 수정 실패 - 권한 없음")
     void updateFailUnauthorized() {
         //given
-        Long companyId = 1L;
-        Long accountId = 1L;
-        Long differentAccountId = 2L;
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
+        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+            ADDRESS, INDUSTRY, REVENUE, account);
+        CompanyUpdateRequest request = createUpdateRequest(COMPANY_ID);
+        AuthenticationInfo authInfo = createAuthInfo(DIFFERENT_ACCOUNT_ID);
 
-        CompanyUpdateRequest request = CompanyUpdateRequest.builder()
-            .id(companyId)
-            .name("수정된이름")
-            .address("수정된주소")
-            .industry("수정된업종")
-            .revenueMillion(2000L)
-            .build();
-
-        Account account = Account.builder()
-            .id(accountId)
-            .build();
-
-        Company company = Company.builder()
-            .id(companyId)
-            .name("기존이름")
-            .address("기존주소")
-            .industry("기존업종")
-            .revenueMillion(1000L)
-            .account(account)
-            .build();
-
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(differentAccountId)  // 다른 계정 ID
-            .build();
-
-        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.update(request, authenticationInfo))
+        assertThatThrownBy(() -> companyUseCase.update(request, authInfo))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
     }
@@ -160,31 +259,15 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 단일 조회 성공")
     void getMyCompanySuccess() {
         //given
-        Long companyId = 1L;
-        Long accountId = 1L;
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
+        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+            ADDRESS, INDUSTRY, REVENUE, account);
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
-        Account account = Account.builder()
-            .id(accountId)
-            .build();
-
-        Company company = Company.builder()
-            .id(companyId)
-            .name("test")
-            .businessNumber("123-456-78901")
-            .address("주소테스트")
-            .industry("업종테스트")
-            .revenueMillion(1000L)
-            .account(account)  // account 설정
-            .build();
-
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(accountId)  // 동일한 accountId
-            .build();
-
-        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when
-        CompanyResponse response = companyUseCase.getMyCompany(companyId, authenticationInfo);
+        CompanyResponse response = companyUseCase.getMyCompany(COMPANY_ID, authInfo);
 
         //then
         assertThat(response.getId()).isEqualTo(company.getId());
@@ -199,15 +282,12 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 단일 조회 실패 - 회사가 존재하지 않음")
     void getMyCompanyFailNotFound() {
         //given
-        Long companyId = 1L;
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(1L)
-            .build();
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
-        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.empty());
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.getMyCompany(companyId, authenticationInfo))
+        assertThatThrownBy(() -> companyUseCase.getMyCompany(COMPANY_ID, authInfo))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
     }
@@ -216,26 +296,15 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 단일 조회 실패 - 권한 없음")
     void getMyCompanyFailUnauthorized() {
         //given
-        Long companyId = 1L;
-        Long accountId = 1L;
-        Long differentAccountId = 2L;
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
+        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+            ADDRESS, INDUSTRY, REVENUE, account);
+        AuthenticationInfo authInfo = createAuthInfo(DIFFERENT_ACCOUNT_ID);
 
-        Company company = Company.builder()
-            .id(companyId)
-            .name("test")
-            .account(Account.builder()
-                .id(accountId)
-                .build())
-            .build();
-
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(differentAccountId)  // 다른 계정 ID로 조회 시도
-            .build();
-
-        when(companyRepository.findCompanyById(companyId)).thenReturn(Optional.of(company));
+        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.getMyCompany(companyId, authenticationInfo))
+        assertThatThrownBy(() -> companyUseCase.getMyCompany(COMPANY_ID, authInfo))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
     }
@@ -244,43 +313,31 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 목록 조회 성공")
     void findAllByAccountIdSuccess() {
         //given
-        Long accountId = 1L;
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         List<Company> companies = List.of(
-            Company.builder()
-                .id(1L)
-                .name("test1")
-                .businessNumber("123-456-78901")
-                .address("주소테스트1")
-                .industry("업종테스트1")
-                .revenueMillion(1000L)
-                .build(),
-            Company.builder()
-                .id(2L)
-                .name("test2")
-                .businessNumber("123-456-78902")
-                .address("주소테스트2")
-                .industry("업종테스트2")
-                .revenueMillion(2000L)
-                .build()
+            createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
+                ADDRESS, INDUSTRY, REVENUE, account),
+            createCompany(COMPANY_ID_2, COMPANY_NAME_2, BUSINESS_NUMBER_2,
+                ADDRESS_2, INDUSTRY_2, REVENUE_2, account)
         );
 
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(accountId)
-            .build();
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
-        when(companyRepository.findAllByAccountId(accountId)).thenReturn(companies);
+        when(companyRepository.findAllByAccountId(ACCOUNT_ID)).thenReturn(companies);
 
         //when
-        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authenticationInfo);
+        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authInfo);
 
         //then
         assertNotNull(responses);
         assertThat(responses).hasSize(2);
+
         assertThat(responses.get(0).getName()).isEqualTo(companies.get(0).getName());
         assertThat(responses.get(0).getBusinessNumber()).isEqualTo(companies.get(0).getBusinessNumber());
         assertThat(responses.get(0).getAddress()).isEqualTo(companies.get(0).getAddress());
         assertThat(responses.get(0).getIndustry()).isEqualTo(companies.get(0).getIndustry());
         assertThat(responses.get(0).getRevenueMillion()).isEqualTo(companies.get(0).getRevenueMillion());
+
         assertThat(responses.get(1).getName()).isEqualTo(companies.get(1).getName());
         assertThat(responses.get(1).getBusinessNumber()).isEqualTo(companies.get(1).getBusinessNumber());
         assertThat(responses.get(1).getAddress()).isEqualTo(companies.get(1).getAddress());
@@ -292,15 +349,12 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 목록 조회 회사가 없을 경우 빈 리스트")
     void findAllByAccountIdEmpty() {
         //given
-        Long accountId = 1L;
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(accountId)
-            .build();
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
-        when(companyRepository.findAllByAccountId(accountId)).thenReturn(Collections.emptyList());
+        when(companyRepository.findAllByAccountId(ACCOUNT_ID)).thenReturn(Collections.emptyList());
 
         //when
-        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authenticationInfo);
+        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authInfo);
 
         //then
         assertNotNull(responses);
@@ -311,26 +365,14 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 등록 성공")
     void addSuccess() {
         //given
-        CompanyAddRequest request = CompanyAddRequest.builder()
-            .name("test")
-            .businessNumber("213-854-66870")
-            .address("주소테스트")
-            .industry("업종테스트")
-            .revenueMillion(1000L)
-            .build();
+        CompanyAddRequest request = createAddRequest();
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
+        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
 
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(1L)
-            .build();
-
-        Account account = Account.builder()
-            .id(1L)
-            .build();
-
-        when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
 
         //when
-        CompanyAddResponse response = companyUseCase.add(request, authenticationInfo);
+        CompanyAddResponse response = companyUseCase.add(request, authInfo);
 
         //then
         assertNotNull(response);
@@ -345,25 +387,17 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 등록 실패 - 회원이 존재하지 않음")
     void addFailNotFoundAccount() {
         //given
-        CompanyAddRequest request = CompanyAddRequest.builder()
-            .name("test")
-            .businessNumber("213-854-66870")
-            .address("주소테스트")
-            .industry("업종테스트")
-            .revenueMillion(1000L)
-            .build();
+        CompanyAddRequest request = createAddRequest();
+        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(1L)
-            .build();
-
-        when(accountRepository.findById(1L)).thenReturn(Optional.empty());
+        when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.add(request, authenticationInfo))
+        assertThatThrownBy(() -> companyUseCase.add(request, authInfo))
             .isInstanceOf(AuthenticationException.class)
             .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
     }
+
 
 
     @Test
@@ -371,10 +405,10 @@ public class CompanyUseCaseTest {
     void validateBusinessNumberSuccess() {
         // given
         BusinessStatusData data = BusinessStatusData.builder()
-            .businessStatus("계속사업자")
+            .businessStatus(BUSINESS_STATUS_ACTIVE)
             .build();
 
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(List.of(data))
             .build();
 
@@ -386,7 +420,7 @@ public class CompanyUseCaseTest {
     @DisplayName("사업자번호가 존재하지 않을 경우 예외")
     void validateBusinessNumberEmptyData() {
         // given
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(Collections.emptyList())
             .build();
 
@@ -401,10 +435,10 @@ public class CompanyUseCaseTest {
     void validateBusinessNumberNotRegistered() {
         // given
         BusinessStatusData data = BusinessStatusData.builder()
-            .taxType("국세청에 등록되지 않은 사업자등록번호입니다.")
+            .taxType(TAX_TYPE_NOT_REGISTERED)
             .build();
 
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(List.of(data))
             .build();
 
@@ -419,10 +453,10 @@ public class CompanyUseCaseTest {
     void validateBusinessNumberInactive() {
         // given
         BusinessStatusData data = BusinessStatusData.builder()
-            .businessStatus("폐업자")
+            .businessStatus(BUSINESS_STATUS_CLOSED)
             .build();
 
-        BusinessNoValidateResponse response = BusinessNoValidateResponse.builder()
+        BusinessStatusResponse response = BusinessStatusResponse.builder()
             .data(List.of(data))
             .build();
 
@@ -431,4 +465,5 @@ public class CompanyUseCaseTest {
             () -> companyUseCase.validateBusinessNumber(response));
         assertEquals(ErrorCode.INACTIVE_BUSINESS_NUMBER, exception.getErrorCode());
     }
+
 }

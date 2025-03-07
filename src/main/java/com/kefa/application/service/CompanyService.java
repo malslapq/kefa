@@ -1,14 +1,12 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.company.request.BusinessNumberValidateRequest;
-import com.kefa.api.dto.company.request.CompanyAddRequest;
-import com.kefa.api.dto.company.request.CompanyUpdateRequest;
+import com.kefa.api.dto.company.request.*;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.application.usecase.CompanyUseCase;
-import com.kefa.common.response.ApiResponse;
-import com.kefa.infrastructure.client.nts.BusinessNoValidateResponse;
-import com.kefa.infrastructure.client.nts.ValidationBusinessNumberClient;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
+import com.kefa.infrastructure.client.nts.dto.validate.BusinessValidateResponse;
+import com.kefa.infrastructure.client.nts.service.NtsBusinessValidationClient;
 import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,9 +16,19 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CompanyService {
-
     private final CompanyUseCase companyUseCase;
-    private final ValidationBusinessNumberClient client;
+
+    private final NtsBusinessValidationClient client;
+
+    public CompanyResponse updateBusinessNumber(Long companyId, BusinessValidateRequest request, AuthenticationInfo authenticationInfo) {
+        companyUseCase.validateBusinessInfo(companyId, request, authenticationInfo);
+        BusinessValidateResponse ntsResponse = client.validateBusinessInfo(request);
+        return companyUseCase.updateBusinessNumber(companyId, request, ntsResponse);
+    }
+
+    public void delete(Long companyId, CompanyDeleteRequest request, AuthenticationInfo authenticationInfo) {
+        companyUseCase.delete(companyId, request, authenticationInfo);
+    }
 
     public CompanyResponse updateCompany(CompanyUpdateRequest request, AuthenticationInfo authenticationInfo) {
         return companyUseCase.update(request, authenticationInfo);
@@ -38,8 +46,8 @@ public class CompanyService {
         return companyUseCase.add(companyAddRequest, authenticationInfo);
     }
 
-    public BusinessNoValidateResponse validateBusinessNumber(BusinessNumberValidateRequest request) {
-        BusinessNoValidateResponse ntsApiResponse = client.validateBusinessNumber(request);
+    public BusinessStatusResponse validateBusinessNumber(BusinessNumberValidateRequest request) {
+        BusinessStatusResponse ntsApiResponse = client.validateBusinessNumber(request);
         companyUseCase.validateBusinessNumber(ntsApiResponse);
         return ntsApiResponse;
     }

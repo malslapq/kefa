@@ -1,4 +1,4 @@
-package com.kefa.infrastructure.client.nts;
+package com.kefa.infrastructure.client.nts.dto.status;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
