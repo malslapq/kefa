@@ -7,6 +7,7 @@ import com.kefa.api.dto.account.response.AccountDeleteResponse;
 import com.kefa.api.dto.account.response.AccountResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
@@ -71,12 +72,12 @@ public class AccountUseCase {
 
     private void validatePassword(String encodedPassword, String inputPassword) {
         if (!passwordEncoder.matches(inputPassword, encodedPassword)) {
-            throw new AuthenticationException(ErrorCode.INVALID_CREDENTIALS);
+            throw new AccountException(ErrorCode.INVALID_CREDENTIALS);
         }
     }
 
     private Account getAccount(Long targetId) {
-        return accountRepository.findById(targetId).orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
+        return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
     }
 
 }

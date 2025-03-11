@@ -154,7 +154,7 @@ public class CompanyUseCase {
 
     private void validatePasswrod(String inputPassword, String encodedPassword) {
         if (!passwordEncoder.matches(inputPassword, encodedPassword)) {
-            throw new AuthenticationException(ErrorCode.INVALID_PASSWORD);
+            throw new CompanyException(ErrorCode.INVALID_PASSWORD);
         }
     }
 
@@ -166,23 +166,23 @@ public class CompanyUseCase {
 
     private void validateResponseData(BusinessStatusResponse response) {
         if (response.getData() == null || response.getData().isEmpty()) {
-            throw new NtsException(ErrorCode.BUSINESS_NUMBER_NOT_FOUND);
+            throw new CompanyException(ErrorCode.BUSINESS_NUMBER_NOT_FOUND);
         }
     }
 
     private void validateBusinessNumberActive(BusinessStatusData data) {
 
         if (data.isNotRegistered()) {
-            throw new NtsException(ErrorCode.BUSINESS_NUMBER_NOT_FOUND);
+            throw new CompanyException(ErrorCode.BUSINESS_NUMBER_NOT_FOUND);
         }
 
         if (!data.isActive()) {
-            throw new NtsException(ErrorCode.INACTIVE_BUSINESS_NUMBER);
+            throw new CompanyException(ErrorCode.INACTIVE_BUSINESS_NUMBER);
         }
 
     }
+    
     // EntityGraph 사용으로 Account 같이 가져옴
-
     private Company getCompanyById(Long companyId) {
         return companyRepository.findCompanyById(companyId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));
     }
