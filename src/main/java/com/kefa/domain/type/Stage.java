@@ -9,7 +9,8 @@ public enum Stage {
 
     PLANNING("기획"),
     PROGRAMMING("진행 중"),
-    COMPLETE("완료"),
+    PATENT_PENDING("특허 출원"),
+    COMMERCIALIZED("상용화"),
     HOLD("보류");
 
     private final String description;
