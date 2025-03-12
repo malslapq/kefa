@@ -9,17 +9,14 @@ import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.CompanyException;
 import com.kefa.common.exception.ErrorCode;
-import com.kefa.common.exception.NtsException;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.Company;
 import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusData;
 import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
 import com.kefa.infrastructure.client.nts.dto.validate.BusinessValidateData;
-import com.kefa.infrastructure.client.nts.dto.validate.BusinessValidateRequestParam;
 import com.kefa.infrastructure.client.nts.dto.validate.BusinessValidateResponse;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.CompanyRepository;
-import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,34 +46,34 @@ public class CompanyUseCase {
         return CompanyResponse.from(company);
     }
 
-    public void validateBusinessInfo(Long companyId, BusinessValidateRequest request, AuthenticationInfo authenticationInfo) {
+    public void validateBusinessInfo(Long companyId, BusinessValidateRequest request, Long loginAccountId) {
 
         Company company = getCompanyById(companyId);
 
-        validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
+        validateCompanyOwnership(loginAccountId, company.getAccount().getId());
 
         validateDuplicateBusinessNumber(request.getB_no());
 
     }
 
     @Transactional
-    public void delete(Long companyId, CompanyDeleteRequest request, AuthenticationInfo authenticationInfo) {
+    public void delete(Long companyId, CompanyDeleteRequest request, Long loginAccountId) {
 
         Company company = getCompanyById(companyId);
 
-        validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
-        validatePasswrod(request.getPassword(), company.getAccount().getPassword());
+        validateCompanyOwnership(loginAccountId, company.getAccount().getId());
+        validatePassword(request.getPassword(), company.getAccount().getPassword());
 
         companyRepository.delete(company);
 
     }
 
     @Transactional
-    public CompanyResponse update(CompanyUpdateRequest request, AuthenticationInfo authenticationInfo) {
+    public CompanyResponse update(CompanyUpdateRequest request, Long loginAccountId) {
 
         Company company = getCompanyById(request.getId());
 
-        validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
+        validateCompanyOwnership(loginAccountId, company.getAccount().getId());
 
         company.update(request);
 
@@ -85,24 +82,24 @@ public class CompanyUseCase {
     }
 
     @Transactional(readOnly = true)
-    public CompanyResponse getMyCompany(Long targetId, AuthenticationInfo authenticationInfo) {
+    public CompanyResponse getMyCompany(Long targetId, Long loginAccountId) {
 
         Company company = getCompanyById(targetId);
 
-        validateCompanyOwnership(authenticationInfo.getId(), company.getAccount().getId());
+        validateCompanyOwnership(loginAccountId, company.getAccount().getId());
 
         return CompanyResponse.from(company);
 
     }
 
     @Transactional(readOnly = true)
-    public List<CompanyResponse> getMyCompanies(AuthenticationInfo authenticationInfo) {
-        return companyRepository.findAllByAccountId(authenticationInfo.getId()).stream().map(CompanyResponse::from).toList();
+    public List<CompanyResponse> getMyCompanies(Long loginAccountId) {
+        return companyRepository.findAllByAccountId(loginAccountId).stream().map(CompanyResponse::from).toList();
     }
 
-    public CompanyAddResponse add(CompanyAddRequest request, AuthenticationInfo authenticationInfo) {
+    public CompanyAddResponse add(CompanyAddRequest request, Long loginAccountId) {
 
-        Account account = accountRepository.findById(authenticationInfo.getId()).orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
+        Account account = accountRepository.findById(loginAccountId).orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
         Company company = CompanyAddRequest.toEntity(request, account);
 
         companyRepository.save(company);
@@ -146,13 +143,12 @@ public class CompanyUseCase {
     }
 
     private void validateDuplicateBusinessNumber(String businessNumber) {
-        if(companyRepository.existsByBusinessNumberAndDeletedFalse(businessNumber)){
+        if (companyRepository.existsByBusinessNumberAndDeletedFalse(businessNumber)) {
             throw new CompanyException(ErrorCode.DUPLICATE_BUSINESS_NUMBER);
         }
     }
 
-
-    private void validatePasswrod(String inputPassword, String encodedPassword) {
+    private void validatePassword(String inputPassword, String encodedPassword) {
         if (!passwordEncoder.matches(inputPassword, encodedPassword)) {
             throw new CompanyException(ErrorCode.INVALID_PASSWORD);
         }
@@ -181,7 +177,7 @@ public class CompanyUseCase {
         }
 
     }
-    
+
     // EntityGraph 사용으로 Account 같이 가져옴
     private Company getCompanyById(Long companyId) {
         return companyRepository.findCompanyById(companyId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));

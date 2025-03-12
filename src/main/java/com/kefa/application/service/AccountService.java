@@ -5,7 +5,6 @@ import com.kefa.api.dto.account.response.*;
 import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
-import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,20 +17,20 @@ public class AccountService {
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
 
-    public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, AuthenticationInfo authenticationInfo) {
-        return accountUseCase.delete(accountDeleteRequest, authenticationInfo);
+    public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, Long loginAccountId) {
+        return accountUseCase.delete(accountDeleteRequest, loginAccountId);
     }
 
-    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
-        return accountUseCase.updatePassword(accountUpdatePasswordRequest, authenticationInfo);
+    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, Long loginAccountId) {
+        return accountUseCase.updatePassword(accountUpdatePasswordRequest, loginAccountId);
     }
 
-    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, AuthenticationInfo authenticationInfo) {
-        return accountUseCase.updateAccount(accountUpdateRequest, authenticationInfo);
+    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, Long loginAccountId) {
+        return accountUseCase.updateAccount(accountUpdateRequest, loginAccountId);
     }
 
-    public AccountResponse getAccount(AuthenticationInfo authenticationInfo) {
-        return accountUseCase.findByAccountId(authenticationInfo);
+    public AccountResponse getAccount(Long loginAccountId) {
+        return accountUseCase.findByAccountId(loginAccountId);
     }
 
     @Transactional

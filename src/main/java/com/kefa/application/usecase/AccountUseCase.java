@@ -1,18 +1,17 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
+import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
 import com.kefa.api.dto.account.response.AccountResponse;
-import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.infrastructure.repository.AccountRepository;
-import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,9 +25,9 @@ public class AccountUseCase {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, AuthenticationInfo authenticationInfo) {
+    public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, Long loginAccountId) {
 
-        Account account = getAccount(authenticationInfo.getId());
+        Account account = getAccount(loginAccountId);
 
         validatePassword(account.getPassword(), accountDeleteRequest.getPassword());
 
@@ -40,9 +39,9 @@ public class AccountUseCase {
     }
 
     @Transactional
-    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, AuthenticationInfo authenticationInfo) {
+    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, Long loginAccountId) {
 
-        Account account = getAccount(authenticationInfo.getId());
+        Account account = getAccount(loginAccountId);
 
         validatePassword(account.getPassword(), accountUpdatePasswordRequest.getPrevPassword());
 
@@ -56,9 +55,9 @@ public class AccountUseCase {
     }
 
     @Transactional
-    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, AuthenticationInfo authenticationInfo) {
+    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, Long loginAccountId) {
 
-        Account account = getAccount(authenticationInfo.getId());
+        Account account = getAccount(loginAccountId);
         account.updateName(accountUpdateRequest.getName());
 
         return AccountUpdateResponse.from(account);
@@ -66,8 +65,8 @@ public class AccountUseCase {
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse findByAccountId(AuthenticationInfo authenticationInfo) {
-        return AccountResponse.from(getAccount(authenticationInfo.getId()));
+    public AccountResponse findByAccountId(Long loginAccountId) {
+        return AccountResponse.from(getAccount(loginAccountId));
     }
 
     private void validatePassword(String encodedPassword, String inputPassword) {

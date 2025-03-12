@@ -1,12 +1,13 @@
 package com.kefa.infrastructure.security.jwt;
 
 import com.kefa.domain.type.Role;
+import com.kefa.infrastructure.security.auth.JwtAuthenticationToken;
+import com.kefa.infrastructure.security.auth.LoginAccount;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,13 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Long id = jwtProvider.getId(token);
         Role role = jwtProvider.getRole(token);
+        LoginAccount loginAccount = LoginAccount.of(id, role);
         Collection<GrantedAuthority> authorities = createAuthorities(role);
 
-        return new UsernamePasswordAuthenticationToken(
-            String.valueOf(id),
-            null,
-            authorities
-        );
+        return new JwtAuthenticationToken(loginAccount, " ", authorities);
 
     }
 

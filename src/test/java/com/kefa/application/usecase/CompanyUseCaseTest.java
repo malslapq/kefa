@@ -8,14 +8,12 @@ import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.CompanyException;
 import com.kefa.common.exception.ErrorCode;
-import com.kefa.common.exception.NtsException;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.Company;
-import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
 import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusData;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.CompanyRepository;
-import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -115,12 +113,6 @@ public class CompanyUseCaseTest {
             .build();
     }
 
-    private AuthenticationInfo createAuthInfo(Long accountId) {
-        return AuthenticationInfo.builder()
-            .id(accountId)
-            .build();
-    }
-
     private CompanyDeleteRequest createDeleteRequest(String password) {
         return CompanyDeleteRequest.builder()
             .password(password)
@@ -134,14 +126,13 @@ public class CompanyUseCaseTest {
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
         CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
         when(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
 
         //when
-        companyUseCase.delete(COMPANY_ID, request, authInfo);
+        companyUseCase.delete(COMPANY_ID, request, ACCOUNT_ID);
 
         //then
         verify(companyRepository).delete(company);
@@ -152,12 +143,11 @@ public class CompanyUseCaseTest {
     void deleteFailCompanyNotFound() {
         //given
         CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, authInfo))
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
     }
@@ -169,13 +159,12 @@ public class CompanyUseCaseTest {
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
-        AuthenticationInfo authInfo = createAuthInfo(DIFFERENT_ACCOUNT_ID);
         CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, authInfo))
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, DIFFERENT_ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
     }
@@ -187,15 +176,14 @@ public class CompanyUseCaseTest {
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
         CompanyDeleteRequest request = createDeleteRequest(WRONG_PASSWORD);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
         when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, authInfo))
-            .isInstanceOf(AuthenticationException.class)
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, ACCOUNT_ID))
+            .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.INVALID_PASSWORD.getMessage());
     }
 
@@ -207,12 +195,11 @@ public class CompanyUseCaseTest {
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
         CompanyUpdateRequest request = createUpdateRequest(COMPANY_ID);
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when
-        CompanyResponse response = companyUseCase.update(request, authInfo);
+        CompanyResponse response = companyUseCase.update(request, ACCOUNT_ID);
 
         //then
         assertThat(response.getId()).isEqualTo(request.getId());
@@ -227,12 +214,11 @@ public class CompanyUseCaseTest {
     void updateFailCompanyNotFound() {
         //given
         CompanyUpdateRequest request = createUpdateRequest(COMPANY_ID);
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.update(request, authInfo))
+        assertThatThrownBy(() -> companyUseCase.update(request, ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
     }
@@ -245,12 +231,11 @@ public class CompanyUseCaseTest {
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
         CompanyUpdateRequest request = createUpdateRequest(COMPANY_ID);
-        AuthenticationInfo authInfo = createAuthInfo(DIFFERENT_ACCOUNT_ID);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.update(request, authInfo))
+        assertThatThrownBy(() -> companyUseCase.update(request, DIFFERENT_ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
     }
@@ -262,12 +247,11 @@ public class CompanyUseCaseTest {
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when
-        CompanyResponse response = companyUseCase.getMyCompany(COMPANY_ID, authInfo);
+        CompanyResponse response = companyUseCase.getMyCompany(COMPANY_ID, ACCOUNT_ID);
 
         //then
         assertThat(response.getId()).isEqualTo(company.getId());
@@ -282,12 +266,10 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 단일 조회 실패 - 회사가 존재하지 않음")
     void getMyCompanyFailNotFound() {
         //given
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
-
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.getMyCompany(COMPANY_ID, authInfo))
+        assertThatThrownBy(() -> companyUseCase.getMyCompany(COMPANY_ID, ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
     }
@@ -299,12 +281,11 @@ public class CompanyUseCaseTest {
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
-        AuthenticationInfo authInfo = createAuthInfo(DIFFERENT_ACCOUNT_ID);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.getMyCompany(COMPANY_ID, authInfo))
+        assertThatThrownBy(() -> companyUseCase.getMyCompany(COMPANY_ID, DIFFERENT_ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
     }
@@ -321,12 +302,10 @@ public class CompanyUseCaseTest {
                 ADDRESS_2, INDUSTRY_2, REVENUE_2, account)
         );
 
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
-
         when(companyRepository.findAllByAccountId(ACCOUNT_ID)).thenReturn(companies);
 
         //when
-        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authInfo);
+        List<CompanyResponse> responses = companyUseCase.getMyCompanies(ACCOUNT_ID);
 
         //then
         assertNotNull(responses);
@@ -349,12 +328,10 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 목록 조회 회사가 없을 경우 빈 리스트")
     void findAllByAccountIdEmpty() {
         //given
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
-
         when(companyRepository.findAllByAccountId(ACCOUNT_ID)).thenReturn(Collections.emptyList());
 
         //when
-        List<CompanyResponse> responses = companyUseCase.getMyCompanies(authInfo);
+        List<CompanyResponse> responses = companyUseCase.getMyCompanies(ACCOUNT_ID);
 
         //then
         assertNotNull(responses);
@@ -366,13 +343,12 @@ public class CompanyUseCaseTest {
     void addSuccess() {
         //given
         CompanyAddRequest request = createAddRequest();
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
 
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
 
         //when
-        CompanyAddResponse response = companyUseCase.add(request, authInfo);
+        CompanyAddResponse response = companyUseCase.add(request, ACCOUNT_ID);
 
         //then
         assertNotNull(response);
@@ -388,16 +364,14 @@ public class CompanyUseCaseTest {
     void addFailNotFoundAccount() {
         //given
         CompanyAddRequest request = createAddRequest();
-        AuthenticationInfo authInfo = createAuthInfo(ACCOUNT_ID);
 
         when(accountRepository.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.add(request, authInfo))
+        assertThatThrownBy(() -> companyUseCase.add(request, ACCOUNT_ID))
             .isInstanceOf(AuthenticationException.class)
             .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
     }
-
 
 
     @Test
@@ -425,7 +399,7 @@ public class CompanyUseCaseTest {
             .build();
 
         // when & then
-        NtsException exception = assertThrows(NtsException.class,
+        CompanyException exception = assertThrows(CompanyException.class,
             () -> companyUseCase.validateBusinessNumber(response));
         assertEquals(ErrorCode.BUSINESS_NUMBER_NOT_FOUND, exception.getErrorCode());
     }
@@ -443,7 +417,7 @@ public class CompanyUseCaseTest {
             .build();
 
         // when & then
-        NtsException exception = assertThrows(NtsException.class,
+        CompanyException exception = assertThrows(CompanyException.class,
             () -> companyUseCase.validateBusinessNumber(response));
         assertEquals(ErrorCode.BUSINESS_NUMBER_NOT_FOUND, exception.getErrorCode());
     }
@@ -461,7 +435,7 @@ public class CompanyUseCaseTest {
             .build();
 
         // when & then
-        NtsException exception = assertThrows(NtsException.class,
+        CompanyException exception = assertThrows(CompanyException.class,
             () -> companyUseCase.validateBusinessNumber(response));
         assertEquals(ErrorCode.INACTIVE_BUSINESS_NUMBER, exception.getErrorCode());
     }
