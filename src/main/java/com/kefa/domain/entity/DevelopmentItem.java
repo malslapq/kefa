@@ -1,5 +1,6 @@
 package com.kefa.domain.entity;
 
+import com.kefa.api.dto.developmentItem.request.DevelopmentItemAddRequest;
 import com.kefa.domain.type.Stage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,5 +32,18 @@ public class DevelopmentItem extends BaseEntity{
 
     @Column(nullable = false)
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY) // 회사와의 관계 설정
+    @JoinColumn(name = "company_id", nullable = false) // 외래 키 이름
+    private Company company;
+
+    public static DevelopmentItem from(DevelopmentItemAddRequest request) {
+        return DevelopmentItem.builder()
+            .name(request.getName())
+            .stage(request.getStage())
+            .technologyField(request.getTechnologyField())
+            .description(request.getDescription())
+            .build();
+    }
 
 }
