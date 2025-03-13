@@ -1,6 +1,7 @@
 package com.kefa.domain.entity;
 
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemAddRequest;
+import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateRequest;
 import com.kefa.domain.type.Stage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Table(name = "development_items")
 @Entity
-public class DevelopmentItem extends BaseEntity{
+public class DevelopmentItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,12 +38,20 @@ public class DevelopmentItem extends BaseEntity{
     @JoinColumn(name = "company_id", nullable = false) // 외래 키 이름
     private Company company;
 
-    public static DevelopmentItem from(DevelopmentItemAddRequest request) {
+    public void update(DevelopmentItemUpdateRequest request) {
+        this.name = request.getName();
+        this.stage = request.getStage();
+        this.technologyField = request.getTechnologyField();
+        this.description = request.getDescription();
+    }
+
+    public static DevelopmentItem of(DevelopmentItemAddRequest request, Company company) {
         return DevelopmentItem.builder()
             .name(request.getName())
             .stage(request.getStage())
             .technologyField(request.getTechnologyField())
             .description(request.getDescription())
+            .company(company)
             .build();
     }
 

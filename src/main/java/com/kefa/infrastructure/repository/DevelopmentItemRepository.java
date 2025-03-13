@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DevelopmentItemRepository extends JpaRepository<DevelopmentItem, Long> {
@@ -15,6 +16,6 @@ public interface DevelopmentItemRepository extends JpaRepository<DevelopmentItem
     List<DevelopmentItem> findAllByCompanyIdWithAccount(@Param("companyId") Long companyId);
 
     @Query("SELECT di FROM DevelopmentItem di JOIN FETCH di.company c JOIN FETCH c.account WHERE di.id = :itemId")
-    DevelopmentItem findByIdWithCompanyAndAccount(@Param("itemId") Long itemId);
+    Optional<DevelopmentItem> findByIdWithCompanyAndAccount(@Param("itemId") Long itemId);
 
 }

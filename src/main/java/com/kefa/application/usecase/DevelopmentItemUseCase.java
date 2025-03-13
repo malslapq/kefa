@@ -1,6 +1,7 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemAddRequest;
+import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateCommand;
 import com.kefa.api.dto.developmentItem.response.DevelopmentItemResponse;
 import com.kefa.common.exception.DevelopmentItemException;
 import com.kefa.common.exception.ErrorCode;
@@ -21,10 +22,28 @@ public class DevelopmentItemUseCase {
     private final DevelopmentItemRepository developmentItemRepository;
     private final CompanyRepository companyRepository;
 
+    public void delete(Long itemId, Long loginAccountId) {
+
+        DevelopmentItem developmentItem = getDevelopmentItemWithCompanyAndAccount(itemId);
+        validateCompanyAccountIdMatch(developmentItem.getCompany().getAccount().getId(), loginAccountId);
+        developmentItemRepository.delete(developmentItem);
+
+    }
+
+    public DevelopmentItemResponse update(DevelopmentItemUpdateCommand command) {
+
+        DevelopmentItem developmentItem = getDevelopmentItemWithCompanyAndAccount(command.getItemId());
+        validateCompanyAccountIdMatch(developmentItem.getCompany().getAccount().getId(), command.getAccountId());
+
+        developmentItem.update(command.getRequest());
+
+        return DevelopmentItemResponse.from(developmentItemRepository.save(developmentItem));
+    }
+
     public DevelopmentItemResponse add(Long companyId, DevelopmentItemAddRequest request) {
 
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new DevelopmentItemException(ErrorCode.COMPANY_NOT_FOUND));
-        DevelopmentItem developmentItem = developmentItemRepository.save(DevelopmentItem.from(request));
+        DevelopmentItem developmentItem = developmentItemRepository.save(DevelopmentItem.of(request, company));
         company.addDevelopmentItem(developmentItem);
 
         return DevelopmentItemResponse.from(developmentItem);
@@ -41,13 +60,18 @@ public class DevelopmentItemUseCase {
 
     @Transactional(readOnly = true)
     public DevelopmentItemResponse get(Long companyId, Long itemId,Long loginAccountId) {
-        DevelopmentItem developmentItem = developmentItemRepository.findByIdWithCompanyAndAccount(itemId);
+        DevelopmentItem developmentItem = getDevelopmentItemWithCompanyAndAccount(itemId);
 
         validateCompanyAccountIdMatch(developmentItem.getCompany().getAccount().getId(), loginAccountId);
 
         validateCompanyIdMatch(developmentItem.getCompany().getId(), companyId);
 
         return DevelopmentItemResponse.from(developmentItem);
+    }
+
+    private DevelopmentItem getDevelopmentItemWithCompanyAndAccount(Long itemId) {
+        return developmentItemRepository.findByIdWithCompanyAndAccount(itemId).orElseThrow(() ->
+            new DevelopmentItemException(ErrorCode.DEVELOPMENT_ITEM_NOT_FOUND));
     }
 
     private void validateCompanyIdMatch(Long getCompanyId, Long requestCompanyId) {
