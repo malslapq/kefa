@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @AllArgsConstructor
@@ -22,6 +25,10 @@ public class Company extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
+
+    @OneToMany(fetch = FetchType.LAZY) // mappedBy 제거
+    @JoinColumn(name = "company_id")
+    private List<DevelopmentItem> developmentItems = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
     private String name;
@@ -47,6 +54,10 @@ public class Company extends BaseEntity {
 
     public void updateBusinessNumber(String businessNumber) {
         this.businessNumber = businessNumber;
+    }
+
+    public void addDevelopmentItem(DevelopmentItem item) {
+        this.developmentItems.add(item);
     }
 
 }

@@ -4,13 +4,13 @@ import com.kefa.api.dto.account.request.*;
 import com.kefa.api.dto.account.response.*;
 import com.kefa.application.service.AccountService;
 import com.kefa.common.response.ApiResponse;
-import com.kefa.infrastructure.security.auth.AuthenticationInfo;
+import com.kefa.infrastructure.security.auth.LoginAccount;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,23 +22,23 @@ public class AccountController {
     private final AccountService accountService;
 
     @DeleteMapping("/accounts")
-    public ApiResponse<AccountDeleteResponse> delete(@RequestBody @Valid AccountDeleteRequest accountDeleteRequest, Authentication authentication){
-        return ApiResponse.success(accountService.delete(accountDeleteRequest, AuthenticationInfo.from(authentication)));
+    public ApiResponse<AccountDeleteResponse> delete(@RequestBody @Valid AccountDeleteRequest accountDeleteRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(accountService.delete(accountDeleteRequest, loginAccount.getId()));
     }
 
     @PutMapping("/accounts/password")
-    public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, Authentication authentication){
-        return ApiResponse.success(accountService.updatePassword(accountUpdatePasswordRequest, AuthenticationInfo.from(authentication)));
+    public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(accountService.updatePassword(accountUpdatePasswordRequest, loginAccount.getId()));
     }
 
     @PutMapping("/accounts")
-    public ApiResponse<AccountUpdateResponse> update(@RequestBody @Valid AccountUpdateRequest accountUpdateRequest, Authentication authentication){
-        return ApiResponse.success(accountService.updateAccount(accountUpdateRequest, AuthenticationInfo.from(authentication)));
+    public ApiResponse<AccountUpdateResponse> update(@RequestBody @Valid AccountUpdateRequest accountUpdateRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(accountService.updateAccount(accountUpdateRequest, loginAccount.getId()));
     }
 
     @GetMapping("/accounts")
-    public ApiResponse<AccountResponse> get(Authentication authentication) {
-        return ApiResponse.success(accountService.getAccount(AuthenticationInfo.from(authentication)));
+    public ApiResponse<AccountResponse> get(@AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(accountService.getAccount(loginAccount.getId()));
     }
 
     @PostMapping("/auth/signup")

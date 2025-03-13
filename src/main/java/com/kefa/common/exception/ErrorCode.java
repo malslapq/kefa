@@ -7,6 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    //개발 아이템 관련
+    DEVELOPMENT_ITEM_NOT_FOUND(404, "개발 아이템을 찾을 수 없습니다"),
+
     //회사 관련
     COMPANY_NOT_FOUND(404, "회사를 찾을 수 없습니다"),
     NOT_COMPANY_OWNER(400, "본인 회사만 가능합니다"),

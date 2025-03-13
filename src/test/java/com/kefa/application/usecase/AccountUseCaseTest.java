@@ -2,17 +2,17 @@ package com.kefa.application.usecase;
 
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
+import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
 import com.kefa.api.dto.account.response.AccountResponse;
-import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.api.dto.account.response.AccountUpdateResponse;
+import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.infrastructure.repository.AccountRepository;
-import com.kefa.infrastructure.security.auth.AuthenticationInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountUseCaseTest {
@@ -43,6 +44,7 @@ public class AccountUseCaseTest {
     private PasswordEncoder passwordEncoder;
 
     private Account account;
+    private final Long targetId = 1L;
 
     @BeforeEach
     void setUp() {
@@ -58,49 +60,40 @@ public class AccountUseCaseTest {
     @Test
     void deleteAccountSuccess() {
         // given
-        Long targetId = 1L;
         String password = "password123!";
         AccountDeleteRequest request = AccountDeleteRequest.builder()
             .password(password)
             .confirm("DELETE")
-            .build();
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
             .build();
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
         given(passwordEncoder.matches(password, account.getPassword())).willReturn(true);
 
         // when
-        AccountDeleteResponse response = accountUseCase.delete(request, authInfo);
+        AccountDeleteResponse response = accountUseCase.delete(request, targetId);
 
         // then
         assertThat(response).isNotNull();
         assertThat(response.getEmail()).isEqualTo(account.getEmail());
         assertThat(response.getMessage()).isEqualTo("계정 탈퇴 성공");
         assertThat(response.getDeletedAt()).isNotNull();
+        verify(accountRepository, times(1)).delete(account);
     }
 
     @DisplayName("회원 탈퇴 실패 - 계정 없음")
     @Test
     void deleteAccountFailAccountNotFound() {
         // given
-        Long targetId = 1L;
         AccountDeleteRequest request = AccountDeleteRequest.builder()
             .password("password123!")
             .confirm("DELETE")
-            .build();
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
             .build();
 
         given(accountRepository.findById(targetId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() ->
-            accountUseCase.delete(request, authInfo)
-        )
-            .isInstanceOf(AuthenticationException.class)
+        assertThatThrownBy(() -> accountUseCase.delete(request, targetId))
+            .isInstanceOf(AccountException.class)
             .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
     }
 
@@ -108,24 +101,18 @@ public class AccountUseCaseTest {
     @Test
     void deleteAccountFailWrongPassword() {
         // given
-        Long targetId = 1L;
         String wrongPassword = "wrongPassword123!";
         AccountDeleteRequest request = AccountDeleteRequest.builder()
             .password(wrongPassword)
             .confirm("DELETE")
-            .build();
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
             .build();
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
         given(passwordEncoder.matches(wrongPassword, account.getPassword())).willReturn(false);
 
         // when & then
-        assertThatThrownBy(() ->
-            accountUseCase.delete(request, authInfo)
-        )
-            .isInstanceOf(AuthenticationException.class)
+        assertThatThrownBy(() -> accountUseCase.delete(request, targetId))
+            .isInstanceOf(AccountException.class)
             .hasMessage(ErrorCode.INVALID_CREDENTIALS.getMessage());
     }
 
@@ -133,7 +120,6 @@ public class AccountUseCaseTest {
     @Test
     void updatePasswordSuccess() {
         // given
-        Long targetId = 1L;
         String prevPassword = "prevPass123!";
         String newPassword = "newPass456@";
         String encodedNewPassword = "encodedNewPassword";
@@ -141,46 +127,36 @@ public class AccountUseCaseTest {
             .prevPassword(prevPassword)
             .newPassword(newPassword)
             .build();
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
-            .build();
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
         given(passwordEncoder.matches(prevPassword, account.getPassword())).willReturn(true);
         given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
 
         // when
-        AccountUpdatePasswordResponse response = accountUseCase.updatePassword(request, authInfo);
+        AccountUpdatePasswordResponse response = accountUseCase.updatePassword(request, targetId);
 
         // then
         assertThat(account.getPassword()).isEqualTo(encodedNewPassword);
         assertThat(response).isNotNull();
         assertThat(response.getMessage()).isEqualTo("비밀번호 변경 완료");
         assertThat(response.getUpdateAt()).isNotNull();
-
     }
 
     @DisplayName("비밀번호 변경 실패 - 비밀번호 틀림")
     @Test
     void updatePasswordFailWrongPassword() {
         // given
-        Long targetId = 1L;
         AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
             .prevPassword("wrongPass123!")
             .newPassword("newPass456@")
-            .build();
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
             .build();
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
         given(passwordEncoder.matches(request.getPrevPassword(), account.getPassword())).willReturn(false);
 
         // when & then
-        assertThatThrownBy(() ->
-            accountUseCase.updatePassword(request, authInfo)
-        )
-            .isInstanceOf(AuthenticationException.class)
+        assertThatThrownBy(() -> accountUseCase.updatePassword(request, targetId))
+            .isInstanceOf(AccountException.class)
             .hasMessage(ErrorCode.INVALID_CREDENTIALS.getMessage());
     }
 
@@ -188,23 +164,17 @@ public class AccountUseCaseTest {
     @Test
     void updatePasswordFailSamePassword() {
         // given
-        Long targetId = 1L;
         String password = "samePass123!";
         AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
             .prevPassword(password)
             .newPassword(password)
-            .build();
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
             .build();
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
         given(passwordEncoder.matches(password, account.getPassword())).willReturn(true);
 
         // when & then
-        assertThatThrownBy(() ->
-            accountUseCase.updatePassword(request, authInfo)
-        )
+        assertThatThrownBy(() -> accountUseCase.updatePassword(request, targetId))
             .isInstanceOf(AuthenticationException.class)
             .hasMessage(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT.getMessage());
     }
@@ -213,21 +183,18 @@ public class AccountUseCaseTest {
     @Test
     void updatePasswordFailAccountNotFound() {
         // given
-        Long targetId = 1L;
         AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
             .prevPassword("prevPass123!")
             .newPassword("newPass456@")
             .build();
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
-            .build();
+
         given(accountRepository.findById(targetId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() ->
-            accountUseCase.updatePassword(request, authInfo)
+            accountUseCase.updatePassword(request, targetId)
         )
-            .isInstanceOf(AuthenticationException.class)
+            .isInstanceOf(AccountException.class)
             .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
     }
 
@@ -235,19 +202,15 @@ public class AccountUseCaseTest {
     @Test
     void updateAccountSuccess() {
         // given
-        Long targetId = 1L;
         String newName = "updatedName";
         AccountUpdateRequest request = new AccountUpdateRequest(newName);
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
-            .build();
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
 
         // when
         AccountUpdateResponse result = accountUseCase.updateAccount(
             request,
-            authInfo
+            targetId
         );
 
         // then
@@ -262,19 +225,16 @@ public class AccountUseCaseTest {
     @Test
     void updateAccountFailAccountNotFound() {
         // given
-        Long targetId = 1L;
         AccountUpdateRequest request = new AccountUpdateRequest("newName");
-        AuthenticationInfo authInfo = AuthenticationInfo.builder()
-            .id(targetId)
-            .build();
+
 
         given(accountRepository.findById(targetId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() ->
-            accountUseCase.updateAccount(request, authInfo)
+            accountUseCase.updateAccount(request, targetId)
         )
-            .isInstanceOf(AuthenticationException.class)
+            .isInstanceOf(AccountException.class)
             .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
         verify(accountRepository, times(1)).findById(targetId);
     }
@@ -284,14 +244,10 @@ public class AccountUseCaseTest {
     void findByAccountIdSuccess() {
 
         //given
-        Long targetId = 1L;
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(targetId)
-            .build();
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
 
         //when
-        AccountResponse result = accountUseCase.findByAccountId(authenticationInfo);
+        AccountResponse result = accountUseCase.findByAccountId(targetId);
 
         //then
         assertThat(result).isNotNull();
@@ -306,15 +262,11 @@ public class AccountUseCaseTest {
     void findByAccountFailAccountIdNotFound() {
 
         //given
-        Long targetId = 1L;
-        AuthenticationInfo authenticationInfo = AuthenticationInfo.builder()
-            .id(targetId)
-            .build();
         given(accountRepository.findById(any())).willReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> accountUseCase.findByAccountId(authenticationInfo))
-            .isInstanceOf(AuthenticationException.class)
+        assertThatThrownBy(() -> accountUseCase.findByAccountId(targetId))
+            .isInstanceOf(AccountException.class)
             .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
 
     }
