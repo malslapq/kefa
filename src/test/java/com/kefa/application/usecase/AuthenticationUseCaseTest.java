@@ -78,7 +78,7 @@ class AuthenticationUseCaseTest {
             .password("encodedPassword")
             .name("name")
             .subscriptionType(SubscriptionType.FREE)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
             .loginTypes(Set.of(LoginType.LOCAL))
             .build();
@@ -140,7 +140,7 @@ class AuthenticationUseCaseTest {
             .password("encodedPassword")
             .name("name")
             .subscriptionType(SubscriptionType.FREE)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
             .loginTypes(Set.of(LoginType.LOCAL))
             .build();
@@ -170,7 +170,7 @@ class AuthenticationUseCaseTest {
             .password("encodedPassword")
             .name("name")
             .subscriptionType(SubscriptionType.FREE)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .emailVerified(false)  // 미인증 계정
             .loginTypes(Set.of(LoginType.LOCAL))
             .build();
@@ -202,7 +202,7 @@ class AuthenticationUseCaseTest {
         verify(accountRepository).save(argThat(savedAccount ->
             savedAccount.getEmail().equals(signupRequestDto.getEmail()) &&
                 savedAccount.getLoginTypes().contains(LoginType.LOCAL) &&
-                savedAccount.getRole() == Role.ACCOUNT &&
+                savedAccount.getRole() == Role.FREE_ACCOUNT &&
                 !savedAccount.isEmailVerified() &&
                 savedAccount.getSubscriptionType() == SubscriptionType.FREE
         ));
@@ -229,7 +229,7 @@ class AuthenticationUseCaseTest {
             .email("test@example.com")
             .name("name")
             .subscriptionType(SubscriptionType.FREE)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
             .loginTypes(Set.of(LoginType.GOOGLE))
             .build();
@@ -245,7 +245,7 @@ class AuthenticationUseCaseTest {
         verify(accountRepository).save(argThat(savedAccount ->
             savedAccount.getEmail().equals("test@example.com") &&
                 savedAccount.getLoginTypes().contains(LoginType.GOOGLE) &&
-                savedAccount.getRole() == Role.ACCOUNT &&
+                savedAccount.getRole() == Role.FREE_ACCOUNT &&
                 savedAccount.isEmailVerified() &&
                 savedAccount.getSubscriptionType() == SubscriptionType.FREE
         ));
@@ -260,7 +260,7 @@ class AuthenticationUseCaseTest {
             .email("test@example.com")
             .name("name")
             .subscriptionType(SubscriptionType.FREE)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
             .loginTypes(Set.of(LoginType.GOOGLE))
             .build();

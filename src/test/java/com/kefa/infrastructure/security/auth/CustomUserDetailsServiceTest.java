@@ -41,7 +41,7 @@ class CustomUserDetailsServiceTest {
             .password("password")
             .loginTypes(Set.of(LoginType.LOCAL))
             .subscriptionType(SubscriptionType.FREE)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .build();
     }
 
@@ -84,7 +84,7 @@ class CustomUserDetailsServiceTest {
         assertThat(userDetails.getAuthorities())
             .hasSize(1)
             .extracting("authority")
-            .contains("ROLE_" + Role.ACCOUNT.name());
+            .contains("ROLE_" + Role.FREE_ACCOUNT.name());
     }
 
     @Test

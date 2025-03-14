@@ -34,6 +34,14 @@ public class CompanyUseCase {
 
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
+    public void validateCompanyOwnershipAndProcess(Long companyId, Long loginAccountId) {
+
+        Company company = getCompanyById(companyId);
+        validateCompanyOwnership(loginAccountId, company.getAccount().getId());
+
+    }
+
     @Transactional
     public CompanyResponse updateBusinessNumber(Long companyId, BusinessValidateRequest request, BusinessValidateResponse ntsResponse) {
 

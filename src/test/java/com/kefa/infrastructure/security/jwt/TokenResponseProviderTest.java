@@ -55,7 +55,7 @@ public class TokenResponseProviderTest {
         expiredTokenProvider.init();
 
         // 만료된 토큰 생성
-        expiredToken = expiredTokenProvider.createAccessToken(1L, Role.ACCOUNT);
+        expiredToken = expiredTokenProvider.createAccessToken(1L, Role.FREE_ACCOUNT);
         Thread.sleep(10); // 토큰 만료를 위해 대기
     }
 
@@ -64,7 +64,7 @@ public class TokenResponseProviderTest {
     void createAccessTokenSuccess() {
         // given
         Long id = 1L;
-        Role role = Role.ACCOUNT;
+        Role role = Role.FREE_ACCOUNT;
 
         // when
         String token = jwtProvider.createAccessToken(id, role);
@@ -81,7 +81,7 @@ public class TokenResponseProviderTest {
     void createRefreshTokenSuccess() {
         // given
         Long id = 1L;
-        Role role = Role.ACCOUNT;
+        Role role = Role.FREE_ACCOUNT;
 
         // when
         String token = jwtProvider.createRefreshToken(id, role);
@@ -142,7 +142,7 @@ public class TokenResponseProviderTest {
     @DisplayName("유효한 토큰 검증 성공 테스트")
     void validateTokenSuccess() {
         // given
-        String token = jwtProvider.createAccessToken(1L, Role.ACCOUNT);
+        String token = jwtProvider.createAccessToken(1L, Role.FREE_ACCOUNT);
 
         // when
         boolean isValid = jwtProvider.validateToken(token);
@@ -168,7 +168,7 @@ public class TokenResponseProviderTest {
     void getIdFromTokenSuccess() {
         // given
         Long id = 1L;
-        String token = jwtProvider.createAccessToken(id, Role.ACCOUNT);
+        String token = jwtProvider.createAccessToken(id, Role.FREE_ACCOUNT);
 
         // when
         Long getId = jwtProvider.getId(token);
@@ -181,7 +181,7 @@ public class TokenResponseProviderTest {
     @DisplayName("토큰에서 Role 추출 성공 테스트")
     void getRoleSuccess() {
         // given
-        Role role = Role.ACCOUNT;
+        Role role = Role.FREE_ACCOUNT;
         String token = jwtProvider.createAccessToken(1L, role);
 
         // when

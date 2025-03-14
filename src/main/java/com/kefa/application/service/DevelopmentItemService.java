@@ -21,20 +21,20 @@ public class DevelopmentItemService {
 
     @Transactional
     public void delete(Long companyId, Long itemId, Long loginAccountId) {
-        companyUseCase.getMyCompany(companyId, loginAccountId);
+        companyUseCase.validateCompanyOwnershipAndProcess(companyId, loginAccountId);
         developmentItemUseCase.delete(itemId, loginAccountId);
     }
 
     @Transactional
     public DevelopmentItemResponse update(DevelopmentItemUpdateCommand command) {
-        companyUseCase.getMyCompany(command.getCompanyId(), command.getAccountId());
+        companyUseCase.validateCompanyOwnershipAndProcess(command.getCompanyId(), command.getAccountId());
         return developmentItemUseCase.update(command);
     }
 
     @Transactional
     public DevelopmentItemResponse add(Long companyId, DevelopmentItemAddRequest request, Long loginAccountId) {
-        CompanyResponse myCompany = companyUseCase.getMyCompany(companyId, loginAccountId);
-        return developmentItemUseCase.add(myCompany.getId(), request);
+        companyUseCase.validateCompanyOwnershipAndProcess(companyId, loginAccountId);
+        return developmentItemUseCase.add(companyId, request);
     }
 
     public List<DevelopmentItemResponse> getAll(Long companyId, Long loginAccountId) {
