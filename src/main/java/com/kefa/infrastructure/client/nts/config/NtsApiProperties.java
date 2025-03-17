@@ -13,5 +13,7 @@ public class NtsApiProperties {
 
     private String key;
     private String baseUrl;
+    private String statusPath;
+    private String validatePath;
 
 }
