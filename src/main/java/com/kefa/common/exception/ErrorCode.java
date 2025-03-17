@@ -7,6 +7,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    //S3 파일 업로드 관련
+    EMPTY_FILE(400, "업로드 할 파일이 존재하지 않습니다"),
+    FILE_TOO_LARGE(400, "업로드할 파일의 크기가 너무 큽니다"),
+    INVALID_FILE_TYPE(400, "지원하지 않는 파일 형식입니다"),
+    FILE_UPLOAD_FAILED(500, "파일 업로드에 실패했습니다"),
+    FILE_DELETE_FAILED(500,"파일 삭제에 실패했습니다"),
+
     //개발 아이템 관련
     DEVELOPMENT_ITEM_NOT_FOUND(404, "개발 아이템을 찾을 수 없습니다"),
 
