@@ -10,6 +10,7 @@ import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ConsultingSessionUseCase {
         return null;
     }
 
-    public ConsultingSessionResponse add(Long companyId) {
+    public ConsultingSessionResponse add(Long companyId, Long loginAccountId) {
 
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new ConsultingSessionException(ErrorCode.COMPANY_NOT_FOUND));
 
@@ -38,8 +39,21 @@ public class ConsultingSessionUseCase {
             .company(company)
             .build());
 
+        consultingSession.addParticipantAccountId(loginAccountId);
         company.addConsultingSession(consultingSession);
 
         return ConsultingSessionResponse.from(consultingSession);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateUserIsParticipant(Long consultingSessionId, Long loginAccountId) {
+
+        ConsultingSession consultingSession = consultingSessionRepository.findByIdWithParticipants(consultingSessionId)
+            .orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
+
+        if(!consultingSession.getParticipantAccountIds().contains(loginAccountId)){
+            throw new ConsultingSessionException(ErrorCode.CONSULTING_ACCESS_DENIED);
+        }
+
     }
 }

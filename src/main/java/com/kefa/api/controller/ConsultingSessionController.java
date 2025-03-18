@@ -17,7 +17,7 @@ import java.util.List;
 @PreAuthorize("hasAnyRole('CONCIERGE_ACCOUNT', 'EXPERT', 'ADMIN', 'STAFF')")
 @RestController
 @RequiredArgsConstructor
-public class ConsultingController {
+public class ConsultingSessionController {
 
     private final ConsultingSessionService consultingSessionService;
 

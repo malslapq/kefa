@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
 @RequiredArgsConstructor
-public class AwsConfig {
+public class S3Config {
 
     private final AwsProperties awsProperties;
 

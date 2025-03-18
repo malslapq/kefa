@@ -1,8 +1,7 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.company.response.CompanyResponse;
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemAddRequest;
-import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateCommand;
+import com.kefa.api.dto.developmentItem.command.DevelopmentItemUpdateCommand;
 import com.kefa.api.dto.developmentItem.response.DevelopmentItemResponse;
 import com.kefa.application.usecase.CompanyUseCase;
 import com.kefa.application.usecase.DevelopmentItemUseCase;

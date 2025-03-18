@@ -7,6 +7,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,8 +28,21 @@ public class ConsultingSession extends BaseEntity{
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "consulting_session_id")
+    private List<ConsultingSessionDocument> documents = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ConsultingStatus status;
+
+    @ElementCollection
+    @CollectionTable(name = "consulting_session_participants", joinColumns = @JoinColumn(name = "consulting_session_id"))
+    @Column(name = "account_id")
+    private Set<Long> participantAccountIds = new HashSet<>();
+
+    public void addParticipantAccountId(Long accountId) {
+        this.participantAccountIds.add(accountId);
+    }
 
 }

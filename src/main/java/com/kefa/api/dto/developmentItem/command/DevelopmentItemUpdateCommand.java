@@ -1,5 +1,6 @@
-package com.kefa.api.dto.developmentItem.request;
+package com.kefa.api.dto.developmentItem.command;
 
+import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

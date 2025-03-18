@@ -3,6 +3,7 @@ package com.kefa.infrastructure.aws.s3;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.S3FileUploadException;
 import com.kefa.infrastructure.aws.config.AwsProperties;
+import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +28,11 @@ public class S3Service {
 
     private static final Set<String> SUPPORTED_EXTENSIONS = new HashSet<>(Set.of("jpg", "jpeg", "png", "gif", "webp"));
 
-    public List<String> uploadFile(List<MultipartFile> files) {
+    public List<SaveFileDto> uploadFile(List<MultipartFile> files) {
 
         validateFiles(files);
 
-        List<String> fileUrls = new ArrayList<>();
+        List<SaveFileDto> fileDtos = new ArrayList<>();
 
         for (MultipartFile file : files) {
 
@@ -41,12 +42,16 @@ public class S3Service {
             validateFileExtension(originalFilename);
 
             String uniqueFileName = generateUniqueFileName(originalFilename);
-            String fileUrl = s3Upload(file, uniqueFileName);
-            fileUrls.add(fileUrl);
+            s3Upload(file, uniqueFileName);
+            SaveFileDto fileDto = SaveFileDto.builder()
+                .url(generateFileUrl(uniqueFileName))
+                .name(originalFilename)
+                .build();
 
+            fileDtos.add(fileDto);
         }
 
-        return fileUrls;
+        return fileDtos;
     }
 
     public void deleteFile(String keyName) {
@@ -103,7 +108,7 @@ public class S3Service {
 
     }
 
-    private String s3Upload(MultipartFile file, String uniqueFileName) {
+    private void s3Upload(MultipartFile file, String uniqueFileName) {
 
         PutObjectRequest putRequest = PutObjectRequest.builder()
             .bucket(properties.getS3().getBucket())
@@ -111,10 +116,7 @@ public class S3Service {
             .build();
 
         try (InputStream inputStream = file.getInputStream()) {
-
             s3Client.putObject(putRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
-            return generateFileUrl(uniqueFileName);
-
         } catch (Exception e) {
             throw new S3FileUploadException(ErrorCode.FILE_UPLOAD_FAILED);
         }

@@ -30,7 +30,7 @@ public class ConsultingSessionService {
     public ConsultingSessionResponse add(Long companyId, Long loginAccountId) {
 
         companyUseCase.validateCompanyOwnershipAndProcess(companyId, loginAccountId);
-        return consultingSessionUseCase.add(companyId);
+        return consultingSessionUseCase.add(companyId, loginAccountId);
 
     }
 }
