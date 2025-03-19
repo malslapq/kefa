@@ -2,11 +2,13 @@ package com.kefa.api.controller;
 
 import com.kefa.api.dto.consulting.command.ConsultingDocumentUploadCommand;
 import com.kefa.api.dto.consulting.command.GetConsultingSessionDocsCommand;
+import com.kefa.api.dto.consulting.request.UpdateDocNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.application.service.ConsultingSessionDocumentService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import com.kefa.infrastructure.security.auth.LoginAccount;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +23,10 @@ public class ConsultingSessionDocumentController {
     private final ConsultingSessionDocumentService consultingSessionDocumentService;
 
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/docs")
-    public ApiResponse<?> upload(@PathVariable Long companyId,
-                                 @PathVariable Long consultingSessionId,
-                                 @RequestParam List<MultipartFile> files,
-                                 @AuthenticationPrincipal LoginAccount loginAccount) {
+    public ApiResponse<Void> upload(@PathVariable Long companyId,
+                                    @PathVariable Long consultingSessionId,
+                                    @RequestParam List<MultipartFile> files,
+                                    @AuthenticationPrincipal LoginAccount loginAccount) {
 
         ConsultingDocumentUploadCommand command = ConsultingDocumentUploadCommand.builder()
             .companyId(companyId)
@@ -56,8 +58,13 @@ public class ConsultingSessionDocumentController {
         return ApiResponse.success(consultingSessionDocumentService.getDocs(command));
     }
 
+    @PatchMapping("/company/consulting/doc/{documentId}")
+    public ApiResponse<Void> updateConsultingSessionDocsName(@PathVariable Long documentId,
+                                                             @AuthenticationPrincipal LoginAccount loginAccount,
+                                                             @RequestBody @Valid UpdateDocNameRequest request) {
 
-
-
+        consultingSessionDocumentService.updateName(documentId, loginAccount.getId(), request);
+        return ApiResponse.success();
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.kefa.application.usecase;
 
+import com.kefa.api.dto.consulting.request.UpdateDocNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.common.exception.ConsultingSessionDocumentException;
 import com.kefa.common.exception.ErrorCode;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,5 +59,20 @@ public class ConsultingSessionDocumentUseCase {
             .totalElements(documentPage.getTotalElements())
             .totalPages(documentPage.getTotalPages())
             .build();
+    }
+
+    public void updateName(Long documentId, Long loginAccountId, UpdateDocNameRequest request) {
+        ConsultingSessionDocument document = consultingDocumentRepository.findById(documentId)
+            .orElseThrow(() -> new ConsultingSessionDocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
+
+        validateDocumentOwnership(document.getSaveAccountId(), loginAccountId);
+
+        document.updateName(request.getName());
+    }
+
+    private void validateDocumentOwnership(Long saveDocumentAccountId, Long loginAccountId) {
+        if (!saveDocumentAccountId.equals(loginAccountId)) {
+            throw new ConsultingSessionDocumentException(ErrorCode.UNAUTHORIZED_DOCUMENT_EDIT);
+        }
     }
 }

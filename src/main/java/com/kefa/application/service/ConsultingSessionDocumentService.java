@@ -2,14 +2,13 @@ package com.kefa.application.service;
 
 import com.kefa.api.dto.consulting.command.ConsultingDocumentUploadCommand;
 import com.kefa.api.dto.consulting.command.GetConsultingSessionDocsCommand;
+import com.kefa.api.dto.consulting.request.UpdateDocNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.application.usecase.CompanyUseCase;
 import com.kefa.application.usecase.ConsultingSessionDocumentUseCase;
 import com.kefa.application.usecase.ConsultingSessionUseCase;
-import com.kefa.domain.entity.ConsultingSessionDocument;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +42,11 @@ public class ConsultingSessionDocumentService {
         consultingSessionUseCase.validateUserIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
 
         return consultingSessionDocumentUseCase.getDocs(command.getConsultingSessionId(), PageRequest.of(command.getPage(), command.getSize()));
+    }
+
+    @Transactional
+    public void updateName(Long documentId, Long loginAccountId, UpdateDocNameRequest request) {
+        consultingSessionDocumentUseCase.updateName(documentId, loginAccountId, request);
     }
 
 }

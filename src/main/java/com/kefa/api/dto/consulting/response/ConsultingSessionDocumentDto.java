@@ -12,13 +12,13 @@ public class ConsultingSessionDocumentDto {
 
     private Long id;
     private String fileUrl;
-    private String fileName;
+    private String name;
 
     public static ConsultingSessionDocumentDto from(ConsultingSessionDocument consultingSessionDocument) {
         return ConsultingSessionDocumentDto.builder()
             .id(consultingSessionDocument.getId())
             .fileUrl(consultingSessionDocument.getFileUrl())
-            .fileName(consultingSessionDocument.getFileName())
+            .name(consultingSessionDocument.getName())
             .build();
     }
 

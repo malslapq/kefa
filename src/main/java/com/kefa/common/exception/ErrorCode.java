@@ -7,6 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    //컨설팅 세션 문서 관련
+    NOT_FOUND_DOCUMENT(404, "문서를 찾을 수 없습니다"),
+    UNAUTHORIZED_DOCUMENT_EDIT(403, "문서의 수정 권한이 없습니다"),
+
     //컨설팅 세션 관련
     NOT_FOUND_CONSULTING_SESSION(404, "컨설팅 세션을 찾을 수 없습니다"),
     CONSULTING_ACCESS_DENIED(403, "컨설팅 세션에 대한 접근 권한이 없습니다"),

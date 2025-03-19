@@ -21,7 +21,7 @@ public class SaveFileDto {
         return SaveFileDto.builder()
             .id(consultingSessionDocument.getId())
             .url(consultingSessionDocument.getFileUrl())
-            .name(consultingSessionDocument.getFileName())
+            .name(consultingSessionDocument.getName())
             .createdAt(consultingSessionDocument.getCreatedAt())
             .build();
     }

@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -29,7 +29,7 @@ public class ConsultingSessionDocument {
     private String fileUrl;
 
     @Column(nullable = false)
-    private String fileName;
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consulting_session_id", nullable = false)
@@ -37,6 +37,9 @@ public class ConsultingSessionDocument {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     public void addConsultingSession(ConsultingSession consultingSession) {
         this.consultingSession = consultingSession;
@@ -46,8 +49,12 @@ public class ConsultingSessionDocument {
         return ConsultingSessionDocument.builder()
             .saveAccountId(saveAccountId)
             .fileUrl(saveFileDto.getUrl())
-            .fileName(saveFileDto.getName())
+            .name(saveFileDto.getName())
             .build();
+    }
+
+    public void updateName(String name){
+        this.name = name;
     }
 
 }
