@@ -67,4 +67,10 @@ public class ConsultingSessionDocumentController {
         return ApiResponse.success();
     }
 
+    @DeleteMapping("/company/consulting/doc/{documentId}")
+    public ApiResponse<String> deleteConsultingSessionDoc(@PathVariable Long documentId, @AuthenticationPrincipal LoginAccount loginAccount) {
+        consultingSessionDocumentService.delete(documentId, loginAccount.getId());
+        return ApiResponse.success();
+    }
+
 }

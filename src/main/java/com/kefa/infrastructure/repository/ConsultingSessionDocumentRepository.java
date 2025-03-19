@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ConsultingDocumentRepository extends JpaRepository<ConsultingSessionDocument, Long> {
+public interface ConsultingSessionDocumentRepository extends JpaRepository<ConsultingSessionDocument, Long> {
 
     Page<ConsultingSessionDocument> findByConsultingSessionId(Long consultingSessionId, Pageable pageable);
 

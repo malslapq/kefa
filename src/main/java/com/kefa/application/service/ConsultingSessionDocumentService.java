@@ -49,4 +49,8 @@ public class ConsultingSessionDocumentService {
         consultingSessionDocumentUseCase.updateName(documentId, loginAccountId, request);
     }
 
+    public void delete(Long documentId, Long loginAccountId) {
+        SaveFileDto saveFileDto = consultingSessionDocumentUseCase.delete(documentId, loginAccountId);
+        consultingSessionDocumentUseCase.deleteFile(saveFileDto.getUrl());
+    }
 }

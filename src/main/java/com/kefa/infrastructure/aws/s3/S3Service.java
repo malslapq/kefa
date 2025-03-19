@@ -54,9 +54,10 @@ public class S3Service {
         return fileDtos;
     }
 
-    public void deleteFile(String keyName) {
+    public void deleteFile(String fileUrl) {
 
         try {
+            String keyName = extractKeyNameFromUrl(fileUrl);
 
             DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                 .bucket(properties.getS3().getBucket())
@@ -140,4 +141,15 @@ public class S3Service {
     private String generateFileUrl(String uniqueFileName) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", properties.getS3().getBucket(), properties.getRegion(), uniqueFileName);
     }
+
+    private String extractKeyNameFromUrl(String url) {
+        String bucketUrl = String.format("https://%s.s3.%s.amazonaws.com/",
+            properties.getS3().getBucket(),
+            properties.getRegion());
+        if (!url.startsWith(bucketUrl)) {
+            throw new S3FileUploadException(ErrorCode.INVALID_FILE_URL);
+        }
+        return url.replace(bucketUrl, "");
+    }
+
 }

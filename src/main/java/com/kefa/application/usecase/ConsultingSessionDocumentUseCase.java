@@ -8,7 +8,7 @@ import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.entity.ConsultingSessionDocument;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import com.kefa.infrastructure.aws.s3.S3Service;
-import com.kefa.infrastructure.repository.ConsultingDocumentRepository;
+import com.kefa.infrastructure.repository.ConsultingSessionDocumentRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,13 +23,16 @@ import java.util.List;
 public class ConsultingSessionDocumentUseCase {
 
     private final S3Service s3Service;
-    private final ConsultingDocumentRepository consultingDocumentRepository;
+    private final ConsultingSessionDocumentRepository consultingSessionDocumentRepository;
     private final ConsultingSessionRepository consultingSessionRepository;
 
     public List<SaveFileDto> uploadFiles(List<MultipartFile> files) {
         return s3Service.uploadFile(files);
     }
 
+    public void deleteFile(String fileUrl){
+        s3Service.deleteFile(fileUrl);
+    }
 
     public void saveFilesUrl(List<SaveFileDto> saveFileDtos, Long consultingSessionId, Long loginAccountId) {
 
@@ -45,12 +48,12 @@ public class ConsultingSessionDocumentUseCase {
                 })
                 .toList();
 
-        consultingDocumentRepository.saveAll(consultingSessionDocuments);
+        consultingSessionDocumentRepository.saveAll(consultingSessionDocuments);
     }
 
     public PagedResponse<SaveFileDto> getDocs(Long consultingSessionId, PageRequest pageRequest) {
 
-        Page<ConsultingSessionDocument> documentPage = consultingDocumentRepository.findByConsultingSessionId(consultingSessionId, pageRequest);
+        Page<ConsultingSessionDocument> documentPage = consultingSessionDocumentRepository.findByConsultingSessionId(consultingSessionId, pageRequest);
 
         return PagedResponse.<SaveFileDto>builder()
             .content(documentPage.map(SaveFileDto::from).getContent())
@@ -62,17 +65,34 @@ public class ConsultingSessionDocumentUseCase {
     }
 
     public void updateName(Long documentId, Long loginAccountId, UpdateDocNameRequest request) {
-        ConsultingSessionDocument document = consultingDocumentRepository.findById(documentId)
-            .orElseThrow(() -> new ConsultingSessionDocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
+
+        ConsultingSessionDocument document = getConsultingSessionDocumentById(documentId);
 
         validateDocumentOwnership(document.getSaveAccountId(), loginAccountId);
 
         document.updateName(request.getName());
+
+    }
+
+    public SaveFileDto delete(Long documentId, Long loginAccountId) {
+
+        ConsultingSessionDocument document = getConsultingSessionDocumentById(documentId);
+
+        validateDocumentOwnership(document.getSaveAccountId(), loginAccountId);
+
+        consultingSessionDocumentRepository.deleteById(documentId);
+
+        return SaveFileDto.from(document);
     }
 
     private void validateDocumentOwnership(Long saveDocumentAccountId, Long loginAccountId) {
         if (!saveDocumentAccountId.equals(loginAccountId)) {
             throw new ConsultingSessionDocumentException(ErrorCode.UNAUTHORIZED_DOCUMENT_EDIT);
         }
+    }
+
+    private ConsultingSessionDocument getConsultingSessionDocumentById(Long documentId) {
+        return consultingSessionDocumentRepository.findById(documentId)
+            .orElseThrow(() -> new ConsultingSessionDocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
     }
 }
