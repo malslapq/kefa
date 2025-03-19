@@ -3,7 +3,7 @@ package com.kefa.api.controller;
 import com.kefa.api.dto.consulting.command.ConsultingDocumentUploadCommand;
 import com.kefa.api.dto.consulting.command.GetConsultingSessionDocsCommand;
 import com.kefa.api.dto.consulting.response.PagedResponse;
-import com.kefa.application.service.ConsultingDocumentService;
+import com.kefa.application.service.ConsultingSessionDocumentService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import com.kefa.infrastructure.security.auth.LoginAccount;
@@ -16,9 +16,9 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-public class ConsultingDocumentController {
+public class ConsultingSessionDocumentController {
 
-    private final ConsultingDocumentService consultingDocumentService;
+    private final ConsultingSessionDocumentService consultingSessionDocumentService;
 
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/docs")
     public ApiResponse<?> upload(@PathVariable Long companyId,
@@ -33,7 +33,7 @@ public class ConsultingDocumentController {
             .files(files)
             .build();
 
-        consultingDocumentService.fileUpload(command);
+        consultingSessionDocumentService.fileUpload(command);
         return ApiResponse.success();
     }
 
@@ -53,7 +53,11 @@ public class ConsultingDocumentController {
             .size(size)
             .build();
 
-        return ApiResponse.success(consultingDocumentService.getDocs(command));
+        return ApiResponse.success(consultingSessionDocumentService.getDocs(command));
     }
+
+
+
+
 
 }

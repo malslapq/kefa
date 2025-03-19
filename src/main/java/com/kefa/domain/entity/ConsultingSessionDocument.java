@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -26,6 +30,17 @@ public class ConsultingSessionDocument {
 
     @Column(nullable = false)
     private String fileName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "consulting_session_id", nullable = false)
+    private ConsultingSession consultingSession;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    public void addConsultingSession(ConsultingSession consultingSession) {
+        this.consultingSession = consultingSession;
+    }
 
     public static ConsultingSessionDocument of(SaveFileDto saveFileDto, Long saveAccountId){
         return ConsultingSessionDocument.builder()
