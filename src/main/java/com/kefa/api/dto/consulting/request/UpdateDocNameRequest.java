@@ -7,6 +7,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class UpdateDocNameRequest {
 
     @NotBlank(message = "변경 할 이름은 공백일 수 없습니다")
