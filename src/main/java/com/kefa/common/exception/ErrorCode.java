@@ -14,6 +14,7 @@ public enum ErrorCode {
     //컨설팅 세션 관련
     NOT_FOUND_CONSULTING_SESSION(404, "컨설팅 세션을 찾을 수 없습니다"),
     CONSULTING_ACCESS_DENIED(403, "컨설팅 세션에 대한 접근 권한이 없습니다"),
+    INVALID_COMPANY(400, "회사가 일치하지 않습니다"),
 
     //S3 관련
     EMPTY_FILE(400, "업로드 할 파일이 존재하지 않습니다"),

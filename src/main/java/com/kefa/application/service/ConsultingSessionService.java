@@ -1,5 +1,6 @@
 package com.kefa.application.service;
 
+import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.application.usecase.CompanyUseCase;
 import com.kefa.application.usecase.ConsultingSessionUseCase;
@@ -21,7 +22,7 @@ public class ConsultingSessionService {
         return consultingSessionUseCase.getAllFromCompany(companyId);
     }
 
-    public ConsultingSessionResponse getDetail(Long companyId, Long consultingSessionId, Long loginAccountId) {
+    public ConsultingSessionDetailResponse getDetail(Long companyId, Long consultingSessionId, Long loginAccountId) {
         companyUseCase.validateCompanyOwnershipAndProcess(companyId, loginAccountId);
         return consultingSessionUseCase.getDetail(companyId, consultingSessionId);
     }

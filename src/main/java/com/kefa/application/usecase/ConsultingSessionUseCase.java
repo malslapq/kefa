@@ -1,5 +1,6 @@
 package com.kefa.application.usecase;
 
+import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.common.exception.ConsultingSessionException;
 import com.kefa.common.exception.ErrorCode;
@@ -25,9 +26,12 @@ public class ConsultingSessionUseCase {
         return consultingSessionRepository.findAllByCompanyId(companyId).stream().map(ConsultingSessionResponse::from).toList();
     }
 
-    public ConsultingSessionResponse getDetail(Long companyId, Long consultingSessionId) {
+    public ConsultingSessionDetailResponse getDetail(Long companyId, Long consultingSessionId) {
+        ConsultingSession consultingSession = consultingSessionRepository.findByIdWithDocumentsAndCompany(consultingSessionId).orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
 
-        return null;
+        validateCompanyId(consultingSession.getCompany().getId(), companyId);
+
+        return ConsultingSessionDetailResponse.from(consultingSession);
     }
 
     public ConsultingSessionResponse add(Long companyId, Long loginAccountId) {
@@ -55,5 +59,11 @@ public class ConsultingSessionUseCase {
             throw new ConsultingSessionException(ErrorCode.CONSULTING_ACCESS_DENIED);
         }
 
+    }
+
+    private void validateCompanyId(Long getCompanyId, Long requestCompanyId) {
+        if(!getCompanyId.equals(requestCompanyId)){
+            throw new ConsultingSessionException(ErrorCode.INVALID_COMPANY);
+        }
     }
 }
