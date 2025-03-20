@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -158,10 +157,9 @@ public class ConsultingSessionDocumentUseCaseTest {
         Page<ConsultingSessionDocument> mockPage = new PageImpl<>(mockDocuments);
 
         given(consultingSessionDocumentRepository.findByConsultingSessionId(any(), any())).willReturn(mockPage);
-        PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        PagedResponse<SaveFileDto> response = useCase.getDocs(targetId, pageRequest);
+        PagedResponse<SaveFileDto> response = useCase.getDocs(targetId, 0, 10);
 
         // then
         assertThat(response.getContent()).isNotEmpty();

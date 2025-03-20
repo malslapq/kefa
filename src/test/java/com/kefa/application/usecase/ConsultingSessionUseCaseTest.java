@@ -130,13 +130,13 @@ public class ConsultingSessionUseCaseTest {
 
     @DisplayName("참여자 검증 성공")
     @Test
-    void validateUserIsParticipantSuccess() {
+    void validateAccountIsParticipantSuccess() {
         // given
         consultingSession.addParticipantAccountId(sessionId);
         given(consultingSessionRepository.findByIdWithParticipants(sessionId)).willReturn(Optional.of(consultingSession));
 
         // when
-        useCase.validateUserIsParticipant(sessionId, sessionId);
+        useCase.validateAccountIsParticipant(sessionId, sessionId);
 
         // then
         verify(consultingSessionRepository).findByIdWithParticipants(sessionId);
@@ -144,12 +144,12 @@ public class ConsultingSessionUseCaseTest {
 
     @DisplayName("참여자 검증 실패 - 참여자 아님")
     @Test
-    void validateUserIsParticipantFailNotParticipant() {
+    void validateAccountIsParticipantFailNotParticipant() {
         // given
         given(consultingSessionRepository.findByIdWithParticipants(sessionId)).willReturn(Optional.of(consultingSession));
 
         // when & then
-        assertThatThrownBy(() -> useCase.validateUserIsParticipant(sessionId, 3L))
+        assertThatThrownBy(() -> useCase.validateAccountIsParticipant(sessionId, 3L))
             .isInstanceOf(ConsultingSessionException.class)
             .hasMessage(ErrorCode.CONSULTING_ACCESS_DENIED.getMessage());
     }

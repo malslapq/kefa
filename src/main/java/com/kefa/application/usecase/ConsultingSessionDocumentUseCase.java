@@ -13,7 +13,9 @@ import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -51,7 +53,9 @@ public class ConsultingSessionDocumentUseCase {
         consultingSessionDocumentRepository.saveAll(consultingSessionDocuments);
     }
 
-    public PagedResponse<SaveFileDto> getDocs(Long consultingSessionId, PageRequest pageRequest) {
+    public PagedResponse<SaveFileDto> getDocs(Long consultingSessionId, int page, int size) {
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         Page<ConsultingSessionDocument> documentPage = consultingSessionDocumentRepository.findByConsultingSessionId(consultingSessionId, pageRequest);
 
@@ -64,6 +68,7 @@ public class ConsultingSessionDocumentUseCase {
             .build();
     }
 
+    @Transactional
     public void updateName(Long documentId, Long loginAccountId, UpdateDocNameRequest request) {
 
         ConsultingSessionDocument document = getConsultingSessionDocumentById(documentId);

@@ -9,7 +9,6 @@ import com.kefa.application.usecase.ConsultingSessionDocumentUseCase;
 import com.kefa.application.usecase.ConsultingSessionUseCase;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class ConsultingSessionDocumentService {
     public void fileUpload(ConsultingDocumentUploadCommand command) {
 
         companyUseCase.validateCompanyOwnershipAndProcess(command.getCompanyId(), command.getLoginAccountId());
-        consultingSessionUseCase.validateUserIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
+        consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
 
         List<SaveFileDto> uploadedFilesUrl = consultingSessionDocumentUseCase.uploadFiles(command.getFiles());
 
@@ -39,16 +38,16 @@ public class ConsultingSessionDocumentService {
     public PagedResponse<SaveFileDto> getDocs(GetConsultingSessionDocsCommand command) {
 
         companyUseCase.validateCompanyOwnershipAndProcess(command.getCompanyId(), command.getLoginAccountId());
-        consultingSessionUseCase.validateUserIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
+        consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
 
-        return consultingSessionDocumentUseCase.getDocs(command.getConsultingSessionId(), PageRequest.of(command.getPage(), command.getSize()));
+        return consultingSessionDocumentUseCase.getDocs(command.getConsultingSessionId(), command.getPage(), command.getSize());
     }
 
-    @Transactional
     public void updateName(Long documentId, Long loginAccountId, UpdateDocNameRequest request) {
         consultingSessionDocumentUseCase.updateName(documentId, loginAccountId, request);
     }
 
+    @Transactional
     public void delete(Long documentId, Long loginAccountId) {
         SaveFileDto saveFileDto = consultingSessionDocumentUseCase.delete(documentId, loginAccountId);
         consultingSessionDocumentUseCase.deleteFile(saveFileDto.getUrl());
