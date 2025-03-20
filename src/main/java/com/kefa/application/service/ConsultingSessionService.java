@@ -17,11 +17,13 @@ public class ConsultingSessionService {
     private final ConsultingSessionUseCase consultingSessionUseCase;
     private final CompanyUseCase companyUseCase;
 
+    @Transactional(readOnly = true)
     public List<ConsultingSessionResponse> getAllFromCompany(Long companyId, Long loginAccountId) {
         companyUseCase.validateCompanyOwnershipAndProcess(companyId, loginAccountId);
         return consultingSessionUseCase.getAllFromCompany(companyId);
     }
 
+    @Transactional(readOnly = true)
     public ConsultingSessionDetailResponse getDetail(Long companyId, Long consultingSessionId, Long loginAccountId) {
         companyUseCase.validateCompanyOwnershipAndProcess(companyId, loginAccountId);
         return consultingSessionUseCase.getDetail(companyId, consultingSessionId);
