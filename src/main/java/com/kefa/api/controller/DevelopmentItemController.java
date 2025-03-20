@@ -2,7 +2,7 @@ package com.kefa.api.controller;
 
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemAddRequest;
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemDeleteRequest;
-import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateCommand;
+import com.kefa.api.dto.developmentItem.command.DevelopmentItemUpdateCommand;
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateRequest;
 import com.kefa.api.dto.developmentItem.response.DevelopmentItemResponse;
 import com.kefa.application.service.DevelopmentItemService;

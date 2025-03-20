@@ -113,7 +113,7 @@ public class AuthenticationUseCase {
             .password(passwordEncoder.encode(UUID.randomUUID().toString()))
             .subscriptionType(SubscriptionType.FREE)
             .emailVerified(true)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .loginTypes(new HashSet<>(Set.of(loginType)))
             .build()
         );

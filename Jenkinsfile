@@ -75,7 +75,11 @@ pipeline {
                                 string(credentialsId: 'CIPHER_SECRET_KEY', variable: 'CIPHER_SECRET_KEY'),
                                 string(credentialsId: 'CIPHER_IV', variable: 'CIPHER_IV'),
                                 string(credentialsId: 'NTS_API_KEY', variable: 'NTS_API_KEY'),
-                                string(credentialsId: 'NTS_BASE_URL', variable: 'NTS_BASE_URL')
+                                string(credentialsId: 'NTS_BASE_URL', variable: 'NTS_BASE_URL'),
+                                string(credentialsId: 'AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY'),
+                                string(credentialsId: 'AWS_SECRET_KEY', variable: 'AWS_SECRET_KEY'),
+                                string(credentialsId: 'AWS_REGION', variable: 'AWS_REGION'),
+                                string(credentialsId: 'AWS_S3_BUCKET', variable: 'AWS_S3_BUCKET')
                             ]) {
                                 sh '''
                                     echo "DB_HOST=${DB_HOST}" > .env
@@ -105,6 +109,10 @@ pipeline {
                                     echo "CIPHER_IV=${CIPHER_IV}" >> .env
                                     echo "NTS_API_KEY=${NTS_API_KEY}" >> .env
                                     echo "NTS_BASE_URL=${NTS_BASE_URL}" >> .env
+                                    echo "AWS_ACCESS_KEY=${AWS_ACCESS_KEY}" >> .env
+                                    echo "AWS_SECRET_KEY=${AWS_SECRET_KEY}" >> .env
+                                    echo "AWS_REGION=${AWS_REGION}" >> .env
+                                    echo "AWS_S3_BUCKET=${AWS_S3_BUCKET}" >> .env
                                 '''
                             }
                         }

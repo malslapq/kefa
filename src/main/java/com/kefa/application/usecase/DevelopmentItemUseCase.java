@@ -1,7 +1,7 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemAddRequest;
-import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateCommand;
+import com.kefa.api.dto.developmentItem.command.DevelopmentItemUpdateCommand;
 import com.kefa.api.dto.developmentItem.response.DevelopmentItemResponse;
 import com.kefa.common.exception.DevelopmentItemException;
 import com.kefa.common.exception.ErrorCode;

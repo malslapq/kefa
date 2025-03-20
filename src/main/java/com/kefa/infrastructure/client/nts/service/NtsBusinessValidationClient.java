@@ -27,8 +27,6 @@ public class NtsBusinessValidationClient {
     private final NtsApiErrorHandler ntsApiErrorHandler;
     private final RestClient restClient;
     private final NtsApiProperties properties;
-    private static final String API_PATH = "/api/nts-businessman/v1/status";
-    private static final String VALIDATE_API_PATH = "/api/nts-businessman/v1/validate";
 
     public BusinessValidateResponse validateBusinessInfo(BusinessValidateRequest request) {
         try {
@@ -38,7 +36,7 @@ public class NtsBusinessValidationClient {
 
             return restClient.post()
                 .uri(uriBuilder -> uriBuilder
-                    .path(VALIDATE_API_PATH)
+                    .path(properties.getValidatePath())
                     .queryParam("serviceKey", properties.getKey())
                     .build()
                 )
@@ -59,7 +57,7 @@ public class NtsBusinessValidationClient {
 
             return restClient.post()
                 .uri(uriBuilder -> uriBuilder
-                    .path(API_PATH)
+                    .path(properties.getStatusPath())
                     .queryParam("serviceKey", properties.getKey())
                     .build()
                 )

@@ -37,7 +37,7 @@ public class AccountSignupRequest {
             .name(name)
             .email(email)
             .password(encodedPassword)
-            .role(Role.ACCOUNT)
+            .role(Role.FREE_ACCOUNT)
             .subscriptionType(SubscriptionType.FREE)
             .loginTypes(Set.of(LoginType.LOCAL))
             .build();

@@ -75,3 +75,10 @@ nts:
   api:
     key: ${NTS_API_KEY}
     base-url: ${NTS_BASE_URL}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION}
+  s3:
+    bucket: ${AWS_S3_BUCKET}

@@ -68,3 +68,10 @@ nts:
   api:
     key: asdoihwqihdoqwdqwdqwdadsafoihasdoifhoasidfhoewfwef
     base-url: "https://api.odcloud.kr"
+
+aws:
+  access-key: etstsdfdsfaefaf
+  secret-key: asdlknwiqondowqdnklqwnqwnep
+  region: ap-test-2
+  s3:
+    bucket: test

@@ -34,8 +34,8 @@ public class DevelopmentItem extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY) // 회사와의 관계 설정
-    @JoinColumn(name = "company_id", nullable = false) // 외래 키 이름
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
     public void update(DevelopmentItemUpdateRequest request) {

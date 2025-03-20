@@ -26,9 +26,13 @@ public class Company extends BaseEntity {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @OneToMany(fetch = FetchType.LAZY) // mappedBy 제거
-    @JoinColumn(name = "company_id")
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "company")
     private List<DevelopmentItem> developmentItems = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "company")
+    private List<ConsultingSession> consultingSessions = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
     private String name;
@@ -58,6 +62,10 @@ public class Company extends BaseEntity {
 
     public void addDevelopmentItem(DevelopmentItem item) {
         this.developmentItems.add(item);
+    }
+
+    public void addConsultingSession(ConsultingSession session) {
+        this.consultingSessions.add(session);
     }
 
 }
