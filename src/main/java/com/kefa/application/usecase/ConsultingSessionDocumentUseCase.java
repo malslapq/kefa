@@ -51,6 +51,7 @@ public class ConsultingSessionDocumentUseCase {
                 .toList();
 
         consultingSessionDocumentRepository.saveAll(consultingSessionDocuments);
+        consultingSession.addDocuments(consultingSessionDocuments);
     }
 
     public PagedResponse<SaveFileDto> getDocs(Long consultingSessionId, int page, int size) {

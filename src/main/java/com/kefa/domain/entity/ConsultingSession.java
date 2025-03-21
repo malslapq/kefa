@@ -28,8 +28,7 @@ public class ConsultingSession extends BaseEntity{
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consulting_session_id")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
     private List<ConsultingSessionDocument> documents = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -43,6 +42,10 @@ public class ConsultingSession extends BaseEntity{
 
     public void addParticipantAccountId(Long accountId) {
         this.participantAccountIds.add(accountId);
+    }
+
+    public void addDocuments(List<ConsultingSessionDocument> documents) {
+        this.documents.addAll(documents);
     }
 
 }

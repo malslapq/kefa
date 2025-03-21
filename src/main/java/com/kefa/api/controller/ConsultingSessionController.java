@@ -23,10 +23,15 @@ public class ConsultingSessionController {
 
     private final ConsultingSessionService consultingSessionService;
 
+    @GetMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
+    public ApiResponse<FeedbackResponse> getAllFeedback(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @AuthenticationPrincipal LoginAccount loginAccount) {
+        return null;
+    }
+
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
     public ApiResponse<FeedbackResponse> addFeedback(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @RequestBody @Valid AddFeedbackRequest request, @AuthenticationPrincipal LoginAccount loginAccount){
 
-        AddFeedbackCommand addFeedbackCommand = AddFeedbackCommand.builder()
+        AddFeedbackCommand addFeedbackCommand = AddFeedbackCommand.builder() 
             .companyId(companyId)
             .consultingSessionId(consultingSessionId)
             .loginAccountId(loginAccount.getId())
