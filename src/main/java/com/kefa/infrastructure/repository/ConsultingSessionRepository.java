@@ -20,5 +20,5 @@ public interface ConsultingSessionRepository extends JpaRepository<ConsultingSes
     Optional<ConsultingSession> findByIdWithDocumentsAndCompany(Long id);
 
     @Query("SELECT cs FROM ConsultingSession cs LEFT JOIN FETCH cs.company LEFT JOIN FETCH cs.participantAccountIds WHERE cs.id = :id")
-    Optional<ConsultingSession> findByIdWithCompanyAndParticipant(Long consultingSessionId);
+    Optional<ConsultingSession> findByIdWithCompanyAndParticipant(Long id);
 }
