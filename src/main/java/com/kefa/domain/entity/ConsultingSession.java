@@ -28,6 +28,7 @@ public class ConsultingSession extends BaseEntity{
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
     private List<ConsultingSessionDocument> documents = new ArrayList<>();
 
@@ -35,6 +36,7 @@ public class ConsultingSession extends BaseEntity{
     @Column(nullable = false)
     private ConsultingStatus status;
 
+    @Builder.Default
     @ElementCollection
     @CollectionTable(name = "consulting_session_participants", joinColumns = @JoinColumn(name = "consulting_session_id"))
     @Column(name = "account_id")

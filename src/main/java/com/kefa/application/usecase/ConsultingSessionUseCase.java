@@ -81,26 +81,26 @@ public class ConsultingSessionUseCase {
         ConsultingSession consultingSession = consultingSessionRepository.findByIdWithParticipants(consultingSessionId)
             .orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
 
-        if(!consultingSession.getParticipantAccountIds().contains(loginAccountId)){
+        if (!consultingSession.getParticipantAccountIds().contains(loginAccountId)) {
             throw new ConsultingSessionException(ErrorCode.CONSULTING_ACCESS_DENIED);
         }
 
     }
 
-    private void validateParticipant(Set<Long> participants,Long loginAccountId) {
-        if(!participants.contains(loginAccountId)) {
+    private void validateParticipant(Set<Long> participants, Long loginAccountId) {
+        if (!participants.contains(loginAccountId)) {
             throw new ConsultingSessionException(ErrorCode.CONSULTING_ACCESS_DENIED);
         }
     }
 
     private void validateCompany(Long getCompanyId, Long requestCompanyId) {
-        if(!getCompanyId.equals(requestCompanyId)){
+        if (!getCompanyId.equals(requestCompanyId)) {
             throw new ConsultingSessionException(ErrorCode.INVALID_COMPANY);
         }
     }
 
     private void validateCompanyId(Long getCompanyId, Long requestCompanyId) {
-        if(!getCompanyId.equals(requestCompanyId)){
+        if (!getCompanyId.equals(requestCompanyId)) {
             throw new ConsultingSessionException(ErrorCode.INVALID_COMPANY);
         }
     }
