@@ -64,7 +64,15 @@ public class ConsultingSessionUseCaseTest {
     @Test
     void getDetailSuccess() {
         // given
-        given(consultingSessionRepository.findByIdWithDocumentsAndCompany(sessionId)).willReturn(Optional.of(consultingSession));
+        ConsultingSessionDetailResponse expectedResponse = ConsultingSessionDetailResponse.builder()
+            .id(sessionId)
+            .companyId(companyId)
+            .status(consultingSession.getStatus())
+            .documents(List.of())
+            .build();
+
+        given(consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(sessionId))
+            .willReturn(Optional.of(expectedResponse));
 
         // when
         ConsultingSessionDetailResponse response = useCase.getDetail(companyId, sessionId);
@@ -72,13 +80,16 @@ public class ConsultingSessionUseCaseTest {
         // then
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(consultingSession.getStatus());
+        assertThat(response.getCompanyId()).isEqualTo(companyId);
     }
+
 
     @DisplayName("컨설팅 세션 상세 조회 실패 - 세션 없음")
     @Test
     void getDetailFailNotFound() {
         // given
-        given(consultingSessionRepository.findByIdWithDocumentsAndCompany(sessionId)).willReturn(Optional.empty());
+        given(consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(sessionId))
+            .willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> useCase.getDetail(companyId, sessionId))
@@ -90,15 +101,21 @@ public class ConsultingSessionUseCaseTest {
     @Test
     void getDetailFailInvalidCompany() {
         // given
-        given(consultingSessionRepository.findByIdWithDocumentsAndCompany(sessionId))
-            .willReturn(Optional.of(consultingSession));
+        ConsultingSessionDetailResponse detailResponse = ConsultingSessionDetailResponse.builder()
+            .id(sessionId)
+            .companyId(companyId)
+            .status(consultingSession.getStatus())
+            .documents(List.of())
+            .build();
+
+        given(consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(sessionId))
+            .willReturn(Optional.of(detailResponse));
 
         // when & then
         assertThatThrownBy(() -> useCase.getDetail(differentCompanyId, sessionId))
             .isInstanceOf(ConsultingSessionException.class)
             .hasMessage(ErrorCode.INVALID_COMPANY.getMessage());
     }
-
 
 
     @DisplayName("컨설팅 세션 추가 성공")

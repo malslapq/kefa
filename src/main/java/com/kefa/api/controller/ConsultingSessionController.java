@@ -23,11 +23,6 @@ public class ConsultingSessionController {
 
     private final ConsultingSessionService consultingSessionService;
 
-    @GetMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
-    public ApiResponse<FeedbackResponse> getAllFeedback(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @AuthenticationPrincipal LoginAccount loginAccount) {
-        return null;
-    }
-
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
     public ApiResponse<FeedbackResponse> addFeedback(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @RequestBody @Valid AddFeedbackRequest request, @AuthenticationPrincipal LoginAccount loginAccount){
 
@@ -47,7 +42,7 @@ public class ConsultingSessionController {
     }
 
     @GetMapping("/company/{companyId}/consulting/{consultingSessionId}")
-    public ApiResponse<ConsultingSessionDetailResponse> getConsultingSession(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @AuthenticationPrincipal LoginAccount loginAccount) {
+    public ApiResponse<ConsultingSessionDetailResponse> getConsultingSessionDetail(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(consultingSessionService.getDetail(companyId, consultingSessionId, loginAccount.getId()));
     }
 

@@ -14,6 +14,7 @@ import com.kefa.domain.type.FeedbackType;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import com.kefa.infrastructure.repository.FeedbackRepository;
+import com.kefa.infrastructure.repository.QuerydslConsultingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +54,13 @@ public class ConsultingSessionUseCase {
     }
 
     public ConsultingSessionDetailResponse getDetail(Long companyId, Long consultingSessionId) {
-        ConsultingSession consultingSession = consultingSessionRepository.findByIdWithDocumentsAndCompany(consultingSessionId).orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
 
-        validateCompanyId(consultingSession.getCompany().getId(), companyId);
+        ConsultingSessionDetailResponse response = consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(consultingSessionId)
+            .orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
 
-        return ConsultingSessionDetailResponse.from(consultingSession);
+        validateCompanyId(response.getCompanyId(), companyId);
+
+        return response;
     }
 
     public ConsultingSessionResponse add(Long companyId, Long loginAccountId) {

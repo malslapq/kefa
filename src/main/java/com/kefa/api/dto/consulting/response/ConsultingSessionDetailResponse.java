@@ -16,8 +16,10 @@ import java.util.List;
 public class ConsultingSessionDetailResponse {
 
     private Long id;
+    private Long companyId;
     private List<ConsultingSessionDocumentDto> documents;
     private ConsultingStatus status;
+    private FeedbackResponse feedback;
 
     public static ConsultingSessionDetailResponse from(ConsultingSession consultingSession){
         return ConsultingSessionDetailResponse.builder()
