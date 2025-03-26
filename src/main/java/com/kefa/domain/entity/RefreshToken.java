@@ -21,7 +21,7 @@ public class RefreshToken {
 
     private Long accountId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 512)
     private String token;
 
     private String deviceId;

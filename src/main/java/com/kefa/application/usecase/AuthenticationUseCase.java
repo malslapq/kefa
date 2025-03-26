@@ -35,13 +35,16 @@ public class AuthenticationUseCase {
     public TokenResponse login(AccountLoginRequest accountLoginRequest) {
 
         Account account = getAccount(accountLoginRequest);
+
         validatePassword(accountLoginRequest.getPassword(), account.getPassword());
         validateEmailVerified(account);
+
         TokenResponse tokenResponse = issueJwt(account);
 
-        RefreshToken refreshTokenEntity = createRefreshTokenEntity(account, tokenResponse, accountLoginRequest.getDeviceId());
+        RefreshToken refreshToken = refreshTokenRepository.findByAccountId(account.getId())
+            .orElse(createRefreshTokenEntity(account, tokenResponse, accountLoginRequest.getDeviceId()));
 
-        refreshTokenRepository.save(refreshTokenEntity);
+        refreshTokenRepository.save(refreshToken);
 
         return tokenResponse;
     }
