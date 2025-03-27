@@ -19,7 +19,8 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long accountId;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Account account;
 
     @Column(nullable = false, length = 512)
     private String token;

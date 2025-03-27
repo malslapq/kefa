@@ -37,11 +37,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .map(GrantedAuthority::getAuthority)
                 .orElseThrow(() -> new AuthenticationException(ErrorCode.ACCESS_DENIED))
                 .replace("ROLE_", "");
+            Long accountId = oAuth2User.getAttribute("accountId");
             Role role = Role.valueOf(roleString);
 
-            Long accountId = oAuth2User.getAttribute("accountId");
-
-            TokenResponse tokenResponse = createJwtToken(accountId, role);
+            TokenResponse tokenResponse = createJwtToken(accountId, role, oAuth2User.getName());
             addTokenCookie(response, tokenResponse);
 
             getRedirectStrategy().sendRedirect(request, response, mainPageUri);
@@ -51,9 +50,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
     }
 
-    private TokenResponse createJwtToken(Long accountId, Role role) {
-        String accessToken = jwtProvider.createAccessToken(accountId, role);
-        String refreshToken = jwtProvider.createRefreshToken(accountId, role);
+    private TokenResponse createJwtToken(Long accountId, Role role, String name) {
+        String accessToken = jwtProvider.createAccessToken(accountId, role, name);
+        String refreshToken = jwtProvider.createRefreshToken(accountId, role, name);
 
         return TokenResponse.builder()
             .accessToken(accessToken)

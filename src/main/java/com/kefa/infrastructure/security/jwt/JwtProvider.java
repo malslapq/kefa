@@ -35,17 +35,19 @@ public class JwtProvider {
 
     }
 
-    private String createToken(Long id, Role role, long expirationTime) {
+    private String createToken(Long id, Role role, String name, long expirationTime) {
 
         Date nowDate = new Date();
         Date expirationDate = new Date(nowDate.getTime() + expirationTime);
 
         String encryptedId = cipherService.encrypt(String.valueOf(id));
         String encryptedRole = cipherService.encrypt(String.valueOf(role));
+        String encryptedName = cipherService.encrypt(name);
 
         return Jwts.builder()
             .subject(encryptedId)
             .claim("role", encryptedRole)
+            .claim("name", name)
             .issuedAt(nowDate)
             .expiration(expirationDate)
             .signWith(key)
@@ -53,12 +55,12 @@ public class JwtProvider {
 
     }
 
-    public String createAccessToken(Long id, Role role) {
-        return createToken(id, role, jwtProperties.getAccessExpirationTime());
+    public String createAccessToken(Long id, Role role, String name) {
+        return createToken(id, role, name, jwtProperties.getAccessExpirationTime());
     }
 
-    public String createRefreshToken(Long id, Role role) {
-        return createToken(id, role, jwtProperties.getRefreshExpirationTime());
+    public String createRefreshToken(Long id, Role role, String name) {
+        return createToken(id, role, name, jwtProperties.getRefreshExpirationTime());
     }
 
     public boolean validateToken(String token) {
@@ -102,6 +104,11 @@ public class JwtProvider {
     public Role getRole(String token) {
         String encryptedRole = getClaims(token).get("role", String.class);
         return Role.valueOf(cipherService.decrypt(encryptedRole));
+    }
+
+    public String getName(String token){
+        String encryptedName = getClaims(token).get("name", String.class);
+        return cipherService.decrypt(encryptedName);
     }
 
     public LocalDateTime getTokenExpiration(String token) {

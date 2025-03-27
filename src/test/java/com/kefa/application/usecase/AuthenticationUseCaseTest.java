@@ -89,7 +89,7 @@ class AuthenticationUseCaseTest {
 
         when(accountRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(account));
         when(passwordEncoder.matches(loginRequest.getPassword(), account.getPassword())).thenReturn(true);
-        when(jwtProvider.createAccessToken(account.getId(), account.getRole())).thenReturn(accessToken, refreshToken);
+        when(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName())).thenReturn(accessToken, refreshToken);
         when(jwtProvider.getTokenExpiration(refreshToken)).thenReturn(expirationTime);
 
         // when
@@ -101,7 +101,7 @@ class AuthenticationUseCaseTest {
         verify(refreshTokenRepository).save(argThat(savedToken ->
             savedToken.getToken().equals(refreshToken) &&
                 savedToken.getDeviceId().equals(loginRequest.getDeviceId()) &&
-                savedToken.getAccountId().equals(account.getId()) &&
+                savedToken.getAccount().getId().equals(account.getId()) &&
                 savedToken.getExpiresAt().equals(expirationTime)
         ));
     }

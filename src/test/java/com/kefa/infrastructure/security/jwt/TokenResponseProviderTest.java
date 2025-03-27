@@ -55,7 +55,7 @@ public class TokenResponseProviderTest {
         expiredTokenProvider.init();
 
         // 만료된 토큰 생성
-        expiredToken = expiredTokenProvider.createAccessToken(1L, Role.FREE_ACCOUNT);
+        expiredToken = expiredTokenProvider.createAccessToken(1L, Role.FREE_ACCOUNT, "test");
         Thread.sleep(10); // 토큰 만료를 위해 대기
     }
 
@@ -65,9 +65,10 @@ public class TokenResponseProviderTest {
         // given
         Long id = 1L;
         Role role = Role.FREE_ACCOUNT;
+        String name = "test";
 
         // when
-        String token = jwtProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role, name);
 
         // then
         assertThat(token).isNotNull();
@@ -82,9 +83,10 @@ public class TokenResponseProviderTest {
         // given
         Long id = 1L;
         Role role = Role.FREE_ACCOUNT;
+        String name = "test";
 
         // when
-        String token = jwtProvider.createRefreshToken(id, role);
+        String token = jwtProvider.createRefreshToken(id, role, name);
 
         // then
         assertThat(token).isNotNull();
@@ -99,9 +101,10 @@ public class TokenResponseProviderTest {
         // given
         Long id = 1L;
         Role role = Role.ADMIN;
+        String name = "test";
 
         // when
-        String token = jwtProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role, name);
 
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.ADMIN);
@@ -114,9 +117,10 @@ public class TokenResponseProviderTest {
         // given
         Long id = 1L;
         Role role = Role.EXPERT;
+        String name = "test";
 
         // when
-        String token = jwtProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role, name);
 
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.EXPERT);
@@ -129,9 +133,10 @@ public class TokenResponseProviderTest {
         // given
         Long id = 1L;
         Role role = Role.STAFF;
+        String name = "test";
 
         // when
-        String token = jwtProvider.createAccessToken(id, role);
+        String token = jwtProvider.createAccessToken(id, role, name);
 
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.STAFF);
@@ -142,7 +147,7 @@ public class TokenResponseProviderTest {
     @DisplayName("유효한 토큰 검증 성공 테스트")
     void validateTokenSuccess() {
         // given
-        String token = jwtProvider.createAccessToken(1L, Role.FREE_ACCOUNT);
+        String token = jwtProvider.createAccessToken(1L, Role.FREE_ACCOUNT, "test");
 
         // when
         boolean isValid = jwtProvider.validateToken(token);
@@ -168,7 +173,7 @@ public class TokenResponseProviderTest {
     void getIdFromTokenSuccess() {
         // given
         Long id = 1L;
-        String token = jwtProvider.createAccessToken(id, Role.FREE_ACCOUNT);
+        String token = jwtProvider.createAccessToken(id, Role.FREE_ACCOUNT, "test");
 
         // when
         Long getId = jwtProvider.getId(token);
@@ -182,7 +187,7 @@ public class TokenResponseProviderTest {
     void getRoleSuccess() {
         // given
         Role role = Role.FREE_ACCOUNT;
-        String token = jwtProvider.createAccessToken(1L, role);
+        String token = jwtProvider.createAccessToken(1L, role, "test");
 
         // when
         Role getRole = jwtProvider.getRole(token);

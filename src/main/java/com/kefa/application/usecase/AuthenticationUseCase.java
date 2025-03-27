@@ -58,7 +58,7 @@ public class AuthenticationUseCase {
 
         return RefreshToken.builder()
             .token(tokenResponse.getRefreshToken())
-            .accountId(account.getId())
+            .account(account)
             .deviceId(deviceId)
             .expiresAt(jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()))
             .build();
@@ -66,8 +66,8 @@ public class AuthenticationUseCase {
 
     private TokenResponse issueJwt(Account account){
         return TokenResponse.builder()
-            .accessToken(jwtProvider.createAccessToken(account.getId(), account.getRole()))
-            .refreshToken(jwtProvider.createAccessToken(account.getId(), account.getRole()))
+            .accessToken(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName()))
+            .refreshToken(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName()))
             .build();
     }
 

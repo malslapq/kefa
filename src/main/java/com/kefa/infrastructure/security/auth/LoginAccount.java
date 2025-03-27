@@ -12,11 +12,13 @@ public class LoginAccount {
 
     private Long id;
     private Role role;
+    private String name;
 
-    public static LoginAccount of(final Long id, final Role role) {
+    public static LoginAccount of(final Long id, final Role role, final String name) {
         return LoginAccount.builder()
             .id(id)
             .role(role)
+            .name(name)
             .build();
     }
 
