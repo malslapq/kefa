@@ -34,7 +34,7 @@ public class DevelopmentItem extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 

@@ -54,6 +54,9 @@ public class Account extends BaseEntity {
     @Builder.Default
     private Set<LoginType> loginTypes = new HashSet<>();
 
+    @OneToOne(mappedBy = "account")
+    private RefreshToken refreshToken;
+
     public void addLoginType(LoginType loginType) {
         this.loginTypes.add(loginType);
     }

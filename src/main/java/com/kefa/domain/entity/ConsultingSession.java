@@ -24,13 +24,16 @@ public class ConsultingSession extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
     @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
     private List<ConsultingSessionDocument> documents = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
+    private List<ConsultingSessionFeedback> feedbacks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
