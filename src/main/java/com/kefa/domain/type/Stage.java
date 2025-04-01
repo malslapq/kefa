@@ -13,6 +13,6 @@ public enum Stage {
     COMMERCIALIZED("상용화"),
     HOLD("보류");
 
-    private final String description;
+    private final String stage;
 
 }

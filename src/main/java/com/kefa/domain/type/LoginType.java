@@ -11,6 +11,6 @@ public enum LoginType {
     GOOGLE("구글"),
     KAKAO("카카오");
 
-    private final String description;
+    private final String type;
 
 }

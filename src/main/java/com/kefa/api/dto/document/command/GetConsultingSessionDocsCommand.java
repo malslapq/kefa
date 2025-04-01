@@ -1,4 +1,4 @@
-package com.kefa.api.dto.consulting.command;
+package com.kefa.api.dto.document.command;
 
 import lombok.*;
 

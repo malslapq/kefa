@@ -1,7 +1,7 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.consulting.command.ConsultingDocumentUploadCommand;
-import com.kefa.api.dto.consulting.command.GetConsultingSessionDocsCommand;
+import com.kefa.api.dto.document.command.ConsultingDocumentUploadCommand;
+import com.kefa.api.dto.document.command.GetConsultingSessionDocsCommand;
 import com.kefa.api.dto.consulting.request.UpdateDocNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.application.usecase.CompanyUseCase;

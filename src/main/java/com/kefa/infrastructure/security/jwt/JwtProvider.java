@@ -47,7 +47,7 @@ public class JwtProvider {
         return Jwts.builder()
             .subject(encryptedId)
             .claim("role", encryptedRole)
-            .claim("name", name)
+            .claim("name", encryptedName)
             .issuedAt(nowDate)
             .expiration(expirationDate)
             .signWith(key)

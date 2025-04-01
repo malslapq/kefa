@@ -1,20 +1,19 @@
 package com.kefa.infrastructure.repository;
 
-import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
-import com.kefa.api.dto.consulting.response.ConsultingSessionDocumentDto;
-import com.kefa.api.dto.consulting.response.FeedbackResponse;
-import com.kefa.domain.type.FeedbackType;
-import com.querydsl.core.types.Projections;
+import com.kefa.domain.entity.ConsultingSession;
+import com.kefa.domain.entity.ConsultingSessionFeedback;
+import com.kefa.domain.entity.QConsultingSessionDocumentFeedback;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.kefa.domain.entity.QCompany.company;
 import static com.kefa.domain.entity.QConsultingSession.consultingSession;
 import static com.kefa.domain.entity.QConsultingSessionDocument.consultingSessionDocument;
-import static com.kefa.domain.entity.QFeedback.feedback;
+import static com.kefa.domain.entity.QConsultingSessionFeedback.consultingSessionFeedback;
 
 
 @Repository
@@ -24,35 +23,23 @@ public class QuerydslConsultingSessionRepositoryImpl implements QuerydslConsulti
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<ConsultingSessionDetailResponse> findByIdWithDocumentsAndCompanyAndFeedback(Long id) {
-        return Optional.ofNullable(queryFactory
-            .select(Projections.constructor(ConsultingSessionDetailResponse.class,
-                consultingSession.id,
-                consultingSession.company.id,
-                consultingSession.status,
-                Projections.list(Projections.constructor(ConsultingSessionDocumentDto.class,
-                    consultingSessionDocument.id,
-                    consultingSessionDocument.fileUrl,
-                    consultingSessionDocument.name
-                )),
-                Projections.list(Projections.constructor(FeedbackResponse.class,
-                    feedback.id,
-                    feedback.targetId,
-                    feedback.accountId,
-                    feedback.parentId,
-                    feedback.content,
-                    feedback.feedbackType,
-                    feedback.createdAt
-                ))
-            ))
-            .from(consultingSession)
-            .join(consultingSession.company, company)
-            .leftJoin(consultingSession.documents, consultingSessionDocument)
-            .leftJoin(feedback)
-            .on(feedback.targetId.eq(consultingSession.id)
-                .and(feedback.feedbackType.eq(FeedbackType.SESSION)))
+    public Optional<ConsultingSession> findByIdWithCompanyAndDocumentsAndFeedback(Long id) {
+        ConsultingSession session = queryFactory
+            .selectFrom(consultingSession)
+            .join(consultingSession.company, company).fetchJoin()
+            .leftJoin(consultingSession.documents, consultingSessionDocument).fetchJoin()
             .where(consultingSession.id.eq(id))
-            .fetchOne());
+            .distinct()
+            .fetchOne();
+
+        return Optional.ofNullable(session);
     }
 
+    @Override
+    public List<ConsultingSessionFeedback> findFeedbacksBySessionId(Long id) {
+        return queryFactory
+            .selectFrom(consultingSessionFeedback)
+            .where(consultingSessionFeedback.consultingSession.id.eq(id))
+            .fetch();
+    }
 }

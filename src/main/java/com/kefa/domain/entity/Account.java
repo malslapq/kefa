@@ -54,7 +54,7 @@ public class Account extends BaseEntity {
     @Builder.Default
     private Set<LoginType> loginTypes = new HashSet<>();
 
-    @OneToOne(mappedBy = "account")
+    @OneToOne(fetch = FetchType.LAZY)
     private RefreshToken refreshToken;
 
     public void addLoginType(LoginType loginType) {

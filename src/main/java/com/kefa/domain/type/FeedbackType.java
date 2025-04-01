@@ -3,12 +3,16 @@ package com.kefa.domain.type;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
+@Getter
 public enum FeedbackType {
 
-    SESSION("세션"),
-    DOCUMENT("문서");
+    TAX("세무"),
+    FINANCE("재무"),
+    LABOR("노무"),
+    GOVERNMENT("정부"),
+    MANAGEMENT("경영"),
+    TOTAL("종합");
 
     private final String type;
 

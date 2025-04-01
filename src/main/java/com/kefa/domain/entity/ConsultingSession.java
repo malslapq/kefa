@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ public class ConsultingSession extends BaseEntity{
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
     private List<ConsultingSessionDocument> documents = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
     private List<ConsultingSessionFeedback> feedbacks = new ArrayList<>();
 
@@ -51,6 +53,10 @@ public class ConsultingSession extends BaseEntity{
 
     public void addDocuments(List<ConsultingSessionDocument> documents) {
         this.documents.addAll(documents);
+    }
+
+    public void loadFeedbacks(List<ConsultingSessionFeedback> feedbacks) {
+        this.feedbacks.addAll(feedbacks);
     }
 
 }

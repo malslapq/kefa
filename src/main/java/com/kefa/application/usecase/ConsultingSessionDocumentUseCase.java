@@ -32,7 +32,7 @@ public class ConsultingSessionDocumentUseCase {
         return s3Service.uploadFile(files);
     }
 
-    public void deleteFile(String fileUrl){
+    public void deleteFile(String fileUrl) {
         s3Service.deleteFile(fileUrl);
     }
 

@@ -2,9 +2,9 @@ package com.kefa.api.controller;
 
 import com.kefa.api.dto.consulting.command.AddFeedbackCommand;
 import com.kefa.api.dto.consulting.request.AddFeedbackRequest;
-import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
+import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
-import com.kefa.api.dto.consulting.response.FeedbackResponse;
+import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
 import com.kefa.application.service.ConsultingSessionService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.security.auth.LoginAccount;
@@ -24,12 +24,16 @@ public class ConsultingSessionController {
     private final ConsultingSessionService consultingSessionService;
 
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
-    public ApiResponse<FeedbackResponse> addFeedback(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @RequestBody @Valid AddFeedbackRequest request, @AuthenticationPrincipal LoginAccount loginAccount){
+    public ApiResponse<ConsultingSessionFeedbackDto> addFeedback(@PathVariable Long companyId,
+                                                                 @PathVariable Long consultingSessionId,
+                                                                 @RequestBody @Valid AddFeedbackRequest request,
+                                                                 @AuthenticationPrincipal LoginAccount loginAccount
+    ){
 
         AddFeedbackCommand addFeedbackCommand = AddFeedbackCommand.builder() 
             .companyId(companyId)
             .consultingSessionId(consultingSessionId)
-            .loginAccountId(loginAccount.getId())
+            .loginAccount(loginAccount)
             .request(request)
             .build();
 
@@ -42,7 +46,7 @@ public class ConsultingSessionController {
     }
 
     @GetMapping("/company/{companyId}/consulting/{consultingSessionId}")
-    public ApiResponse<ConsultingSessionDetailResponse> getConsultingSessionDetail(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @AuthenticationPrincipal LoginAccount loginAccount) {
+    public ApiResponse<ConsultingSessionDetail> getConsultingSessionDetail(@PathVariable Long companyId, @PathVariable Long consultingSessionId, @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(consultingSessionService.getDetail(companyId, consultingSessionId, loginAccount.getId()));
     }
 

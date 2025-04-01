@@ -1,11 +1,11 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
+import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.common.exception.ConsultingSessionException;
 import com.kefa.common.exception.ErrorCode;
-import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.entity.Company;
+import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.type.ConsultingStatus;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import com.kefa.infrastructure.repository.CompanyRepository;
@@ -28,7 +28,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class ConsultingSessionUseCaseTest {
+public class ConsultingSessionDetailUseCaseTest {
 
     @InjectMocks
     private ConsultingSessionUseCase useCase;
@@ -39,7 +39,7 @@ public class ConsultingSessionUseCaseTest {
     @Mock
     private CompanyRepository companyRepository;
 
-    private ConsultingSession consultingSession;
+    private com.kefa.domain.entity.ConsultingSession consultingSession;
     private final Long sessionId = 1L;
     private final Long companyId = 2L;
     private final Long differentCompanyId = 10L;
@@ -51,7 +51,7 @@ public class ConsultingSessionUseCaseTest {
             .name("testCompany")
             .build();
 
-        consultingSession = ConsultingSession.builder()
+        consultingSession = com.kefa.domain.entity.ConsultingSession.builder()
             .id(sessionId)
             .company(company)
             .status(ConsultingStatus.WAITING)
@@ -64,18 +64,21 @@ public class ConsultingSessionUseCaseTest {
     @Test
     void getDetailSuccess() {
         // given
-        ConsultingSessionDetailResponse expectedResponse = ConsultingSessionDetailResponse.builder()
+        ConsultingSession getSession = ConsultingSession.builder()
             .id(sessionId)
-            .companyId(companyId)
             .status(consultingSession.getStatus())
+            .company(Company.builder()
+                .id(companyId)
+                .build())
             .documents(List.of())
             .build();
 
-        given(consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(sessionId))
-            .willReturn(Optional.of(expectedResponse));
+
+        given(consultingSessionRepository.findByIdWithCompanyAndDocumentsAndFeedback(sessionId))
+            .willReturn(Optional.of(getSession));
 
         // when
-        ConsultingSessionDetailResponse response = useCase.getDetail(companyId, sessionId);
+        ConsultingSessionDetail response = useCase.getDetail(companyId, sessionId);
 
         // then
         assertThat(response).isNotNull();
@@ -88,7 +91,7 @@ public class ConsultingSessionUseCaseTest {
     @Test
     void getDetailFailNotFound() {
         // given
-        given(consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(sessionId))
+        given(consultingSessionRepository.findByIdWithCompanyAndDocumentsAndFeedback(sessionId))
             .willReturn(Optional.empty());
 
         // when & then
@@ -101,15 +104,17 @@ public class ConsultingSessionUseCaseTest {
     @Test
     void getDetailFailInvalidCompany() {
         // given
-        ConsultingSessionDetailResponse detailResponse = ConsultingSessionDetailResponse.builder()
+        ConsultingSession getSession = ConsultingSession.builder()
             .id(sessionId)
-            .companyId(companyId)
             .status(consultingSession.getStatus())
+            .company(Company.builder()
+                .id(companyId)
+                .build())
             .documents(List.of())
             .build();
 
-        given(consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(sessionId))
-            .willReturn(Optional.of(detailResponse));
+        given(consultingSessionRepository.findByIdWithCompanyAndDocumentsAndFeedback(sessionId))
+            .willReturn(Optional.of(getSession));
 
         // when & then
         assertThatThrownBy(() -> useCase.getDetail(differentCompanyId, sessionId))

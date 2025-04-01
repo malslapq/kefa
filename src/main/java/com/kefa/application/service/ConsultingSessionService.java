@@ -1,9 +1,9 @@
 package com.kefa.application.service;
 
 import com.kefa.api.dto.consulting.command.AddFeedbackCommand;
-import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
+import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
-import com.kefa.api.dto.consulting.response.FeedbackResponse;
+import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
 import com.kefa.application.usecase.CompanyUseCase;
 import com.kefa.application.usecase.ConsultingSessionUseCase;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class ConsultingSessionService {
     private final ConsultingSessionUseCase consultingSessionUseCase;
     private final CompanyUseCase companyUseCase;
 
-    public FeedbackResponse addFeedback(AddFeedbackCommand addFeedbackCommand) {
+    public ConsultingSessionFeedbackDto addFeedback(AddFeedbackCommand addFeedbackCommand) {
         return consultingSessionUseCase.addFeedback(addFeedbackCommand);
     }
 
@@ -30,7 +30,7 @@ public class ConsultingSessionService {
     }
 
     @Transactional(readOnly = true)
-    public ConsultingSessionDetailResponse getDetail(Long companyId, Long consultingSessionId, Long loginAccountId) {
+    public ConsultingSessionDetail getDetail(Long companyId, Long consultingSessionId, Long loginAccountId) {
         companyUseCase.validateCompanyOwnershipAndProcess(companyId, loginAccountId);
         return consultingSessionUseCase.getDetail(companyId, consultingSessionId);
     }

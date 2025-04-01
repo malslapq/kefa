@@ -1,20 +1,18 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.consulting.command.AddFeedbackCommand;
-import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
+import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
-import com.kefa.api.dto.consulting.response.FeedbackResponse;
+import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
 import com.kefa.common.exception.ConsultingSessionException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Company;
 import com.kefa.domain.entity.ConsultingSession;
-import com.kefa.domain.entity.Feedback;
+import com.kefa.domain.entity.ConsultingSessionFeedback;
 import com.kefa.domain.type.ConsultingStatus;
-import com.kefa.domain.type.FeedbackType;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
-import com.kefa.infrastructure.repository.FeedbackRepository;
-import com.kefa.infrastructure.repository.QuerydslConsultingSessionRepository;
+import com.kefa.infrastructure.repository.ConsultingSessionFeedbackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,48 +24,49 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ConsultingSessionUseCase {
 
-    private final FeedbackRepository feedbackRepository;
+    private final ConsultingSessionFeedbackRepository consultingSessionFeedbackRepository;
     private final ConsultingSessionRepository consultingSessionRepository;
     private final CompanyRepository companyRepository;
 
-    public FeedbackResponse addFeedback(AddFeedbackCommand command) {
+    public ConsultingSessionFeedbackDto addFeedback(AddFeedbackCommand command) {
 
         ConsultingSession consultingSession = consultingSessionRepository.findByIdWithCompanyAndParticipant(command.getConsultingSessionId())
             .orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
 
         validateCompany(consultingSession.getCompany().getId(), command.getCompanyId());
-        validateParticipant(consultingSession.getParticipantAccountIds(), command.getLoginAccountId());
+        validateParticipant(consultingSession.getParticipantAccountIds(), command.getLoginAccount().getId());
 
-        Feedback feedback = Feedback.builder()
-            .targetId(command.getRequest().getTargetId())
-            .accountId(command.getLoginAccountId())
-            .parentId(command.getRequest().getParentId())
+        ConsultingSessionFeedback consultingSessionFeedback = ConsultingSessionFeedback.builder()
+            .accountId(command.getLoginAccount().getId())
+            .name(command.getLoginAccount().getName())
             .content(command.getRequest().getContent())
-            .feedbackType(FeedbackType.SESSION)
+            .feedbackType(command.getRequest().getFeedbackType())
             .build();
 
-        return FeedbackResponse.from(feedbackRepository.save(feedback));
+        return ConsultingSessionFeedbackDto.from(consultingSessionFeedbackRepository.save(consultingSessionFeedback));
     }
 
     public List<ConsultingSessionResponse> getAllFromCompany(Long companyId) {
         return consultingSessionRepository.findAllByCompanyId(companyId).stream().map(ConsultingSessionResponse::from).toList();
     }
 
-    public ConsultingSessionDetailResponse getDetail(Long companyId, Long consultingSessionId) {
+    public ConsultingSessionDetail getDetail(Long companyId, Long consultingSessionId) {
 
-        ConsultingSessionDetailResponse response = consultingSessionRepository.findByIdWithDocumentsAndCompanyAndFeedback(consultingSessionId)
+        ConsultingSession consultingSession = consultingSessionRepository.findByIdWithCompanyAndDocumentsAndFeedback(consultingSessionId)
             .orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
 
-        validateCompanyId(response.getCompanyId(), companyId);
+        validateCompanyId(consultingSession.getCompany().getId(), companyId);
 
-        return response;
+        List<ConsultingSessionFeedback> feedbacks = consultingSessionRepository.findFeedbacksBySessionId(consultingSessionId);
+
+        return ConsultingSessionDetail.of(consultingSession, feedbacks);
     }
 
     public ConsultingSessionResponse add(Long companyId, Long loginAccountId) {
 
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new ConsultingSessionException(ErrorCode.COMPANY_NOT_FOUND));
 
-        ConsultingSession consultingSession = consultingSessionRepository.save(ConsultingSession.builder()
+        ConsultingSession consultingSession = consultingSessionRepository.save(com.kefa.domain.entity.ConsultingSession.builder()
             .status(ConsultingStatus.WAITING)
             .company(company)
             .build());

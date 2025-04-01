@@ -1,11 +1,15 @@
 package com.kefa.infrastructure.repository;
 
-import com.kefa.api.dto.consulting.response.ConsultingSessionDetailResponse;
 
+import com.kefa.domain.entity.ConsultingSession;
+import com.kefa.domain.entity.ConsultingSessionFeedback;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface QuerydslConsultingSessionRepository {
 
-    Optional<ConsultingSessionDetailResponse> findByIdWithDocumentsAndCompanyAndFeedback(Long id);
+    Optional<ConsultingSession> findByIdWithCompanyAndDocumentsAndFeedback(Long id);
+    List<ConsultingSessionFeedback> findFeedbacksBySessionId(Long id);
 
 }
