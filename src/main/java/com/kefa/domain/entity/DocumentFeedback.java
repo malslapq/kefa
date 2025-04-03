@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Table(name = "consulting_session_document_feedback")
-public class ConsultingSessionDocumentFeedback {
+public class DocumentFeedback extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +32,7 @@ public class ConsultingSessionDocumentFeedback {
     @Column(nullable = false)
     private String content;
 
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

@@ -1,6 +1,6 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.consulting.command.AddFeedbackCommand;
+import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
@@ -28,7 +28,7 @@ public class ConsultingSessionUseCase {
     private final ConsultingSessionRepository consultingSessionRepository;
     private final CompanyRepository companyRepository;
 
-    public ConsultingSessionFeedbackDto addFeedback(AddFeedbackCommand command) {
+    public ConsultingSessionFeedbackDto addFeedback(AddConsultingFeedbackCommand command) {
 
         ConsultingSession consultingSession = consultingSessionRepository.findByIdWithCompanyAndParticipant(command.getConsultingSessionId())
             .orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));

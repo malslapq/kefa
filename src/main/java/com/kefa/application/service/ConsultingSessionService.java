@@ -1,6 +1,6 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.consulting.command.AddFeedbackCommand;
+import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
@@ -19,8 +19,11 @@ public class ConsultingSessionService {
     private final ConsultingSessionUseCase consultingSessionUseCase;
     private final CompanyUseCase companyUseCase;
 
-    public ConsultingSessionFeedbackDto addFeedback(AddFeedbackCommand addFeedbackCommand) {
-        return consultingSessionUseCase.addFeedback(addFeedbackCommand);
+    public ConsultingSessionFeedbackDto addFeedback(AddConsultingFeedbackCommand addConsultingFeedbackCommand) {
+        consultingSessionUseCase.validateAccountIsParticipant(
+            addConsultingFeedbackCommand.getConsultingSessionId(), addConsultingFeedbackCommand.getLoginAccount().getId());
+
+        return consultingSessionUseCase.addFeedback(addConsultingFeedbackCommand);
     }
 
     @Transactional(readOnly = true)

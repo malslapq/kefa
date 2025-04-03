@@ -1,8 +1,8 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.consulting.request.UpdateDocNameRequest;
+import com.kefa.api.dto.document.request.UpdateDocumentNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
-import com.kefa.common.exception.ConsultingSessionDocumentException;
+import com.kefa.common.exception.DocumentException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.entity.ConsultingSessionDocument;
@@ -22,7 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ConsultingSessionDocumentUseCase {
+public class DocumentUseCase {
 
     private final S3Service s3Service;
     private final ConsultingSessionDocumentRepository consultingSessionDocumentRepository;
@@ -39,7 +39,7 @@ public class ConsultingSessionDocumentUseCase {
     public void saveFilesUrl(List<SaveFileDto> saveFileDtos, Long consultingSessionId, Long loginAccountId) {
 
         ConsultingSession consultingSession = consultingSessionRepository.findById(consultingSessionId)
-            .orElseThrow(() -> new ConsultingSessionDocumentException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
+            .orElseThrow(() -> new DocumentException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));
 
         List<ConsultingSessionDocument> consultingSessionDocuments =
             saveFileDtos.stream()
@@ -70,7 +70,7 @@ public class ConsultingSessionDocumentUseCase {
     }
 
     @Transactional
-    public void updateName(Long documentId, Long loginAccountId, UpdateDocNameRequest request) {
+    public void updateName(Long documentId, Long loginAccountId, UpdateDocumentNameRequest request) {
 
         ConsultingSessionDocument document = getConsultingSessionDocumentById(documentId);
 
@@ -93,12 +93,12 @@ public class ConsultingSessionDocumentUseCase {
 
     private void validateDocumentOwnership(Long saveDocumentAccountId, Long loginAccountId) {
         if (!saveDocumentAccountId.equals(loginAccountId)) {
-            throw new ConsultingSessionDocumentException(ErrorCode.UNAUTHORIZED_DOCUMENT_EDIT);
+            throw new DocumentException(ErrorCode.UNAUTHORIZED_DOCUMENT_EDIT);
         }
     }
 
     private ConsultingSessionDocument getConsultingSessionDocumentById(Long documentId) {
         return consultingSessionDocumentRepository.findById(documentId)
-            .orElseThrow(() -> new ConsultingSessionDocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
+            .orElseThrow(() -> new DocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
     }
 }

@@ -38,7 +38,7 @@ public class ConsultingSessionDocument {
     private ConsultingSession consultingSession;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSessionDocument")
-    private List<ConsultingSessionDocumentFeedback> feedbacks = new ArrayList<>();
+    private List<DocumentFeedback> feedbacks = new ArrayList<>();
 
     @CreatedDate
     private LocalDateTime createdAt;

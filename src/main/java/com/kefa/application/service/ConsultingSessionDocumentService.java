@@ -2,10 +2,10 @@ package com.kefa.application.service;
 
 import com.kefa.api.dto.document.command.ConsultingDocumentUploadCommand;
 import com.kefa.api.dto.document.command.GetConsultingSessionDocsCommand;
-import com.kefa.api.dto.consulting.request.UpdateDocNameRequest;
+import com.kefa.api.dto.document.request.UpdateDocumentNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.application.usecase.CompanyUseCase;
-import com.kefa.application.usecase.ConsultingSessionDocumentUseCase;
+import com.kefa.application.usecase.DocumentUseCase;
 import com.kefa.application.usecase.ConsultingSessionUseCase;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ConsultingSessionDocumentService {
 
-    private final ConsultingSessionDocumentUseCase consultingSessionDocumentUseCase;
+    private final DocumentUseCase documentUseCase;
     private final ConsultingSessionUseCase consultingSessionUseCase;
     private final CompanyUseCase companyUseCase;
 
@@ -28,9 +28,9 @@ public class ConsultingSessionDocumentService {
         companyUseCase.validateCompanyOwnershipAndProcess(command.getCompanyId(), command.getLoginAccountId());
         consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
 
-        List<SaveFileDto> uploadedFilesUrl = consultingSessionDocumentUseCase.uploadFiles(command.getFiles());
+        List<SaveFileDto> uploadedFilesUrl = documentUseCase.uploadFiles(command.getFiles());
 
-        consultingSessionDocumentUseCase.saveFilesUrl(uploadedFilesUrl, command.getConsultingSessionId(), command.getLoginAccountId());
+        documentUseCase.saveFilesUrl(uploadedFilesUrl, command.getConsultingSessionId(), command.getLoginAccountId());
 
     }
 
@@ -40,16 +40,16 @@ public class ConsultingSessionDocumentService {
         companyUseCase.validateCompanyOwnershipAndProcess(command.getCompanyId(), command.getLoginAccountId());
         consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
 
-        return consultingSessionDocumentUseCase.getDocs(command.getConsultingSessionId(), command.getPage(), command.getSize());
+        return documentUseCase.getDocs(command.getConsultingSessionId(), command.getPage(), command.getSize());
     }
 
-    public void updateName(Long documentId, Long loginAccountId, UpdateDocNameRequest request) {
-        consultingSessionDocumentUseCase.updateName(documentId, loginAccountId, request);
+    public void updateName(Long documentId, Long loginAccountId, UpdateDocumentNameRequest request) {
+        documentUseCase.updateName(documentId, loginAccountId, request);
     }
 
     @Transactional
     public void delete(Long documentId, Long loginAccountId) {
-        SaveFileDto saveFileDto = consultingSessionDocumentUseCase.delete(documentId, loginAccountId);
-        consultingSessionDocumentUseCase.deleteFile(saveFileDto.getUrl());
+        SaveFileDto saveFileDto = documentUseCase.delete(documentId, loginAccountId);
+        documentUseCase.deleteFile(saveFileDto.getUrl());
     }
 }

@@ -1,8 +1,8 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.consulting.request.UpdateDocNameRequest;
+import com.kefa.api.dto.document.request.UpdateDocumentNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
-import com.kefa.common.exception.ConsultingSessionDocumentException;
+import com.kefa.common.exception.DocumentException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.ConsultingSessionDocument;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 public class ConsultingSessionDetailDocumentUseCaseTest {
 
     @InjectMocks
-    private ConsultingSessionDocumentUseCase useCase;
+    private DocumentUseCase useCase;
 
     @Mock
     private S3Service s3Service;
@@ -92,7 +92,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> useCase.delete(targetId, targetId))
-            .isInstanceOf(ConsultingSessionDocumentException.class)
+            .isInstanceOf(DocumentException.class)
             .hasMessage(ErrorCode.NOT_FOUND_DOCUMENT.getMessage());
     }
 
@@ -100,7 +100,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     @Test
     void updateDocumentNameSuccess() {
         // given
-        UpdateDocNameRequest request = UpdateDocNameRequest.builder()
+        UpdateDocumentNameRequest request = UpdateDocumentNameRequest.builder()
             .name("updatedName")
             .build();
 
@@ -117,7 +117,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     @Test
     void updateDocumentNameFailNotFound() {
         // given
-        UpdateDocNameRequest request = UpdateDocNameRequest.builder()
+        UpdateDocumentNameRequest request = UpdateDocumentNameRequest.builder()
             .name("updatedName")
             .build();
 
@@ -125,7 +125,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> useCase.updateName(targetId, targetId, request))
-            .isInstanceOf(ConsultingSessionDocumentException.class)
+            .isInstanceOf(DocumentException.class)
             .hasMessage(ErrorCode.NOT_FOUND_DOCUMENT.getMessage());
     }
 
@@ -133,7 +133,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     @Test
     void updateDocumentNameFailUnauthorized() {
         // given
-        UpdateDocNameRequest request = UpdateDocNameRequest.builder()
+        UpdateDocumentNameRequest request = UpdateDocumentNameRequest.builder()
             .name("updatedName")
             .build();
 
@@ -145,7 +145,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> useCase.updateName(targetId, targetId, request))
-            .isInstanceOf(ConsultingSessionDocumentException.class)
+            .isInstanceOf(DocumentException.class)
             .hasMessage(ErrorCode.UNAUTHORIZED_DOCUMENT_EDIT.getMessage());
     }
 

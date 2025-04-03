@@ -1,4 +1,4 @@
-package com.kefa.api.dto.consulting.request;
+package com.kefa.api.dto.document.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateDocNameRequest {
+public class UpdateDocumentNameRequest {
 
     @NotBlank(message = "변경 할 이름은 공백일 수 없습니다")
     private String name;

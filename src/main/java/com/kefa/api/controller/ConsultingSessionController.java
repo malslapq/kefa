@@ -1,7 +1,7 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.consulting.command.AddFeedbackCommand;
-import com.kefa.api.dto.consulting.request.AddFeedbackRequest;
+import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
+import com.kefa.api.dto.consulting.request.AddConsultingFeedbackRequest;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
@@ -23,21 +23,23 @@ public class ConsultingSessionController {
 
     private final ConsultingSessionService consultingSessionService;
 
+
+
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
     public ApiResponse<ConsultingSessionFeedbackDto> addFeedback(@PathVariable Long companyId,
                                                                  @PathVariable Long consultingSessionId,
-                                                                 @RequestBody @Valid AddFeedbackRequest request,
+                                                                 @RequestBody @Valid AddConsultingFeedbackRequest request,
                                                                  @AuthenticationPrincipal LoginAccount loginAccount
     ){
 
-        AddFeedbackCommand addFeedbackCommand = AddFeedbackCommand.builder() 
+        AddConsultingFeedbackCommand addConsultingFeedbackCommand = AddConsultingFeedbackCommand.builder()
             .companyId(companyId)
             .consultingSessionId(consultingSessionId)
             .loginAccount(loginAccount)
             .request(request)
             .build();
 
-        return ApiResponse.success(consultingSessionService.addFeedback(addFeedbackCommand));
+        return ApiResponse.success(consultingSessionService.addFeedback(addConsultingFeedbackCommand));
     }
 
     @PostMapping("/company/{companyId}/consulting")

@@ -17,7 +17,7 @@ public class ConsultingSessionDocumentDto {
     private Long id;
     private String fileUrl;
     private String name;
-    private List<DocumentFeedbackDto> documentFeedbackDto;
+    private List<DocumentFeedbackResponse> documentFeedbackResponse;
 
     public static ConsultingSessionDocumentDto from(ConsultingSessionDocument consultingSessionDocument) {
         return ConsultingSessionDocumentDto.builder()

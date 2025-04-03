@@ -7,9 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
-    //컨설팅 세션 문서 관련
+    //피드백 관련
+    NOT_FOUND_FEEDBACK(404, "피드백이 존재하지 않습니다"),
+    FORBIDDEN_FEEDBACK_UPDATE(403, "피드백을 수정할 권한이 없습니다"),
+
+    //컨설팅 세션 문서 관련,
     NOT_FOUND_DOCUMENT(404, "문서를 찾을 수 없습니다"),
     UNAUTHORIZED_DOCUMENT_EDIT(403, "문서의 수정 권한이 없습니다"),
+    INVALID_DOCUMENT_ID(400, "문서 ID가 일치하지 않습니다"),
 
     //컨설팅 세션 관련
     NOT_FOUND_CONSULTING_SESSION(404, "컨설팅 세션을 찾을 수 없습니다"),

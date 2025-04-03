@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddFeedbackRequest {
+public class AddConsultingFeedbackRequest {
 
     @NotNull(message = "대상 ID는 비어 있을 수 없습니다")
     private Long targetId;
