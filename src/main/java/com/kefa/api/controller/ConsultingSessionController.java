@@ -2,6 +2,7 @@ package com.kefa.api.controller;
 
 import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
 import com.kefa.api.dto.consulting.request.AddConsultingFeedbackRequest;
+import com.kefa.api.dto.consulting.request.UpdateConsultingFeedbackRequest;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
@@ -23,7 +24,18 @@ public class ConsultingSessionController {
 
     private final ConsultingSessionService consultingSessionService;
 
+    @DeleteMapping("/company/consulting/feedback/{feedbackId}")
+    public ApiResponse<String> deleteFeedback(@PathVariable Long feedbackId, @AuthenticationPrincipal LoginAccount loginAccount) {
+        consultingSessionService.delete(feedbackId, loginAccount.getId());
+        return ApiResponse.success("삭제 성공");
+    }
 
+    @PutMapping("/company/consulting/feedback/{feedbackId}")
+    public ApiResponse<ConsultingSessionFeedbackDto> updateConsultingFeedback(@PathVariable Long feedbackId,
+                                                                              @RequestBody @Valid UpdateConsultingFeedbackRequest request,
+                                                                              @AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(consultingSessionService.updateFeedback(feedbackId, request, loginAccount.getId()));
+    }
 
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
     public ApiResponse<ConsultingSessionFeedbackDto> addFeedback(@PathVariable Long companyId,

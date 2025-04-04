@@ -37,4 +37,10 @@ public class ConsultingSessionFeedback extends BaseEntity {
     @Column(nullable = false)
     private FeedbackType feedbackType;
 
+
+    public void updateContentAndType( String content, FeedbackType feedbackType) {
+        this.content = content;
+        this.feedbackType = feedbackType;
+    }
+
 }

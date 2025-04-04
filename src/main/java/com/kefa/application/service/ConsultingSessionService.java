@@ -1,11 +1,13 @@
 package com.kefa.application.service;
 
 import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
+import com.kefa.api.dto.consulting.request.UpdateConsultingFeedbackRequest;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
 import com.kefa.application.usecase.CompanyUseCase;
 import com.kefa.application.usecase.ConsultingSessionUseCase;
+import com.kefa.infrastructure.security.auth.LoginAccount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,14 @@ public class ConsultingSessionService {
 
     private final ConsultingSessionUseCase consultingSessionUseCase;
     private final CompanyUseCase companyUseCase;
+
+    public void delete(Long feedbackId, Long loginAccountId) {
+        consultingSessionUseCase.deleteFeedback(feedbackId, loginAccountId);
+    }
+
+    public ConsultingSessionFeedbackDto updateFeedback(Long feedbackId, UpdateConsultingFeedbackRequest request, Long loginAccountId) {
+        return consultingSessionUseCase.updateFeedback(feedbackId, request, loginAccountId);
+    }
 
     public ConsultingSessionFeedbackDto addFeedback(AddConsultingFeedbackCommand addConsultingFeedbackCommand) {
         consultingSessionUseCase.validateAccountIsParticipant(

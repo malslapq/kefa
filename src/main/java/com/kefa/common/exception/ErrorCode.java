@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum ErrorCode {
 
     //피드백 관련
+    NOT_FOUND_CONSULTING_SESSION_FEEDBACK(404, "컨설팅 피드백을 찾을 수 없습니다"),
     NOT_FOUND_FEEDBACK(404, "피드백이 존재하지 않습니다"),
     FORBIDDEN_FEEDBACK_UPDATE(403, "피드백을 수정할 권한이 없습니다"),
 
