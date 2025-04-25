@@ -62,4 +62,8 @@ public class ConsultingSessionDocument {
         this.name = name;
     }
 
+    public void addFeedback(DocumentFeedback documentFeedback){
+        this.feedbacks.add(documentFeedback);
+    }
+
 }

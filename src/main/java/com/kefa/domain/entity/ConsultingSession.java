@@ -55,8 +55,8 @@ public class ConsultingSession extends BaseEntity{
         this.documents.addAll(documents);
     }
 
-    public void loadFeedbacks(List<ConsultingSessionFeedback> feedbacks) {
-        this.feedbacks.addAll(feedbacks);
+    public void addFeedback(ConsultingSessionFeedback feedback) {
+        this.feedbacks.add(feedback);
     }
 
 }

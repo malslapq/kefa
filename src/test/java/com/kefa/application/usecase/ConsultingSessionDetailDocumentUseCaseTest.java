@@ -7,7 +7,7 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.ConsultingSessionDocument;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import com.kefa.infrastructure.aws.s3.S3Service;
-import com.kefa.infrastructure.repository.ConsultingSessionDocumentRepository;
+import com.kefa.infrastructure.repository.DocumentRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +39,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     private S3Service s3Service;
 
     @Mock
-    private ConsultingSessionDocumentRepository consultingSessionDocumentRepository;
+    private DocumentRepository documentRepository;
 
     @Mock
     private ConsultingSessionRepository consultingSessionRepository;
@@ -75,20 +75,20 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     @Test
     void deleteDocumentSuccess() {
         // given
-        given(consultingSessionDocumentRepository.findById(targetId)).willReturn(Optional.of(consultingSessionDocument));
+        given(documentRepository.findById(targetId)).willReturn(Optional.of(consultingSessionDocument));
 
         // when
         useCase.delete(targetId, targetId);
 
         // then
-        verify(consultingSessionDocumentRepository).deleteById(targetId);
+        verify(documentRepository).deleteById(targetId);
     }
 
     @DisplayName("문서 삭제 실패 - 문서 없음")
     @Test
     void deleteDocumentFailNotFound() {
         // given
-        given(consultingSessionDocumentRepository.findById(targetId)).willReturn(Optional.empty());
+        given(documentRepository.findById(targetId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> useCase.delete(targetId, targetId))
@@ -104,7 +104,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
             .name("updatedName")
             .build();
 
-        given(consultingSessionDocumentRepository.findById(targetId)).willReturn(Optional.of(consultingSessionDocument));
+        given(documentRepository.findById(targetId)).willReturn(Optional.of(consultingSessionDocument));
 
         // when
         useCase.updateName(targetId, targetId, request);
@@ -121,7 +121,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
             .name("updatedName")
             .build();
 
-        given(consultingSessionDocumentRepository.findById(targetId)).willReturn(Optional.empty());
+        given(documentRepository.findById(targetId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> useCase.updateName(targetId, targetId, request))
@@ -140,7 +140,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
         // Mocking the consultingSessionDocument
         ConsultingSessionDocument consultingSessionDocument = mock(ConsultingSessionDocument.class);
 
-        given(consultingSessionDocumentRepository.findById(targetId)).willReturn(Optional.of(consultingSessionDocument));
+        given(documentRepository.findById(targetId)).willReturn(Optional.of(consultingSessionDocument));
         given(consultingSessionDocument.getSaveAccountId()).willReturn(2L); // 다른 사용자
 
         // when & then
@@ -156,7 +156,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
         List<ConsultingSessionDocument> mockDocuments = List.of(consultingSessionDocument);
         Page<ConsultingSessionDocument> mockPage = new PageImpl<>(mockDocuments);
 
-        given(consultingSessionDocumentRepository.findByConsultingSessionId(any(), any())).willReturn(mockPage);
+        given(documentRepository.findByConsultingSessionId(any(), any())).willReturn(mockPage);
 
         // when
         PagedResponse<SaveFileDto> response = useCase.getDocs(targetId, 0, 10);

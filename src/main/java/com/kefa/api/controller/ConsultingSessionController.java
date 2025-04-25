@@ -26,7 +26,7 @@ public class ConsultingSessionController {
 
     @DeleteMapping("/company/consulting/feedback/{feedbackId}")
     public ApiResponse<String> deleteFeedback(@PathVariable Long feedbackId, @AuthenticationPrincipal LoginAccount loginAccount) {
-        consultingSessionService.delete(feedbackId, loginAccount.getId());
+        consultingSessionService.deleteFeedback(feedbackId, loginAccount.getId());
         return ApiResponse.success("삭제 성공");
     }
 

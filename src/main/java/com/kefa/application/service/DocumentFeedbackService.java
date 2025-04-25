@@ -25,6 +25,7 @@ public class DocumentFeedbackService {
         return documentFeedbackUseCase.getAll(documentId);
     }
 
+    @Transactional
     public DocumentFeedbackResponse add(AddDocumentFeedbackCommand command) {
         consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccount().getId());
         return documentFeedbackUseCase.add(command);

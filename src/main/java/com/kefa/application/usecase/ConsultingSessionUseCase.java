@@ -63,7 +63,11 @@ public class ConsultingSessionUseCase {
             .name(command.getLoginAccount().getName())
             .content(command.getRequest().getContent())
             .feedbackType(command.getRequest().getFeedbackType())
+            .consultingSession(consultingSession)
             .build();
+
+        consultingSession.addFeedback(consultingSessionFeedback);
+        consultingSessionRepository.save(consultingSession);
 
         return ConsultingSessionFeedbackDto.from(consultingSessionFeedbackRepository.save(consultingSessionFeedback));
     }

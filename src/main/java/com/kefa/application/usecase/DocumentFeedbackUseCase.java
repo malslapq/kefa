@@ -3,9 +3,12 @@ package com.kefa.application.usecase;
 import com.kefa.api.dto.document.command.AddDocumentFeedbackCommand;
 import com.kefa.api.dto.document.command.UpdateDocumentFeedbackCommand;
 import com.kefa.api.dto.document.response.DocumentFeedbackResponse;
+import com.kefa.common.exception.DocumentException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.FeedbackException;
+import com.kefa.domain.entity.ConsultingSessionDocument;
 import com.kefa.domain.entity.DocumentFeedback;
+import com.kefa.infrastructure.repository.DocumentRepository;
 import com.kefa.infrastructure.repository.DocumentFeedbackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import java.util.List;
 public class DocumentFeedbackUseCase {
 
     private final DocumentFeedbackRepository documentFeedbackRepository;
+    private final DocumentRepository documentRepository;
 
     public List<DocumentFeedbackResponse> getAll(Long documentId) {
         List<DocumentFeedback> feedbacks = documentFeedbackRepository.findAllByConsultingSessionDocumentId(documentId);
@@ -25,11 +29,17 @@ public class DocumentFeedbackUseCase {
 
     public DocumentFeedbackResponse add(AddDocumentFeedbackCommand command) {
 
+        ConsultingSessionDocument document = documentRepository.findById(command.getDocumentId()).orElseThrow(() -> new DocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
+
         DocumentFeedback feedback = DocumentFeedback.builder()
             .name(command.getLoginAccount().getName())
             .content(command.getContent())
             .accountId(command.getLoginAccount().getId())
+            .consultingSessionDocument(document)
             .build();
+
+        document.addFeedback(feedback);
+        documentRepository.save(document);
 
         return DocumentFeedbackResponse.from(documentFeedbackRepository.save(feedback));
     }

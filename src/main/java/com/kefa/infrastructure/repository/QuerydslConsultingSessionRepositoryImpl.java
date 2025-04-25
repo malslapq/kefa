@@ -2,7 +2,6 @@ package com.kefa.infrastructure.repository;
 
 import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.entity.ConsultingSessionFeedback;
-import com.kefa.domain.entity.QConsultingSessionDocumentFeedback;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

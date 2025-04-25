@@ -8,7 +8,7 @@ import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.entity.ConsultingSessionDocument;
 import com.kefa.infrastructure.aws.dto.SaveFileDto;
 import com.kefa.infrastructure.aws.s3.S3Service;
-import com.kefa.infrastructure.repository.ConsultingSessionDocumentRepository;
+import com.kefa.infrastructure.repository.DocumentRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,7 @@ import java.util.List;
 public class DocumentUseCase {
 
     private final S3Service s3Service;
-    private final ConsultingSessionDocumentRepository consultingSessionDocumentRepository;
+    private final DocumentRepository documentRepository;
     private final ConsultingSessionRepository consultingSessionRepository;
 
     public List<SaveFileDto> uploadFiles(List<MultipartFile> files) {
@@ -50,7 +50,7 @@ public class DocumentUseCase {
                 })
                 .toList();
 
-        consultingSessionDocumentRepository.saveAll(consultingSessionDocuments);
+        documentRepository.saveAll(consultingSessionDocuments);
         consultingSession.addDocuments(consultingSessionDocuments);
     }
 
@@ -58,7 +58,7 @@ public class DocumentUseCase {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        Page<ConsultingSessionDocument> documentPage = consultingSessionDocumentRepository.findByConsultingSessionId(consultingSessionId, pageRequest);
+        Page<ConsultingSessionDocument> documentPage = documentRepository.findByConsultingSessionId(consultingSessionId, pageRequest);
 
         return PagedResponse.<SaveFileDto>builder()
             .content(documentPage.map(SaveFileDto::from).getContent())
@@ -86,7 +86,7 @@ public class DocumentUseCase {
 
         validateDocumentOwnership(document.getSaveAccountId(), loginAccountId);
 
-        consultingSessionDocumentRepository.deleteById(documentId);
+        documentRepository.deleteById(documentId);
 
         return SaveFileDto.from(document);
     }
@@ -98,7 +98,7 @@ public class DocumentUseCase {
     }
 
     private ConsultingSessionDocument getConsultingSessionDocumentById(Long documentId) {
-        return consultingSessionDocumentRepository.findById(documentId)
+        return documentRepository.findById(documentId)
             .orElseThrow(() -> new DocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
     }
 }
