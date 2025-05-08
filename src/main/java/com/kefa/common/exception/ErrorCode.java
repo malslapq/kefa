@@ -52,14 +52,13 @@ public enum ErrorCode {
     NTS_INTERNAL_ERROR(500, "국세청 서버 내부 오류가 발생했습니다"),
     NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
 
-    //회원 관련
-    NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다."),
-
     //인증 관련
-    ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다."),
+    ALREADY_PROVIDER_UER_ID(400,"이미 연결이 완료된 계정입니다"),
+    NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다"),
+    ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다"),
     INVALID_CREDENTIALS(401, "이메일 또는 비밀번호가 일치하지 않습니다"),
     INVALID_PASSWORD(401, "비밀번호가 일치하지 않습니다"),
-    INVALID_EMAIL_VERIFICATION_TOKEN(400, "유효하지 않은 메일 인증 토큰입니다."),
+    INVALID_EMAIL_VERIFICATION_TOKEN(400, "유효하지 않은 메일 인증 토큰입니다"),
     DUPLICATE_EMAIL(400, "이미 존재하는 이메일입니다"),
     INVALID_EMAIL_FORMAT(400, "잘못된 이메일 형식입니다"),
     INVALID_PASSWORD_FORMAT(400, "비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다"),

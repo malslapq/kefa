@@ -7,7 +7,6 @@ import com.kefa.api.dto.account.response.TokenResponse;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
-import com.kefa.domain.type.LoginType;
 import com.kefa.domain.type.Role;
 import com.kefa.domain.type.SubscriptionType;
 import com.kefa.domain.vo.AccountVO;
@@ -25,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -80,7 +78,6 @@ class AuthenticationUseCaseTest {
             .subscriptionType(SubscriptionType.FREE)
             .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
-            .loginTypes(Set.of(LoginType.LOCAL))
             .build();
 
         String accessToken = "accessToken";
@@ -142,7 +139,6 @@ class AuthenticationUseCaseTest {
             .subscriptionType(SubscriptionType.FREE)
             .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
-            .loginTypes(Set.of(LoginType.LOCAL))
             .build();
 
         when(accountRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(account));
@@ -172,7 +168,6 @@ class AuthenticationUseCaseTest {
             .subscriptionType(SubscriptionType.FREE)
             .role(Role.FREE_ACCOUNT)
             .emailVerified(false)  // 미인증 계정
-            .loginTypes(Set.of(LoginType.LOCAL))
             .build();
 
         when(accountRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(account));
@@ -201,7 +196,6 @@ class AuthenticationUseCaseTest {
         assertThat(responseDto.getEmail()).isEqualTo(signupRequestDto.getEmail());
         verify(accountRepository).save(argThat(savedAccount ->
             savedAccount.getEmail().equals(signupRequestDto.getEmail()) &&
-                savedAccount.getLoginTypes().contains(LoginType.LOCAL) &&
                 savedAccount.getRole() == Role.FREE_ACCOUNT &&
                 !savedAccount.isEmailVerified() &&
                 savedAccount.getSubscriptionType() == SubscriptionType.FREE
@@ -231,20 +225,18 @@ class AuthenticationUseCaseTest {
             .subscriptionType(SubscriptionType.FREE)
             .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
-            .loginTypes(Set.of(LoginType.GOOGLE))
             .build();
 
         when(accountRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(accountRepository.save(any(Account.class))).thenReturn(newAccount);
 
         // when
-        AccountVO accountVO = authenticationUseCase.authenticateSocialUser("test@example.com", "google");
+        AccountVO accountVO = authenticationUseCase.authenticateSocialUser("test@example.com");
 
         // then
         assertThat(accountVO.getEmail()).isEqualTo("test@example.com");
         verify(accountRepository).save(argThat(savedAccount ->
             savedAccount.getEmail().equals("test@example.com") &&
-                savedAccount.getLoginTypes().contains(LoginType.GOOGLE) &&
                 savedAccount.getRole() == Role.FREE_ACCOUNT &&
                 savedAccount.isEmailVerified() &&
                 savedAccount.getSubscriptionType() == SubscriptionType.FREE
@@ -262,18 +254,16 @@ class AuthenticationUseCaseTest {
             .subscriptionType(SubscriptionType.FREE)
             .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
-            .loginTypes(Set.of(LoginType.GOOGLE))
             .build();
 
         when(accountRepository.findByEmail("test@example.com"))
             .thenReturn(Optional.of(existingAccount));
 
         // when
-        AccountVO accountVO = authenticationUseCase.authenticateSocialUser("test@example.com", "google");
+        AccountVO accountVO = authenticationUseCase.authenticateSocialUser("test@example.com");
 
         // then
         assertThat(accountVO.getEmail()).isEqualTo("test@example.com");
-        assertThat(existingAccount.getLoginTypes()).contains(LoginType.GOOGLE);
         assertThat(existingAccount.isEmailVerified()).isEqualTo(true);
         verify(accountRepository, never()).save(any());
     }
@@ -283,7 +273,7 @@ class AuthenticationUseCaseTest {
     void unsupportedOAuth2ProviderLoginFailed() {
         // when & then
         assertThatThrownBy(() ->
-            authenticationUseCase.authenticateSocialUser("test@example.com", "unknown"))
+            authenticationUseCase.authenticateSocialUser("test@example.com"))
             .isInstanceOf(AuthenticationException.class)
             .hasMessageContaining(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER.getMessage());
     }

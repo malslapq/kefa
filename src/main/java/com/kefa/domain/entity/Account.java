@@ -1,6 +1,5 @@
 package com.kefa.domain.entity;
 
-import com.kefa.domain.type.LoginType;
 import com.kefa.domain.type.Role;
 import com.kefa.domain.type.SubscriptionType;
 import jakarta.persistence.*;
@@ -9,8 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -44,21 +43,16 @@ public class Account extends BaseEntity {
     @Column
     private boolean emailVerified;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(
-        name = "account_login_types",
-        joinColumns = @JoinColumn(name = "account_id")
-    )
-    @Column(name = "login_type")
-    @Enumerated(EnumType.STRING)
+    @OneToMany(mappedBy = "account")
     @Builder.Default
-    private Set<LoginType> loginTypes = new HashSet<>();
+    private List<SocialInfo> socialInfos = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     private RefreshToken refreshToken;
 
-    public void addLoginType(LoginType loginType) {
-        this.loginTypes.add(loginType);
+    public void addSocialInfo(SocialInfo socialInfo) {
+        socialInfos.add(socialInfo);
+        socialInfo.addAccount(this);
     }
 
     public void verify() {

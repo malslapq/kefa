@@ -8,7 +8,6 @@ import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.RefreshToken;
-import com.kefa.domain.type.LoginType;
 import com.kefa.domain.type.Role;
 import com.kefa.domain.type.SubscriptionType;
 import com.kefa.domain.vo.AccountVO;
@@ -20,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class AuthenticationUseCase {
 
     public TokenResponse login(AccountLoginRequest accountLoginRequest) {
 
-        Account account = getAccount(accountLoginRequest);
+        Account account = getAccountFromEmail(accountLoginRequest.getEmail());
 
         validatePassword(accountLoginRequest.getPassword(), account.getPassword());
         validateEmailVerified(account);
@@ -49,8 +48,8 @@ public class AuthenticationUseCase {
         return tokenResponse;
     }
 
-    private void validateEmailVerified(Account account){
-        if(!account.isEmailVerified())
+    private void validateEmailVerified(Account account) {
+        if (!account.isEmailVerified())
             throw new AuthenticationException(ErrorCode.EMAIL_VERIFICATION_REQUIRED);
     }
 
@@ -64,19 +63,19 @@ public class AuthenticationUseCase {
             .build();
     }
 
-    private TokenResponse issueJwt(Account account){
+    private TokenResponse issueJwt(Account account) {
         return TokenResponse.builder()
             .accessToken(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName()))
             .refreshToken(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName()))
             .build();
     }
 
-    private Account getAccount(AccountLoginRequest accountLoginRequest) {
-        return accountRepository.findByEmail(accountLoginRequest.getEmail()).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
+    private Account getAccountFromEmail(String email) {
+        return accountRepository.findByEmail(email).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
     }
 
     private void validatePassword(String inputPassword, String savedPassword) {
-        if(!passwordEncoder.matches(inputPassword, savedPassword)){
+        if (!passwordEncoder.matches(inputPassword, savedPassword)) {
             throw new AuthenticationException(ErrorCode.INVALID_CREDENTIALS);
         }
     }
@@ -85,16 +84,15 @@ public class AuthenticationUseCase {
 
         validateDuplicateEmail(request.getEmail());
         Account account = createAccount(request);
+
         return AccountSignupResponse.from(account);
 
     }
 
-    public AccountVO authenticateSocialUser(String email, String provider) {
-
-        LoginType loginType = validateAndGetLoginType(provider);
+    public AccountVO authenticateSocialUser(String email) {
 
         return AccountVO.from(accountRepository.findByEmail(email).orElseGet(
-            () -> createSocialAccount(email, loginType))
+            () -> createSocialAccount(email))
         );
 
     }
@@ -108,7 +106,7 @@ public class AuthenticationUseCase {
 
     }
 
-    private Account createSocialAccount(String email, LoginType loginType) {
+    private Account createSocialAccount(String email) {
 
         return accountRepository.save(Account.builder()
             .email(email)
@@ -117,21 +115,11 @@ public class AuthenticationUseCase {
             .subscriptionType(SubscriptionType.FREE)
             .emailVerified(true)
             .role(Role.FREE_ACCOUNT)
-            .loginTypes(new HashSet<>(Set.of(loginType)))
             .build()
         );
 
     }
 
-    private LoginType validateAndGetLoginType(String provider) {
-
-        try {
-            return LoginType.valueOf(provider.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new AuthenticationException(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER);
-        }
-
-    }
 
     private void validateDuplicateEmail(String email) {
 

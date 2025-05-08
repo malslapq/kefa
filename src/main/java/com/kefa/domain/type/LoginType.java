@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum LoginType {
 
-    LOCAL("일반"),
     GOOGLE("구글"),
     KAKAO("카카오");
 
