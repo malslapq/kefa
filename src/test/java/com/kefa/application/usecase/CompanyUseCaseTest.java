@@ -370,7 +370,7 @@ public class CompanyUseCaseTest {
         //when & then
         assertThatThrownBy(() -> companyUseCase.add(request, ACCOUNT_ID))
             .isInstanceOf(AuthenticationException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
     }
 
 

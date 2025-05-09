@@ -74,7 +74,7 @@ public class EmailVerificationUseCaseTest {
         // when & then
         assertThatThrownBy(() -> emailVerificationUseCase.resendEmail(testEmail))
             .isInstanceOf(AuthenticationException.class)
-            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCOUNT_NOT_FOUND);
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_ACCOUNT);
 
         verify(emailVerificationRedisRepository, never()).saveEmailToken(any(), any());
         verify(emailSender, never()).sendVerificationEmail(any(), any());
@@ -139,7 +139,7 @@ public class EmailVerificationUseCaseTest {
         // when & then
         assertThatThrownBy(() -> emailVerificationUseCase.verify(testToken))
             .isInstanceOf(AuthenticationException.class)
-            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCOUNT_NOT_FOUND);
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_ACCOUNT);
 
         verify(emailVerificationRedisRepository, never()).removeEmailToken(any());
     }

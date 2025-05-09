@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,7 +18,7 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "consulting_session")
-public class ConsultingSession extends BaseEntity{
+public class ConsultingSession extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,6 +52,9 @@ public class ConsultingSession extends BaseEntity{
 
     public void addDocuments(List<ConsultingSessionDocument> documents) {
         this.documents.addAll(documents);
+        for (ConsultingSessionDocument document : documents) {
+            document.addConsultingSession(this);
+        }
     }
 
     public void addFeedback(ConsultingSessionFeedback feedback) {

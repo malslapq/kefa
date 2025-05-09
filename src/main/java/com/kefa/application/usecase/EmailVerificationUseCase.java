@@ -38,7 +38,7 @@ public class EmailVerificationUseCase {
         }
 
         Account account = accountRepository.findByEmail(email)
-            .orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
+            .orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
 
         account.verify();
         emailVerificationRedisRepository.removeEmailToken(token);
@@ -48,7 +48,7 @@ public class EmailVerificationUseCase {
     public void resendEmail(String email) {
 
         Account account = accountRepository.findByEmail(email)
-            .orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
+            .orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
 
         if (account.isEmailVerified()) {
             throw new AuthenticationException(ErrorCode.ALREADY_VERIFIED_EMAIL);

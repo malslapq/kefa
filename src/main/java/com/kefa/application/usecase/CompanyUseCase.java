@@ -107,7 +107,7 @@ public class CompanyUseCase {
 
     public CompanyAddResponse add(CompanyAddRequest request, Long loginAccountId) {
 
-        Account account = accountRepository.findById(loginAccountId).orElseThrow(() -> new AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND));
+        Account account = accountRepository.findById(loginAccountId).orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
         Company company = CompanyAddRequest.toEntity(request, account);
 
         companyRepository.save(company);

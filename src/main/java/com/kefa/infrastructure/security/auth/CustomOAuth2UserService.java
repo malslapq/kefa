@@ -2,6 +2,7 @@ package com.kefa.infrastructure.security.auth;
 
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.common.exception.ErrorCode;
+import com.kefa.common.exception.OAuth2Exception;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.SocialInfo;
 import com.kefa.domain.type.LoginType;
@@ -38,97 +39,85 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
         String socialProvider = userRequest.getClientRegistration().getRegistrationId();
+        LoginType loginType = LoginType.from(socialProvider);
         String email = getEmailFromOauth2User(oAuth2User, socialProvider);
-        String nameAttributeKey = switch (socialProvider) {
-            case "google" -> "sub";
-            case "kakao" -> "id";
-            default -> throw new OAuth2AuthenticationException(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER.getMessage());
-        };
 
         // 소셜 고유 아이디
-        String providerUserId = getProviderUserIdFromOauth2User(oAuth2User, socialProvider);
-        boolean existsSocialUser = socialInfoRepository.existsByProviderUserIdAndLoginType(providerUserId, LoginType.valueOf(socialProvider.toUpperCase()));
-
-        AccountVO accountVO;
+        String providerUserId = getProviderUserIdFromOauth2User(oAuth2User, loginType);
 
         // 계정 통합인지 체크하는 변수
         String state = Optional.ofNullable(userRequest.getAdditionalParameters().get("state"))
             .map(Object::toString)
             .orElse("login");
 
-        // 계정 통합일 경우 기존 로그인한 계정과 연결
-        if (LINK.equals(state)) {
+        AccountVO accountVO = LINK.equals(state) ?
+            // 계정 통합일 경우 기존 로그인한 계정과 연결
+            linkAccount(providerUserId, loginType) :
+            // 통합 로그인 or 회원가입 및 소셜 로그인
+            loginOrSignUp(providerUserId, email);
 
-            // 중복되는 소셜 아이디 있을 경우 예외 처리
-            if (existsSocialUser) {
-                throw new OAuth2AuthenticationException(ErrorCode.ALREADY_PROVIDER_UER_ID.getMessage());
-            }
+        return createDefaultOauth2User(accountVO, loginType, attributes);
 
-            // 로그인한 회원 정보 가져와서 통합
-            LoginAccount loginAccount = (LoginAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Account account = accountRepository.findById(loginAccount.getId()).orElseThrow(() -> new OAuth2AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT.getMessage()));
-            SocialInfo socialInfo = SocialInfo.builder()
-                .loginType(LoginType.valueOf(socialProvider.toUpperCase()))
-                .providerUserId(providerUserId)
-                .account(account)
-                .build();
+    }
 
-            socialInfoRepository.save(socialInfo);
+    private DefaultOAuth2User createDefaultOauth2User(AccountVO accountVO, LoginType loginType, Map<String, Object> attributes){
 
-            // defaultOauth2User 초기화 매개변수
-            accountVO = AccountVO.from(account);
-            attributes.put("accountId", accountVO.getId());
-
-            /*
-            계정 통합이 아닐 경우
-            Oauth2 계정으로 로그인 회원가입 or 기존 계정와 통합된 계정 분기
-            */
-        } else {
-
-            // 통합된 계정이 있는 경우
-            if (existsSocialUser) {
-
-                Account account = socialInfoRepository.findByProviderUserId(providerUserId)
-                    .orElseThrow(() -> new OAuth2AuthenticationException(ErrorCode.NOT_FOUND_SOCIAL_USER.getMessage())).getAccount();
-
-                accountVO = AccountVO.from(account);
-
-                // 없는 경우 소셜 로그인 or 회원가입
-            } else {
-                accountVO = authenticationUseCase.authenticateSocialUser(email);
-            }
-
-        }
+        String nameAttributeKey = loginType.getNameAttributeKey();
 
         attributes.put("accountId", accountVO.getId());
-        attributes.put("email", email);
+        attributes.put("email", accountVO.getEmail());
 
         return new DefaultOAuth2User(
             Collections.singleton(new SimpleGrantedAuthority(ROLE_PREFIX + accountVO.getRole())),
             attributes,
             nameAttributeKey
         );
-
     }
 
-    private String getProviderUserIdFromOauth2User(OAuth2User oauth2User, String registrationId) {
+    private AccountVO linkAccount(String providerUserId, LoginType loginType) {
 
-        return switch (registrationId) {
-            case "google" -> Objects.requireNonNull(oauth2User.getAttribute("sub")).toString();
-            case "kakao" -> Objects.requireNonNull(oauth2User.getAttribute("id")).toString();
-            default -> throw new OAuth2AuthenticationException(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER.getMessage());
-        };
+        boolean existsSocialUser = socialInfoRepository.existsByProviderUserIdAndLoginType(providerUserId, loginType);
+
+        // 중복되는 소셜 아이디 있을 경우 예외 처리
+        if (existsSocialUser) {
+            throw new OAuth2Exception(ErrorCode.ALREADY_PROVIDER_USER_ID);
+        }
+
+        // 로그인한 회원 정보 가져와서 통합
+        LoginAccount loginAccount = (LoginAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Account account = accountRepository.findById(loginAccount.getId()).orElseThrow(() -> new OAuth2Exception(ErrorCode.NOT_FOUND_ACCOUNT));
+        SocialInfo socialInfo = SocialInfo.builder()
+            .loginType(loginType)
+            .providerUserId(providerUserId)
+            .account(account)
+            .build();
+
+        socialInfoRepository.save(socialInfo);
+
+        return AccountVO.from(account);
+    }
+
+    private AccountVO loginOrSignUp(String providerUserId, String email) {
+
+        return socialInfoRepository.findByProviderUserId(providerUserId)
+            .map(socialInfo -> AccountVO.from(socialInfo.getAccount()))
+            .orElse(authenticationUseCase.authenticateSocialUser(email));
+    }
+
+
+    private String getProviderUserIdFromOauth2User(OAuth2User oauth2User, LoginType loginType) {
+        return Objects.requireNonNull(oauth2User.getAttribute(loginType.getNameAttributeKey())).toString();
     }
 
     private String getEmailFromOauth2User(OAuth2User oauth2User, String registrationId) {
 
         return switch (registrationId) {
-            case "google" -> oauth2User.getAttribute("email");
-            case "kakao" -> {
+            case "GOOGLE" -> oauth2User.getAttribute("email");
+            case "KAKAO" -> {
                 Map<String, Object> kakaoAccount = oauth2User.getAttribute("kakao_account");
                 yield (String) Objects.requireNonNull(kakaoAccount).get("email");
             }
-            default -> throw new OAuth2AuthenticationException(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER.getMessage());
+            default -> throw new OAuth2Exception(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER);
         };
 
     }
