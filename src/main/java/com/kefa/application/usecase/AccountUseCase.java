@@ -76,7 +76,7 @@ public class AccountUseCase {
     }
 
     private Account getAccount(Long targetId) {
-        return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+        return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
     }
 
 }

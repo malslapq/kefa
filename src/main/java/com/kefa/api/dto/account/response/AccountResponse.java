@@ -34,7 +34,6 @@ public class AccountResponse {
             .subscriptionType(account.getSubscriptionType())
             .role(account.getRole())
             .emailVerified(account.isEmailVerified())
-            .loginTypes(account.getLoginTypes())
             .createdAt(account.getCreatedAt())
             .updatedAt(account.getUpdatedAt())
             .build();

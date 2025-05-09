@@ -1,7 +1,6 @@
 package com.kefa.infrastructure.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.common.response.ErrorResponse;
@@ -30,11 +29,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-
-    @Bean
-    public CustomOAuth2UserService customOAuth2UserService(AuthenticationUseCase authenticationUseCase) {
-        return new CustomOAuth2UserService(authenticationUseCase);
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

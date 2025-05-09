@@ -94,7 +94,7 @@ public class AccountUseCaseTest {
         // when & then
         assertThatThrownBy(() -> accountUseCase.delete(request, targetId))
             .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
     }
 
     @DisplayName("계정 삭제 실패 - 비밀번호 불일치")
@@ -195,7 +195,7 @@ public class AccountUseCaseTest {
             accountUseCase.updatePassword(request, targetId)
         )
             .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
     }
 
     @DisplayName("회원 정보 수정 성공 - 본인")
@@ -235,7 +235,7 @@ public class AccountUseCaseTest {
             accountUseCase.updateAccount(request, targetId)
         )
             .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
         verify(accountRepository, times(1)).findById(targetId);
     }
 
@@ -267,7 +267,7 @@ public class AccountUseCaseTest {
         //when & then
         assertThatThrownBy(() -> accountUseCase.findByAccountId(targetId))
             .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
 
     }
 

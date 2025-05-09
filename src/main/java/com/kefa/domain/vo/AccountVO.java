@@ -18,7 +18,6 @@ public class AccountVO {
     private final String name;
     private final SubscriptionType subscriptionType;
     private final Role role;
-    private final Set<LoginType> loginTypes;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
@@ -32,7 +31,6 @@ public class AccountVO {
         this.name = name;
         this.subscriptionType = subscriptionType;
         this.role = role;
-        this.loginTypes = Set.copyOf(loginTypes);
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -44,7 +42,6 @@ public class AccountVO {
             .name(account.getName())
             .subscriptionType(account.getSubscriptionType())
             .role(account.getRole())
-            .loginTypes(account.getLoginTypes())
             .createdAt(account.getCreatedAt())
             .updatedAt(account.getUpdatedAt())
             .build();

@@ -43,17 +43,9 @@ public class Account extends BaseEntity {
     @Column
     private boolean emailVerified;
 
-    @OneToMany(mappedBy = "account")
-    @Builder.Default
-    private List<SocialInfo> socialInfos = new ArrayList<>();
-
     @OneToOne(fetch = FetchType.LAZY)
     private RefreshToken refreshToken;
 
-    public void addSocialInfo(SocialInfo socialInfo) {
-        socialInfos.add(socialInfo);
-        socialInfo.addAccount(this);
-    }
 
     public void verify() {
         this.emailVerified = true;

@@ -53,6 +53,7 @@ public enum ErrorCode {
     NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
 
     //인증 관련
+    NOT_FOUND_SOCIAL_USER(404, "소셜 계정을 찾을 수 없습니다"),
     ALREADY_PROVIDER_UER_ID(400,"이미 연결이 완료된 계정입니다"),
     NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다"),
     ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다"),
@@ -63,7 +64,7 @@ public enum ErrorCode {
     INVALID_EMAIL_FORMAT(400, "잘못된 이메일 형식입니다"),
     INVALID_PASSWORD_FORMAT(400, "비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다"),
     UNSUPPORTED_SOCIAL_PROVIDER(400, "지원하지 않는 소셜 로그인 제공자입니다"),
-    ACCOUNT_NOT_FOUND(404, "계정을 찾을 수 없습니다"),
+    NOT_FOUND_ACCOUNT(404, "계정을 찾을 수 없습니다"),
     EMAIL_VERIFICATION_REQUIRED(403, "이메일 인증이 필요합니다"),
     UNAUTHORIZED(401, "인증이 필요한 서비스입니다"),
     ACCESS_DENIED(403, "접근 권한이 없습니다"),

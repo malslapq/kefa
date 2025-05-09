@@ -29,10 +29,6 @@ public class SocialInfo {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    public void addAccount(Account account) {
-        this.account = account;
-    }
-
     public void removeAccount() {
         this.account = null;
     }

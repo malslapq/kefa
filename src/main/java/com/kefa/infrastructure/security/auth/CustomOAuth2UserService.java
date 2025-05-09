@@ -45,6 +45,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default -> throw new OAuth2AuthenticationException(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER.getMessage());
         };
 
+        // 소셜 고유 아이디
+        String providerUserId = getProviderUserIdFromOauth2User(oAuth2User, socialProvider);
+        boolean existsSocialUser = socialInfoRepository.existsByProviderUserIdAndLoginType(providerUserId, LoginType.valueOf(socialProvider.toUpperCase()));
+
         AccountVO accountVO;
 
         // 계정 통합인지 체크하는 변수
@@ -55,17 +59,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 계정 통합일 경우 기존 로그인한 계정과 연결
         if (LINK.equals(state)) {
 
-            // 고유 아이디
-            String providerUserId = getProviderUserIdFromOauth2User(oAuth2User, socialProvider);
-
             // 중복되는 소셜 아이디 있을 경우 예외 처리
-            if (socialInfoRepository.existsByProviderUserIdAndLoginType(providerUserId, LoginType.valueOf(socialProvider.toUpperCase()))) {
+            if (existsSocialUser) {
                 throw new OAuth2AuthenticationException(ErrorCode.ALREADY_PROVIDER_UER_ID.getMessage());
             }
 
             // 로그인한 회원 정보 가져와서 통합
             LoginAccount loginAccount = (LoginAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Account account = accountRepository.findById(loginAccount.getId()).orElseThrow(() -> new OAuth2AuthenticationException(ErrorCode.ACCOUNT_NOT_FOUND.getMessage()));
+            Account account = accountRepository.findById(loginAccount.getId()).orElseThrow(() -> new OAuth2AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT.getMessage()));
             SocialInfo socialInfo = SocialInfo.builder()
                 .loginType(LoginType.valueOf(socialProvider.toUpperCase()))
                 .providerUserId(providerUserId)
@@ -73,15 +74,30 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .build();
 
             socialInfoRepository.save(socialInfo);
-            account.addSocialInfo(socialInfo);
 
             // defaultOauth2User 초기화 매개변수
             accountVO = AccountVO.from(account);
             attributes.put("accountId", accountVO.getId());
 
-            // 아닐 경우 Oauth2 계정으로 로그인 or 회원가입
+            /*
+            계정 통합이 아닐 경우
+            Oauth2 계정으로 로그인 회원가입 or 기존 계정와 통합된 계정 분기
+            */
         } else {
-            accountVO = authenticationUseCase.authenticateSocialUser(email);
+
+            // 통합된 계정이 있는 경우
+            if (existsSocialUser) {
+
+                Account account = socialInfoRepository.findByProviderUserId(providerUserId)
+                    .orElseThrow(() -> new OAuth2AuthenticationException(ErrorCode.NOT_FOUND_SOCIAL_USER.getMessage())).getAccount();
+
+                accountVO = AccountVO.from(account);
+
+                // 없는 경우 소셜 로그인 or 회원가입
+            } else {
+                accountVO = authenticationUseCase.authenticateSocialUser(email);
+            }
+
         }
 
         attributes.put("accountId", accountVO.getId());
