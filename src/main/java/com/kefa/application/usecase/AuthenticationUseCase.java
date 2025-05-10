@@ -31,6 +31,7 @@ public class AuthenticationUseCase {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    @Transactional
     public TokenResponse login(AccountLoginRequest accountLoginRequest) {
 
         Account account = getAccountFromEmail(accountLoginRequest.getEmail());
@@ -38,12 +39,15 @@ public class AuthenticationUseCase {
         validatePassword(accountLoginRequest.getPassword(), account.getPassword());
         validateEmailVerified(account);
 
-        TokenResponse tokenResponse = issueJwt(account);
+        TokenResponse tokenResponse = issueJWT(account);
 
-        RefreshToken refreshToken = refreshTokenRepository.findByAccountId(account.getId())
-            .orElse(createRefreshTokenEntity(account, tokenResponse, accountLoginRequest.getDeviceId()));
+        if (account.getRefreshToken() != null) {
+            account.getRefreshToken().updateToken(tokenResponse.getRefreshToken());
+        } else {
+            account.addRefreshToken(createRefreshTokenEntity(account, tokenResponse.getRefreshToken(), accountLoginRequest.getDeviceId()));
+        }
 
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.save(account.getRefreshToken());
 
         return tokenResponse;
     }
@@ -53,25 +57,25 @@ public class AuthenticationUseCase {
             throw new AuthenticationException(ErrorCode.EMAIL_VERIFICATION_REQUIRED);
     }
 
-    private RefreshToken createRefreshTokenEntity(Account account, TokenResponse tokenResponse, String deviceId) {
+    private RefreshToken createRefreshTokenEntity(Account account, String refreshToken, String deviceId) {
 
         return RefreshToken.builder()
-            .token(tokenResponse.getRefreshToken())
+            .token(refreshToken)
             .account(account)
             .deviceId(deviceId)
-            .expiresAt(jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()))
+            .expiresAt(jwtProvider.getTokenExpiration(refreshToken))
             .build();
     }
 
-    private TokenResponse issueJwt(Account account) {
+    private TokenResponse issueJWT(Account account) {
         return TokenResponse.builder()
             .accessToken(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName()))
-            .refreshToken(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName()))
+            .refreshToken(jwtProvider.createRefreshToken(account.getId(), account.getRole(), account.getName()))
             .build();
     }
 
     private Account getAccountFromEmail(String email) {
-        return accountRepository.findByEmail(email).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
+        return accountRepository.findByEmailWithRefreshToken(email).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
     }
 
     private void validatePassword(String inputPassword, String savedPassword) {
@@ -94,7 +98,6 @@ public class AuthenticationUseCase {
         return AccountVO.from(accountRepository.findByEmail(email).orElseGet(
             () -> createSocialAccount(email))
         );
-
     }
 
     private Account createAccount(AccountSignupRequest request) {
@@ -117,7 +120,6 @@ public class AuthenticationUseCase {
             .role(Role.FREE_ACCOUNT)
             .build()
         );
-
     }
 
 

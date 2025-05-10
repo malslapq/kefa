@@ -50,6 +50,11 @@ public class Account extends BaseEntity {
     @Builder.Default
     private List<SocialInfo> socialInfos = new ArrayList<>();
 
+    public void addRefreshToken(RefreshToken refreshToken) {
+        this.refreshToken = refreshToken;
+        refreshToken.addAccount(this);
+    }
+
     public void addSocialInfo(SocialInfo socialInfo) {
         this.socialInfos.add(socialInfo);
     }

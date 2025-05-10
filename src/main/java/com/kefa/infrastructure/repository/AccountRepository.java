@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
+    @Query
     Optional<Account> findByEmail(String email);
 
     boolean existsByEmail(String email);
@@ -17,4 +18,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("SELECT a FROM Account a JOIN FETCH a.socialInfos WHERE a.id = :accountId")
     Optional<Account> findByIdWithSocialInfos(Long accountId);
 
+    @Query("SELECT a FROM Account a LEFT JOIN FETCH a.refreshToken WHERE a.email = :email")
+    Optional<Account> findByEmailWithRefreshToken(String email);
 }

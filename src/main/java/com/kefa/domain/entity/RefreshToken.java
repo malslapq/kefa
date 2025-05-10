@@ -38,4 +38,13 @@ public class RefreshToken {
         return expiresAt.isBefore(LocalDateTime.now());
     }
 
+    public void addAccount(Account account) {
+        this.account = account;
+    }
+
+    public void updateToken(String token) {
+        this.token = token;
+        this.createdAt = LocalDateTime.now();
+    }
+
 }
