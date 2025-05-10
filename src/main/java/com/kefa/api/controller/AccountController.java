@@ -21,6 +21,11 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    @DeleteMapping("/accounts/social-info/{socialInfoId}")
+    public ApiResponse<SocialInfoDeleteResponse> deleteSocialInfo(@AuthenticationPrincipal LoginAccount loginAccount, @PathVariable Long socialInfoId) {
+        return ApiResponse.success(accountService.deleteSocialInfo(loginAccount.getId(), socialInfoId));
+    }
+
     @DeleteMapping("/accounts")
     public ApiResponse<AccountDeleteResponse> delete(@RequestBody @Valid AccountDeleteRequest accountDeleteRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(accountService.delete(accountDeleteRequest, loginAccount.getId()));

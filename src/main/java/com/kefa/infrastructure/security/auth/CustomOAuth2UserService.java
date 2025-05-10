@@ -60,7 +60,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     }
 
-    private DefaultOAuth2User createDefaultOauth2User(AccountVO accountVO, LoginType loginType, Map<String, Object> attributes){
+    private DefaultOAuth2User createDefaultOauth2User(AccountVO accountVO, LoginType loginType, Map<String, Object> attributes) {
 
         String nameAttributeKey = loginType.getNameAttributeKey();
 
@@ -93,6 +93,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             .build();
 
         socialInfoRepository.save(socialInfo);
+        account.addSocialInfo(socialInfo);
 
         return AccountVO.from(account);
     }
@@ -101,7 +102,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         return socialInfoRepository.findByProviderUserId(providerUserId)
             .map(socialInfo -> AccountVO.from(socialInfo.getAccount()))
-            .orElse(authenticationUseCase.authenticateSocialUser(email));
+            .orElseGet(() -> authenticationUseCase.authenticateSocialUser(email));
     }
 
 

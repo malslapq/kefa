@@ -46,6 +46,17 @@ public class Account extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private RefreshToken refreshToken;
 
+    @OneToMany(mappedBy = "account")
+    @Builder.Default
+    private List<SocialInfo> socialInfos = new ArrayList<>();
+
+    public void addSocialInfo(SocialInfo socialInfo) {
+        this.socialInfos.add(socialInfo);
+    }
+
+    public void removeSocialInfo(SocialInfo socialInfo) {
+        this.socialInfos.remove(socialInfo);
+    }
 
     public void verify() {
         this.emailVerified = true;

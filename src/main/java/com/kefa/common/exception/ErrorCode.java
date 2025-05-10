@@ -52,7 +52,8 @@ public enum ErrorCode {
     NTS_INTERNAL_ERROR(500, "국세청 서버 내부 오류가 발생했습니다"),
     NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
 
-    //인증 관련
+    //인증, 회원 관련,
+    NOT_FOUND_SOCIALINFO(404, "통합된 소셜 계정 정보가 존재하지 않습니다"),
     ALREADY_PROVIDER_USER_ID(400,"이미 연결이 완료된 계정입니다"),
     NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다"),
     ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다"),

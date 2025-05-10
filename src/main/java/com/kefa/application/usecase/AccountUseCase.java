@@ -3,15 +3,14 @@ package com.kefa.application.usecase;
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
-import com.kefa.api.dto.account.response.AccountDeleteResponse;
-import com.kefa.api.dto.account.response.AccountResponse;
-import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
-import com.kefa.api.dto.account.response.AccountUpdateResponse;
+import com.kefa.api.dto.account.response.*;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
+import com.kefa.domain.entity.SocialInfo;
 import com.kefa.infrastructure.repository.AccountRepository;
+import com.kefa.infrastructure.repository.SocialInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,23 @@ public class AccountUseCase {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SocialInfoRepository socialInfoRepository;
+
+    @Transactional
+    public SocialInfoDeleteResponse deleteSocialInfo(Long accountId, Long socialInfoId) {
+
+        Account account = accountRepository.findByIdWithSocialInfos(accountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
+
+        SocialInfo socialInfo = account.getSocialInfos().stream()
+            .filter(si -> si.getId().equals(socialInfoId))
+            .findFirst()
+            .orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_SOCIALINFO));
+
+        account.removeSocialInfo(socialInfo);
+        socialInfoRepository.delete(socialInfo);
+
+        return new SocialInfoDeleteResponse();
+    }
 
     @Transactional
     public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, Long loginAccountId) {
@@ -78,5 +94,4 @@ public class AccountUseCase {
     private Account getAccount(Long targetId) {
         return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
     }
-
 }

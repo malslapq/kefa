@@ -17,6 +17,10 @@ public class AccountService {
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
 
+    public SocialInfoDeleteResponse deleteSocialInfo(Long accountId, Long socialInfoId) {
+        return accountUseCase.deleteSocialInfo(accountId, socialInfoId);
+    }
+
     public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, Long loginAccountId) {
         return accountUseCase.delete(accountDeleteRequest, loginAccountId);
     }
