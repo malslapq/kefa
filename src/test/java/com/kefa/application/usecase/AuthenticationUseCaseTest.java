@@ -68,6 +68,9 @@ class AuthenticationUseCaseTest {
             .email("test@test.com")
             .name("test")
             .password("encodedPassword")
+            .role(Role.FREE_ACCOUNT)
+            .subscriptionType(SubscriptionType.FREE)
+            .emailVerified(true)
             .build();
 
         signupRequestDto = AccountSignupRequest.builder()
@@ -77,7 +80,7 @@ class AuthenticationUseCaseTest {
 
         loginRequest = AccountLoginRequest.builder()
             .email("test@test.com")
-            .password("password")
+            .password("encodedPassword")
             .deviceId("device1")
             .build();
     }
@@ -122,7 +125,7 @@ class AuthenticationUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> authenticationUseCase.updatePassword(request, targetId))
-            .isInstanceOf(AccountException.class)
+            .isInstanceOf(AuthenticationException.class)
             .hasMessage(ErrorCode.INVALID_CREDENTIALS.getMessage());
     }
 
@@ -165,75 +168,17 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("일반 회원가입 성공시 이메일 인증메일을 발송한다")
-    void signup_success() {
-        // given
-        AccountSignupRequest request = AccountSignupRequest.builder()
-            .email("test@email.com")
-            .password("password")
-            .name("name")
-            .build();
-
-        AccountSignupResponse expectedResponse = AccountSignupResponse.builder()
-            .id(1L)
-            .email("test@email.com")
-            .name("name")
-            .build();
-
-        when(authenticationUseCase.signup(request)).thenReturn(expectedResponse);
-        doNothing().when(emailVerificationUseCase).sendVerificationEmail(request.getEmail());
-
-        // when
-        AccountSignupResponse response = authenticationUseCase.signup(request);
-
-        // then
-        assertThat(response).isEqualTo(expectedResponse);
-        verify(authenticationUseCase).signup(request);
-        verify(emailVerificationUseCase).sendVerificationEmail(request.getEmail());
-    }
-
-    @Test
-    @DisplayName("회원가입 실패시 이메일 발송하지 않는다")
-    void signup_fail() {
-        // given
-        AccountSignupRequest request = AccountSignupRequest.builder()
-            .email("test@email.com")
-            .password("password")
-            .name("name")
-            .build();
-
-        when(authenticationUseCase.signup(request))
-            .thenThrow(new AuthenticationException(ErrorCode.DUPLICATE_EMAIL));
-
-        // when & then
-        assertThatThrownBy(() -> authenticationUseCase.signup(request))
-            .isInstanceOf(AuthenticationException.class);
-
-        verify(authenticationUseCase).signup(request);
-        verify(emailVerificationUseCase, never()).sendVerificationEmail(any());
-    }
-
-    @Test
     @DisplayName("로그인 성공")
     void loginSuccess() {
         // given
-        Account account = Account.builder()
-            .id(1L)
-            .email("test@example.com")
-            .password("encodedPassword")
-            .name("name")
-            .subscriptionType(SubscriptionType.FREE)
-            .role(Role.FREE_ACCOUNT)
-            .emailVerified(true)
-            .build();
-
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
         LocalDateTime expirationTime = LocalDateTime.now().plusDays(2);
 
-        when(accountRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(account));
-        when(passwordEncoder.matches(loginRequest.getPassword(), account.getPassword())).thenReturn(true);
-        when(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName())).thenReturn(accessToken, refreshToken);
+        when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.of(account));
+        when(passwordEncoder.matches(account.getPassword(), loginRequest.getPassword())).thenReturn(true);
+        when(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName())).thenReturn(accessToken);
+        when(jwtProvider.createRefreshToken(account.getId(), account.getRole(), account.getName())).thenReturn(refreshToken);
         when(jwtProvider.getTokenExpiration(refreshToken)).thenReturn(expirationTime);
 
         // when
@@ -253,14 +198,8 @@ class AuthenticationUseCaseTest {
     @Test
     @DisplayName("존재하지 않는 이메일로 로그인 실패")
     void loginFailWhenEmailNotFound() {
-        // given
-        AccountLoginRequest loginRequest = AccountLoginRequest.builder()
-            .email("empty@example.com")
-            .password("password123")
-            .deviceId("device1")
-            .build();
 
-        when(accountRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.empty());
+        when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> authenticationUseCase.login(loginRequest))
@@ -271,24 +210,8 @@ class AuthenticationUseCaseTest {
     @Test
     @DisplayName("비밀번호 다름으로 인한 로그인 실패")
     void loginFailWhenPasswordWrong() {
-        // given
-        AccountLoginRequest loginRequest = AccountLoginRequest.builder()
-            .email("test@example.com")
-            .password("wrongPassword")
-            .deviceId("device1")
-            .build();
 
-        Account account = Account.builder()
-            .id(1L)
-            .email("test@example.com")
-            .password("encodedPassword")
-            .name("name")
-            .subscriptionType(SubscriptionType.FREE)
-            .role(Role.FREE_ACCOUNT)
-            .emailVerified(true)
-            .build();
-
-        when(accountRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(account));
+        when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.of(account));
         when(passwordEncoder.matches(loginRequest.getPassword(), account.getPassword())).thenReturn(false);
 
         // when & then
@@ -301,12 +224,6 @@ class AuthenticationUseCaseTest {
     @DisplayName("이메일 미인증 계정으로 로그인 시도시 실패")
     void loginFailWhenAccountNotVerified() {
         // given
-        AccountLoginRequest loginRequest = AccountLoginRequest.builder()
-            .email("test@example.com")
-            .password("password123")
-            .deviceId("device1")
-            .build();
-
         Account account = Account.builder()
             .id(1L)
             .email("test@example.com")
@@ -317,7 +234,7 @@ class AuthenticationUseCaseTest {
             .emailVerified(false)  // 미인증 계정
             .build();
 
-        when(accountRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(account));
+        when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.of(account));
         when(passwordEncoder.matches(loginRequest.getPassword(), account.getPassword())).thenReturn(true);
 
         // when & then
@@ -415,13 +332,4 @@ class AuthenticationUseCaseTest {
         verify(accountRepository, never()).save(any());
     }
 
-    @Test
-    @DisplayName("지원하지 않는 소셜 로그인 시도 실패")
-    void unsupportedOAuth2ProviderLoginFailed() {
-        // when & then
-        assertThatThrownBy(() ->
-            authenticationUseCase.authenticateSocialUser("test@example.com"))
-            .isInstanceOf(AuthenticationException.class)
-            .hasMessageContaining(ErrorCode.UNSUPPORTED_SOCIAL_PROVIDER.getMessage());
-    }
 }

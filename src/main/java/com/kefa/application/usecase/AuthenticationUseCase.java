@@ -11,17 +11,23 @@ import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.RefreshToken;
+import com.kefa.domain.type.LoginType;
 import com.kefa.domain.type.Role;
 import com.kefa.domain.type.SubscriptionType;
 import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.RefreshTokenRepository;
+import com.kefa.infrastructure.repository.SocialInfoRepository;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -29,23 +35,47 @@ import java.util.UUID;
 @Transactional
 public class AuthenticationUseCase {
 
+    private static final String ROLE_PREFIX = "ROLE_";
+
     private final AccountRepository accountRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final SocialInfoRepository socialInfoRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    public AccountVO loginOrSignUp(String providerUserId, String email) {
+
+        return socialInfoRepository.findByProviderUserId(providerUserId)
+            .map(socialInfo -> AccountVO.from(socialInfo.getAccount()))
+            .orElseGet(() -> authenticateSocialUser(email));
+    }
+
+    public DefaultOAuth2User createDefaultOauth2User(AccountVO accountVO, LoginType loginType, Map<String, Object> attributes) {
+
+        String nameAttributeKey = loginType.getNameAttributeKey();
+
+        attributes.put("accountId", accountVO.getId());
+        attributes.put("email", accountVO.getEmail());
+
+        return new DefaultOAuth2User(
+            Collections.singleton(new SimpleGrantedAuthority(ROLE_PREFIX + accountVO.getRole())),
+            attributes,
+            nameAttributeKey
+        );
+    }
+
     @Transactional
-    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, Long loginAccountId) {
+    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest request, Long loginAccountId) {
 
         Account account = accountRepository.findById(loginAccountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
 
-        validatePassword(account.getPassword(), accountUpdatePasswordRequest.getPrevPassword());
+        validatePassword(request.getPrevPassword(), account.getPassword());
 
-        if (accountUpdatePasswordRequest.getPrevPassword().equals(accountUpdatePasswordRequest.getNewPassword())) {
+        if (request.getPrevPassword().equals(request.getNewPassword())) {
             throw new AuthenticationException(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT);
         }
 
-        account.updatePassword(passwordEncoder.encode(accountUpdatePasswordRequest.getNewPassword()));
+        account.updatePassword(passwordEncoder.encode(request.getNewPassword()));
 
         return new AccountUpdatePasswordResponse();
     }
@@ -69,6 +99,15 @@ public class AuthenticationUseCase {
         refreshTokenRepository.save(account.getRefreshToken());
 
         return tokenResponse;
+    }
+
+    public AccountSignupResponse signup(AccountSignupRequest request) {
+
+        validateDuplicateEmail(request.getEmail());
+        Account account = createAccount(request);
+
+        return AccountSignupResponse.from(account);
+
     }
 
     private void validateEmailVerified(Account account) {
@@ -103,15 +142,6 @@ public class AuthenticationUseCase {
         }
     }
 
-    public AccountSignupResponse signup(AccountSignupRequest request) {
-
-        validateDuplicateEmail(request.getEmail());
-        Account account = createAccount(request);
-
-        return AccountSignupResponse.from(account);
-
-    }
-
     public AccountVO authenticateSocialUser(String email) {
 
         return AccountVO.from(accountRepository.findByEmail(email).orElseGet(
@@ -140,7 +170,6 @@ public class AuthenticationUseCase {
             .build()
         );
     }
-
 
     private void validateDuplicateEmail(String email) {
 
