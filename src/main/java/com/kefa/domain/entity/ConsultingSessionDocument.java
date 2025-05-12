@@ -37,6 +37,7 @@ public class ConsultingSessionDocument {
     @JoinColumn(name = "consulting_session_id", nullable = false)
     private ConsultingSession consultingSession;
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSessionDocument")
     private List<DocumentFeedback> feedbacks = new ArrayList<>();
 

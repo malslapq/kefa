@@ -43,11 +43,7 @@ public class DocumentUseCase {
 
         List<ConsultingSessionDocument> consultingSessionDocuments =
             saveFileDtos.stream()
-                .map(dto -> {
-                    ConsultingSessionDocument consultingSessionDocument = ConsultingSessionDocument.of(dto, loginAccountId);
-                    consultingSessionDocument.addConsultingSession(consultingSession);
-                    return consultingSessionDocument;
-                })
+                .map(dto -> ConsultingSessionDocument.of(dto, loginAccountId))
                 .toList();
 
         documentRepository.saveAll(consultingSessionDocuments);

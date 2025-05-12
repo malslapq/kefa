@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class SocialInfoDeleteResponse {
 
     private final LocalDateTime deletedAt = LocalDateTime.now();

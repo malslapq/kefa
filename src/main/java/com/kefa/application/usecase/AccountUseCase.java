@@ -1,11 +1,12 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
-import com.kefa.api.dto.account.response.*;
+import com.kefa.api.dto.account.response.AccountDeleteResponse;
+import com.kefa.api.dto.account.response.AccountResponse;
+import com.kefa.api.dto.account.response.AccountUpdateResponse;
+import com.kefa.api.dto.account.response.SocialInfoDeleteResponse;
 import com.kefa.common.exception.AccountException;
-import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.SocialInfo;
@@ -52,22 +53,6 @@ public class AccountUseCase {
         return AccountDeleteResponse.builder()
             .email(account.getEmail())
             .build();
-    }
-
-    @Transactional
-    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, Long loginAccountId) {
-
-        Account account = getAccount(loginAccountId);
-
-        validatePassword(account.getPassword(), accountUpdatePasswordRequest.getPrevPassword());
-
-        if (accountUpdatePasswordRequest.getPrevPassword().equals(accountUpdatePasswordRequest.getNewPassword())) {
-            throw new AuthenticationException(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT);
-        }
-
-        account.updatePassword(passwordEncoder.encode(accountUpdatePasswordRequest.getNewPassword()));
-
-        return new AccountUpdatePasswordResponse();
     }
 
     @Transactional

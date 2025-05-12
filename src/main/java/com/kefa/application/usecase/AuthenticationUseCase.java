@@ -2,8 +2,11 @@ package com.kefa.application.usecase;
 
 import com.kefa.api.dto.account.request.AccountLoginRequest;
 import com.kefa.api.dto.account.request.AccountSignupRequest;
+import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
+import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
 import com.kefa.api.dto.account.response.TokenResponse;
+import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
@@ -30,6 +33,22 @@ public class AuthenticationUseCase {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+
+    @Transactional
+    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, Long loginAccountId) {
+
+        Account account = accountRepository.findById(loginAccountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
+
+        validatePassword(account.getPassword(), accountUpdatePasswordRequest.getPrevPassword());
+
+        if (accountUpdatePasswordRequest.getPrevPassword().equals(accountUpdatePasswordRequest.getNewPassword())) {
+            throw new AuthenticationException(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT);
+        }
+
+        account.updatePassword(passwordEncoder.encode(accountUpdatePasswordRequest.getNewPassword()));
+
+        return new AccountUpdatePasswordResponse();
+    }
 
     @Transactional
     public TokenResponse login(AccountLoginRequest accountLoginRequest) {

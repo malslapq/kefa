@@ -10,6 +10,8 @@ import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.SocialInfoRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -40,11 +42,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
         String socialProvider = userRequest.getClientRegistration().getRegistrationId();
         LoginType loginType = LoginType.from(socialProvider);
-        String email = getEmailFromOauth2User(oAuth2User, socialProvider);
+        String email = getEmailFromOauth2User(oAuth2User, loginType.toString());
 
         // 소셜 고유 아이디
         String providerUserId = getProviderUserIdFromOauth2User(oAuth2User, loginType);
-
         // 계정 통합인지 체크하는 변수
         String state = Optional.ofNullable(userRequest.getAdditionalParameters().get("state"))
             .map(Object::toString)
@@ -110,9 +111,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return Objects.requireNonNull(oauth2User.getAttribute(loginType.getNameAttributeKey())).toString();
     }
 
-    private String getEmailFromOauth2User(OAuth2User oauth2User, String registrationId) {
+    private String getEmailFromOauth2User(OAuth2User oauth2User, String socialProvider) {
 
-        return switch (registrationId) {
+        return switch (socialProvider) {
             case "GOOGLE" -> oauth2User.getAttribute("email");
             case "KAKAO" -> {
                 Map<String, Object> kakaoAccount = oauth2User.getAttribute("kakao_account");

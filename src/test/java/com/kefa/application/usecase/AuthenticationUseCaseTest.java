@@ -2,8 +2,11 @@ package com.kefa.application.usecase;
 
 import com.kefa.api.dto.account.request.AccountLoginRequest;
 import com.kefa.api.dto.account.request.AccountSignupRequest;
+import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
+import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
 import com.kefa.api.dto.account.response.TokenResponse;
+import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
@@ -28,6 +31,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,15 +49,27 @@ class AuthenticationUseCaseTest {
     @Mock
     private JwtProvider jwtProvider;
 
+    @Mock
+    private EmailVerificationUseCase emailVerificationUseCase;
+
     @InjectMocks
     private AuthenticationUseCase authenticationUseCase;
 
+    private Account account;
+    private final Long targetId = 1L;
     private AccountSignupRequest signupRequestDto;
     private AccountLoginRequest loginRequest;
 
 
     @BeforeEach
     void setUp() {
+        account = Account.builder()
+            .id(1L)
+            .email("test@test.com")
+            .name("test")
+            .password("encodedPassword")
+            .build();
+
         signupRequestDto = AccountSignupRequest.builder()
             .email("test@example.com")
             .password("password123")
@@ -64,6 +80,137 @@ class AuthenticationUseCaseTest {
             .password("password")
             .deviceId("device1")
             .build();
+    }
+
+    @DisplayName("비밀번호 변경 성공")
+    @Test
+    void updatePasswordSuccess() {
+        // given
+        String prevPassword = "prevPass123!";
+        String newPassword = "newPass456@";
+        String encodedNewPassword = "encodedNewPassword";
+        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
+            .prevPassword(prevPassword)
+            .newPassword(newPassword)
+            .build();
+
+        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
+        given(passwordEncoder.matches(prevPassword, account.getPassword())).willReturn(true);
+        given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
+
+        // when
+        AccountUpdatePasswordResponse response = authenticationUseCase.updatePassword(request, targetId);
+
+        // then
+        assertThat(account.getPassword()).isEqualTo(encodedNewPassword);
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo("비밀번호 변경 완료");
+        assertThat(response.getUpdateAt()).isNotNull();
+    }
+
+    @DisplayName("비밀번호 변경 실패 - 비밀번호 틀림")
+    @Test
+    void updatePasswordFailWrongPassword() {
+        // given
+        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
+            .prevPassword("wrongPass123!")
+            .newPassword("newPass456@")
+            .build();
+
+        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
+        given(passwordEncoder.matches(request.getPrevPassword(), account.getPassword())).willReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> authenticationUseCase.updatePassword(request, targetId))
+            .isInstanceOf(AccountException.class)
+            .hasMessage(ErrorCode.INVALID_CREDENTIALS.getMessage());
+    }
+
+    @DisplayName("비밀번호 변경 실패 - 새 비밀번호가 현재와 동일")
+    @Test
+    void updatePasswordFailSamePassword() {
+        // given
+        String password = "samePass123!";
+        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
+            .prevPassword(password)
+            .newPassword(password)
+            .build();
+
+        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
+        given(passwordEncoder.matches(password, account.getPassword())).willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> authenticationUseCase.updatePassword(request, targetId))
+            .isInstanceOf(AuthenticationException.class)
+            .hasMessage(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT.getMessage());
+    }
+
+    @DisplayName("비밀번호 변경 실패 - 계정 없음")
+    @Test
+    void updatePasswordFailAccountNotFound() {
+        // given
+        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
+            .prevPassword("prevPass123!")
+            .newPassword("newPass456@")
+            .build();
+
+        given(accountRepository.findById(targetId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() ->
+            authenticationUseCase.updatePassword(request, targetId)
+        )
+            .isInstanceOf(AccountException.class)
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
+    }
+
+    @Test
+    @DisplayName("일반 회원가입 성공시 이메일 인증메일을 발송한다")
+    void signup_success() {
+        // given
+        AccountSignupRequest request = AccountSignupRequest.builder()
+            .email("test@email.com")
+            .password("password")
+            .name("name")
+            .build();
+
+        AccountSignupResponse expectedResponse = AccountSignupResponse.builder()
+            .id(1L)
+            .email("test@email.com")
+            .name("name")
+            .build();
+
+        when(authenticationUseCase.signup(request)).thenReturn(expectedResponse);
+        doNothing().when(emailVerificationUseCase).sendVerificationEmail(request.getEmail());
+
+        // when
+        AccountSignupResponse response = authenticationUseCase.signup(request);
+
+        // then
+        assertThat(response).isEqualTo(expectedResponse);
+        verify(authenticationUseCase).signup(request);
+        verify(emailVerificationUseCase).sendVerificationEmail(request.getEmail());
+    }
+
+    @Test
+    @DisplayName("회원가입 실패시 이메일 발송하지 않는다")
+    void signup_fail() {
+        // given
+        AccountSignupRequest request = AccountSignupRequest.builder()
+            .email("test@email.com")
+            .password("password")
+            .name("name")
+            .build();
+
+        when(authenticationUseCase.signup(request))
+            .thenThrow(new AuthenticationException(ErrorCode.DUPLICATE_EMAIL));
+
+        // when & then
+        assertThatThrownBy(() -> authenticationUseCase.signup(request))
+            .isInstanceOf(AuthenticationException.class);
+
+        verify(authenticationUseCase).signup(request);
+        verify(emailVerificationUseCase, never()).sendVerificationEmail(any());
     }
 
     @Test
