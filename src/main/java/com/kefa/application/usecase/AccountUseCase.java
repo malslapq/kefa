@@ -62,7 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
         SocialInfo socialInfo = account.getSocialInfos().stream()
             .filter(si -> si.getId().equals(socialInfoId))
             .findFirst()
-            .orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_SOCIALINFO));
+            .orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_SOCIAL_INFO));
 
         account.removeSocialInfo(socialInfo);
         socialInfoRepository.delete(socialInfo);

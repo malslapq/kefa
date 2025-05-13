@@ -5,7 +5,7 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
-import com.kefa.api.dto.account.response.TokenResponse;
+import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;

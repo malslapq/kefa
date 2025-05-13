@@ -20,4 +20,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query("SELECT a FROM Account a LEFT JOIN FETCH a.refreshToken WHERE a.email = :email")
     Optional<Account> findByEmailWithRefreshToken(String email);
+
+    @Query("SELECT a FROM Account a LEFT JOIN FETCH a.refreshToken WHERE a.id = :id")
+    Optional<Account> findByIdWithRefreshToken(Long id);
 }

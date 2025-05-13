@@ -75,7 +75,7 @@ public class JwtProvider {
             throw new JwtAuthenticationException(ErrorCode.INVALID_JWT_SIGNATURE);
         } catch (MalformedJwtException e) {
             log.info("잘못된 JWT 토큰입니다.: {}", e.getMessage());
-            throw new JwtAuthenticationException(ErrorCode.MALFORMED_JWT_TOKEN);
+            throw new JwtAuthenticationException(ErrorCode.INVALID_JWT_TOKEN);
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.: {}", e.getMessage());
             throw new JwtAuthenticationException(ErrorCode.EXPIRED_JWT_TOKEN);

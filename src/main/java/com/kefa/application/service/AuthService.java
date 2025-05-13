@@ -5,7 +5,7 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
-import com.kefa.api.dto.account.response.TokenResponse;
+import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,10 @@ public class AuthService {
 
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
+
+    public TokenResponse refreshToken(String refreshToken, String deviceId) {
+        return authenticationUseCase.refreshToken(refreshToken, deviceId);
+    }
 
     public void emailVerify(String token) {
         emailVerificationUseCase.verify(token);
@@ -44,5 +48,4 @@ public class AuthService {
         return response;
 
     }
-
 }

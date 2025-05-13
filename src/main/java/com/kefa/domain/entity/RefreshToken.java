@@ -44,7 +44,11 @@ public class RefreshToken {
 
     public void updateToken(String token) {
         this.token = token;
-        this.createdAt = LocalDateTime.now();
+        this.expiresAt = LocalDateTime.now();
+    }
+
+    public void updateDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
 }

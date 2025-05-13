@@ -5,7 +5,8 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
-import com.kefa.api.dto.account.response.TokenResponse;
+import com.kefa.api.dto.auth.request.RefreshTokenRequest;
+import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.application.service.AuthService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.security.auth.LoginAccount;
@@ -17,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import static com.kefa.common.util.RequestUtils.generateDeviceIdFromRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +26,15 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PutMapping("/accounts/password")
+    @PostMapping("/auth/token/refresh")
+    public ApiResponse<TokenResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest, HttpServletRequest request) {
+
+        String deviceId = generateDeviceIdFromRequest(request);
+
+        return ApiResponse.success(authService.refreshToken(refreshTokenRequest.getRefreshToken(), deviceId));
+    }
+
+    @PutMapping("/auth/password")
     public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(authService.updatePassword(accountUpdatePasswordRequest, loginAccount.getId()));
     }
@@ -52,14 +61,11 @@ public class AuthController {
     public ApiResponse<TokenResponse> login(@RequestBody @Valid AccountLoginRequest accountLoginRequest,
                                             HttpServletRequest request) {
 
-        String userAgent = request.getHeader("User-Agent");
-        accountLoginRequest.setDeviceId(generateDeviceId(userAgent));
+        String deviceId = generateDeviceIdFromRequest(request);
+        accountLoginRequest.setDeviceId(deviceId);
 
         return ApiResponse.success(authService.login(accountLoginRequest));
     }
 
-    private String generateDeviceId(String userAgent) {
-        return UUID.nameUUIDFromBytes(userAgent.getBytes()).toString();
-    }
 
 }

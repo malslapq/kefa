@@ -5,7 +5,7 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
-import com.kefa.api.dto.account.response.TokenResponse;
+import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
@@ -43,9 +43,27 @@ public class AuthenticationUseCase {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    public TokenResponse refreshToken(String refreshToken, String deviceId) {
+
+        Long id = jwtProvider.getId(refreshToken);
+        Account account = accountRepository.findByIdWithRefreshToken(id).orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
+        RefreshToken savedRefreshToken = account.getRefreshToken();
+
+        validateRefreshToken(savedRefreshToken, refreshToken);
+        validateDeviceId(savedRefreshToken.getDeviceId(), deviceId);
+
+        TokenResponse tokenResponse = issueJWT(account);
+
+        savedRefreshToken.updateToken(tokenResponse.getRefreshToken());
+
+        refreshTokenRepository.save(savedRefreshToken);
+
+        return tokenResponse;
+    }
+
     public AccountVO loginOrSignUp(String providerUserId, String email) {
 
-        return socialInfoRepository.findByProviderUserId(providerUserId)
+        return socialInfoRepository.findByProviderUserIdWithAccount(providerUserId)
             .map(socialInfo -> AccountVO.from(socialInfo.getAccount()))
             .orElseGet(() -> authenticateSocialUser(email));
     }
@@ -108,6 +126,26 @@ public class AuthenticationUseCase {
 
         return AccountSignupResponse.from(account);
 
+    }
+
+    private void validateDeviceId(String deviceId, String requestDeviceId) {
+        if (!deviceId.equals(requestDeviceId)) {
+            throw new AuthenticationException(ErrorCode.INVALID_DEVICE_ID);
+        }
+    }
+
+    private void validateRefreshToken(RefreshToken savedRefreshToken, String requestRefreshToken) {
+        if (savedRefreshToken == null) {
+            throw new AuthenticationException(ErrorCode.NOT_FOUND_REFRESH_TOKEN);
+        }
+
+        if (!savedRefreshToken.getToken().equals(requestRefreshToken)) {
+            throw new AuthenticationException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        if (savedRefreshToken.isExpired()) {
+            throw new AuthenticationException(ErrorCode.EXPIRED_JWT_TOKEN);
+        }
     }
 
     private void validateEmailVerified(Account account) {

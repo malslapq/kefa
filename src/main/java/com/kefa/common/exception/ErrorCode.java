@@ -53,7 +53,9 @@ public enum ErrorCode {
     NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
 
     //인증, 회원 관련,
-    NOT_FOUND_SOCIALINFO(404, "통합된 소셜 계정 정보가 존재하지 않습니다"),
+    INVALID_DEVICE_ID(400, "디바이스 아이디가 올바르지 않습니다 다시 로그인하시길 바랍니다"),
+    MISSING_USER_AGENT(400, "요청 헤더 User-Agent를 찾을 수 없습니다"),
+    NOT_FOUND_SOCIAL_INFO(404, "통합된 소셜 계정 정보가 존재하지 않습니다"),
     ALREADY_PROVIDER_USER_ID(400,"이미 연결이 완료된 계정입니다"),
     NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다"),
     ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다"),
@@ -71,8 +73,10 @@ public enum ErrorCode {
     AUTHORITY_NOT_FOUND(401, "권한 정보를 찾을 수 없습니다"),
 
     // jwt 에러
+    NOT_FOUND_REFRESH_TOKEN(401, "리프레시토큰이 존재하지 않습니다"),
+    INVALID_REFRESH_TOKEN(401, "잘못된 리프레시 토큰입니다"),
     INVALID_JWT_SIGNATURE(401, "유효하지 않은 JWT 서명입니다"),
-    MALFORMED_JWT_TOKEN(401, "잘못된 JWT 토큰입니다"),
+    INVALID_JWT_TOKEN(401, "잘못된 JWT 토큰입니다"),
     EXPIRED_JWT_TOKEN(401, "만료된 JWT 토큰입니다"),
     UNSUPPORTED_JWT_TOKEN(401, "지원되지 않는 JWT 토큰입니다"),
     EMPTY_JWT_TOKEN(401, "JWT 토큰이 비어있습니다"),
