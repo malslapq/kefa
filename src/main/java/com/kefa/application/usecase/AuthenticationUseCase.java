@@ -113,7 +113,8 @@ public class AuthenticationUseCase {
             refreshToken.updateToken(tokenResponse.getRefreshToken(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()));
             refreshToken.updateDeviceId(accountLoginRequest.getDeviceId());
         } else {
-            account.addRefreshToken(createRefreshTokenEntity(account, tokenResponse.getRefreshToken(), accountLoginRequest.getDeviceId()));
+            refreshToken = createRefreshTokenEntity(account, tokenResponse.getRefreshToken(), accountLoginRequest.getDeviceId());
+            account.addRefreshToken(refreshToken);
         }
 
         refreshTokenRepository.save(refreshToken);

@@ -53,13 +53,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             Account account = accountRepository.findByIdWithRefreshToken(accountId).orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
             String deviceId = generateDeviceIdFromRequest(request);
-            RefreshToken savedRefreshToken = account.getRefreshToken();
+            RefreshToken refreshToken = account.getRefreshToken();
 
-            if (savedRefreshToken != null) {
-                savedRefreshToken.updateToken(tokenResponse.getRefreshToken(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()));
-                savedRefreshToken.updateDeviceId(deviceId);
+            if (refreshToken != null) {
+                refreshToken.updateToken(tokenResponse.getRefreshToken(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()));
+                refreshToken.updateDeviceId(deviceId);
             } else {
-                account.addRefreshToken(createRefreshTokenEntity(account, deviceId, tokenResponse.getRefreshToken()));
+                refreshToken = createRefreshTokenEntity(account, deviceId, tokenResponse.getRefreshToken());
+                account.addRefreshToken(refreshToken);
             }
 
             getRedirectStrategy().sendRedirect(request, response, mainPageUri);
