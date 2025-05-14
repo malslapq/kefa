@@ -42,9 +42,9 @@ public class RefreshToken {
         this.account = account;
     }
 
-    public void updateToken(String token) {
+    public void updateToken(String token, LocalDateTime expiresAt) {
         this.token = token;
-        this.expiresAt = LocalDateTime.now();
+        this.expiresAt = expiresAt;
     }
 
     public void updateDeviceId(String deviceId) {

@@ -54,7 +54,7 @@ public class AuthenticationUseCase {
 
         TokenResponse tokenResponse = issueJWT(account);
 
-        savedRefreshToken.updateToken(tokenResponse.getRefreshToken());
+        savedRefreshToken.updateToken(tokenResponse.getRefreshToken(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()));
 
         refreshTokenRepository.save(savedRefreshToken);
 
@@ -107,14 +107,16 @@ public class AuthenticationUseCase {
         validateEmailVerified(account);
 
         TokenResponse tokenResponse = issueJWT(account);
+        RefreshToken refreshToken = account.getRefreshToken();
 
-        if (account.getRefreshToken() != null) {
-            account.getRefreshToken().updateToken(tokenResponse.getRefreshToken());
+        if (refreshToken != null) {
+            refreshToken.updateToken(tokenResponse.getRefreshToken(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()));
+            refreshToken.updateDeviceId(accountLoginRequest.getDeviceId());
         } else {
             account.addRefreshToken(createRefreshTokenEntity(account, tokenResponse.getRefreshToken(), accountLoginRequest.getDeviceId()));
         }
 
-        refreshTokenRepository.save(account.getRefreshToken());
+        refreshTokenRepository.save(refreshToken);
 
         return tokenResponse;
     }
