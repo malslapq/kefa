@@ -5,7 +5,7 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.infrastructure.mail.EmailSender;
 import com.kefa.infrastructure.repository.AccountRepository;
-import com.kefa.infrastructure.repository.EmailVerificationRedisRepository;
+import com.kefa.infrastructure.repository.EmailVerificationInMemoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ public class EmailVerificationUseCaseTest {
     private AccountRepository accountRepository;
 
     @Mock
-    private EmailVerificationRedisRepository emailVerificationRedisRepository;
+    private EmailVerificationInMemoryRepository emailVerificationInMemoryRepository;
 
     @Mock
     private EmailSender emailSender;
@@ -54,14 +54,14 @@ public class EmailVerificationUseCaseTest {
         Account account = createAccount(false);
 
         when(accountRepository.findByEmail(testEmail)).thenReturn(Optional.of(account));
-        doNothing().when(emailVerificationRedisRepository).saveEmailToken(any(), eq(testEmail));
+        doNothing().when(emailVerificationInMemoryRepository).saveEmailToken(any(), eq(testEmail));
         doNothing().when(emailSender).sendVerificationEmail(eq(testEmail), any());
 
         // when
         emailVerificationUseCase.resendEmail(testEmail);
 
         // then
-        verify(emailVerificationRedisRepository).saveEmailToken(any(), eq(testEmail));
+        verify(emailVerificationInMemoryRepository).saveEmailToken(any(), eq(testEmail));
         verify(emailSender).sendVerificationEmail(eq(testEmail), any());
     }
 
@@ -76,7 +76,7 @@ public class EmailVerificationUseCaseTest {
             .isInstanceOf(AuthenticationException.class)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_ACCOUNT);
 
-        verify(emailVerificationRedisRepository, never()).saveEmailToken(any(), any());
+        verify(emailVerificationInMemoryRepository, never()).saveEmailToken(any(), any());
         verify(emailSender, never()).sendVerificationEmail(any(), any());
     }
 
@@ -93,7 +93,7 @@ public class EmailVerificationUseCaseTest {
             .isInstanceOf(AuthenticationException.class)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ALREADY_VERIFIED_EMAIL);
 
-        verify(emailVerificationRedisRepository, never()).saveEmailToken(any(), any());
+        verify(emailVerificationInMemoryRepository, never()).saveEmailToken(any(), any());
         verify(emailSender, never()).sendVerificationEmail(any(), any());
     }
 
@@ -103,7 +103,7 @@ public class EmailVerificationUseCaseTest {
         // given
         Account account = createAccount(false);
 
-        when(emailVerificationRedisRepository.getEmailByToken(testToken)).thenReturn(testEmail);
+        when(emailVerificationInMemoryRepository.findByEmailToken(testToken)).thenReturn(testEmail);
         when(accountRepository.findByEmail(testEmail)).thenReturn(Optional.of(account));
 
         // when
@@ -111,14 +111,14 @@ public class EmailVerificationUseCaseTest {
 
         // then
         assertThat(account.isEmailVerified()).isTrue();
-        verify(emailVerificationRedisRepository).removeEmailToken(testToken);
+        verify(emailVerificationInMemoryRepository).deleteByEmailToken(testToken);
     }
 
     @Test
     @DisplayName("유효하지 않은 토큰으로 인증 시도시 실패")
     void verify_failWithInvalidToken() {
         // given
-        when(emailVerificationRedisRepository.getEmailByToken(wrongToken)).thenReturn(null);
+        when(emailVerificationInMemoryRepository.findByEmailToken(wrongToken)).thenReturn(null);
 
         // when & then
         assertThatThrownBy(() -> emailVerificationUseCase.verify(wrongToken))
@@ -126,14 +126,14 @@ public class EmailVerificationUseCaseTest {
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_EMAIL_VERIFICATION_TOKEN);
 
         verify(accountRepository, never()).findByEmail(any());
-        verify(emailVerificationRedisRepository, never()).removeEmailToken(any());
+        verify(emailVerificationInMemoryRepository, never()).deleteByEmailToken(any());
     }
 
     @Test
     @DisplayName("존재하지 않는 계정으로 인증 시도시 실패")
     void verify_failWithNonExistentAccount() {
         // given
-        when(emailVerificationRedisRepository.getEmailByToken(testToken)).thenReturn(testEmail);
+        when(emailVerificationInMemoryRepository.findByEmailToken(testToken)).thenReturn(testEmail);
         when(accountRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
 
         // when & then
@@ -141,21 +141,21 @@ public class EmailVerificationUseCaseTest {
             .isInstanceOf(AuthenticationException.class)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_ACCOUNT);
 
-        verify(emailVerificationRedisRepository, never()).removeEmailToken(any());
+        verify(emailVerificationInMemoryRepository, never()).deleteByEmailToken(any());
     }
 
     @Test
     @DisplayName("이메일 인증 메일 발송 성공")
     void sendVerificationEmail_success() {
         // given
-        doNothing().when(emailVerificationRedisRepository).saveEmailToken(any(), eq(testEmail));
+        doNothing().when(emailVerificationInMemoryRepository).saveEmailToken(any(), eq(testEmail));
         doNothing().when(emailSender).sendVerificationEmail(eq(testEmail), any());
 
         // when
         emailVerificationUseCase.sendVerificationEmail(testEmail);
 
         // then
-        verify(emailVerificationRedisRepository).saveEmailToken(any(), eq(testEmail));
+        verify(emailVerificationInMemoryRepository).saveEmailToken(any(), eq(testEmail));
         verify(emailSender).sendVerificationEmail(eq(testEmail), any());
     }
 
@@ -163,13 +163,13 @@ public class EmailVerificationUseCaseTest {
     @DisplayName("Redis 저장 실패시 이메일 발송하지 않음")
     void sendVerificationEmail_failOnRedis() {
         // given
-        doThrow(new RuntimeException()).when(emailVerificationRedisRepository).saveEmailToken(any(), eq(testEmail));
+        doThrow(new RuntimeException()).when(emailVerificationInMemoryRepository).saveEmailToken(any(), eq(testEmail));
 
         // when & then
         assertThatThrownBy(() -> emailVerificationUseCase.sendVerificationEmail(testEmail))
             .isInstanceOf(RuntimeException.class);
 
-        verify(emailVerificationRedisRepository).saveEmailToken(any(), eq(testEmail));
+        verify(emailVerificationInMemoryRepository).saveEmailToken(any(), eq(testEmail));
         verify(emailSender, never()).sendVerificationEmail(any(), any());
     }
 }
