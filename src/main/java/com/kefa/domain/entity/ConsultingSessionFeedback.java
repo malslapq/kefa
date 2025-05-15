@@ -1,6 +1,6 @@
 package com.kefa.domain.entity;
 
-import com.kefa.domain.type.FeedbackType;
+import com.kefa.common.type.FeedbackType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,7 @@
 package com.kefa.infrastructure.security.jwt;
 
 import com.kefa.common.exception.JwtAuthenticationException;
-import com.kefa.domain.type.Role;
+import com.kefa.common.type.Role;
 import com.kefa.infrastructure.security.cipher.CipherService;
 import com.kefa.infrastructure.security.config.JwtProperties;
 import io.jsonwebtoken.ExpiredJwtException;

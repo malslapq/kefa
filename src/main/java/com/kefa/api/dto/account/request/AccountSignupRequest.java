@@ -1,9 +1,8 @@
 package com.kefa.api.dto.account.request;
 
 import com.kefa.domain.entity.Account;
-import com.kefa.domain.type.LoginType;
-import com.kefa.domain.type.Role;
-import com.kefa.domain.type.SubscriptionType;
+import com.kefa.common.type.Role;
+import com.kefa.common.type.SubscriptionType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -11,8 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @Getter
 @NoArgsConstructor

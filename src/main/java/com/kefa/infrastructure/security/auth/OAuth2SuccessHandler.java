@@ -5,7 +5,7 @@ import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.RefreshToken;
-import com.kefa.domain.type.Role;
+import com.kefa.common.type.Role;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;

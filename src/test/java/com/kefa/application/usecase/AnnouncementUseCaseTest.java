@@ -4,8 +4,8 @@ import com.kefa.api.dto.announcement.command.GetAnnouncementsCommand;
 import com.kefa.api.dto.announcement.response.AnnouncementResponse;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.domain.entity.Announcement;
-import com.kefa.domain.type.AnnouncementStatus;
-import com.kefa.domain.type.SearchType;
+import com.kefa.common.type.AnnouncementStatus;
+import com.kefa.common.type.AnnouncementsSearchType;
 import com.kefa.infrastructure.repository.AnnouncementRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,7 @@ class AnnouncementUseCaseTest {
     @Test
     void getAnnouncementsByTitle() {
         // given
-        GetAnnouncementsCommand command = new GetAnnouncementsCommand("제목", SearchType.TITLE.getType(), page, size);
+        GetAnnouncementsCommand command = new GetAnnouncementsCommand("제목", AnnouncementsSearchType.TITLE.getType(), page, size);
         Page<Announcement> pageResult = new PageImpl<>(List.of(announcement));
 
         given(announcementRepository.findByTitleContaining("제목", pageable)).willReturn(pageResult);
@@ -85,7 +85,7 @@ class AnnouncementUseCaseTest {
     @Test
     void getAnnouncementsByTag() {
         // given
-        GetAnnouncementsCommand command = new GetAnnouncementsCommand("태그", SearchType.TAG.getType(), page, size);
+        GetAnnouncementsCommand command = new GetAnnouncementsCommand("태그", AnnouncementsSearchType.TAG.getType(), page, size);
         Page<Announcement> pageResult = new PageImpl<>(List.of(announcement));
 
         given(announcementRepository.findByTagContaining("태그", pageable)).willReturn(pageResult);

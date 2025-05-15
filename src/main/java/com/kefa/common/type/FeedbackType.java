@@ -1,4 +1,4 @@
-package com.kefa.domain.type;
+package com.kefa.common.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

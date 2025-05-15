@@ -1,6 +1,6 @@
 package com.kefa.infrastructure.security.jwt;
 
-import com.kefa.domain.type.Role;
+import com.kefa.common.type.Role;
 import com.kefa.infrastructure.security.auth.JwtAuthenticationToken;
 import com.kefa.infrastructure.security.auth.LoginAccount;
 import jakarta.servlet.FilterChain;

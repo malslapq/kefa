@@ -1,4 +1,4 @@
-package com.kefa.domain.type;
+package com.kefa.common.type;
 
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.OAuth2Exception;

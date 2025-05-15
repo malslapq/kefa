@@ -1,7 +1,6 @@
 package com.kefa.api.dto.developmentItem.request;
 
-import com.kefa.domain.entity.DevelopmentItem;
-import com.kefa.domain.type.Stage;
+import com.kefa.common.type.Stage;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

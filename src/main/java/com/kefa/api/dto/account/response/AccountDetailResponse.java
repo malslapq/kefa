@@ -1,9 +1,9 @@
 package com.kefa.api.dto.account.response;
 
 import com.kefa.domain.entity.Account;
-import com.kefa.domain.type.LoginType;
-import com.kefa.domain.type.Role;
-import com.kefa.domain.type.SubscriptionType;
+import com.kefa.common.type.LoginType;
+import com.kefa.common.type.Role;
+import com.kefa.common.type.SubscriptionType;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AccountResponse {
+public class AccountDetailResponse {
 
     private Long id;
     private String email;
@@ -26,8 +26,8 @@ public class AccountResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static AccountResponse from(Account account) {
-        return AccountResponse.builder()
+    public static AccountDetailResponse from(Account account) {
+        return AccountDetailResponse.builder()
             .id(account.getId())
             .email(account.getEmail())
             .name(account.getName())

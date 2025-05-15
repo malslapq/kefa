@@ -4,7 +4,7 @@ import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.OAuth2Exception;
-import com.kefa.domain.type.LoginType;
+import com.kefa.common.type.LoginType;
 import com.kefa.domain.vo.AccountVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

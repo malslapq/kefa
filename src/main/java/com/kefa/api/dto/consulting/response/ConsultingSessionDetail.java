@@ -3,7 +3,7 @@ package com.kefa.api.dto.consulting.response;
 import com.kefa.api.dto.document.response.ConsultingSessionDocumentDto;
 import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.entity.ConsultingSessionFeedback;
-import com.kefa.domain.type.ConsultingStatus;
+import com.kefa.common.type.ConsultingStatus;
 import lombok.*;
 
 import java.util.List;

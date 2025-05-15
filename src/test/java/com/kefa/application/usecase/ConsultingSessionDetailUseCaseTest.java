@@ -6,7 +6,7 @@ import com.kefa.common.exception.ConsultingSessionException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Company;
 import com.kefa.domain.entity.ConsultingSession;
-import com.kefa.domain.type.ConsultingStatus;
+import com.kefa.common.type.ConsultingStatus;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import org.junit.jupiter.api.BeforeEach;

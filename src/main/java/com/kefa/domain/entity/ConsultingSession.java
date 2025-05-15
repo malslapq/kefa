@@ -1,6 +1,6 @@
 package com.kefa.domain.entity;
 
-import com.kefa.domain.type.ConsultingStatus;
+import com.kefa.common.type.ConsultingStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

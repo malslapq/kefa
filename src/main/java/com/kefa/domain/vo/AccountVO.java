@@ -1,9 +1,9 @@
 package com.kefa.domain.vo;
 
 import com.kefa.domain.entity.Account;
-import com.kefa.domain.type.LoginType;
-import com.kefa.domain.type.Role;
-import com.kefa.domain.type.SubscriptionType;
+import com.kefa.common.type.LoginType;
+import com.kefa.common.type.Role;
+import com.kefa.common.type.SubscriptionType;
 import lombok.Builder;
 import lombok.Getter;
 

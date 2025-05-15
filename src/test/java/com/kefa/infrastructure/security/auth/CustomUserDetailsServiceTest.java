@@ -1,8 +1,8 @@
 package com.kefa.infrastructure.security.auth;
 
 import com.kefa.domain.entity.Account;
-import com.kefa.domain.type.Role;
-import com.kefa.domain.type.SubscriptionType;
+import com.kefa.common.type.Role;
+import com.kefa.common.type.SubscriptionType;
 import com.kefa.infrastructure.repository.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

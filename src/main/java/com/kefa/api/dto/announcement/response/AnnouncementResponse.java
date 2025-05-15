@@ -1,7 +1,7 @@
 package com.kefa.api.dto.announcement.response;
 
 import com.kefa.domain.entity.Announcement;
-import com.kefa.domain.type.AnnouncementStatus;
+import com.kefa.common.type.AnnouncementStatus;
 import lombok.*;
 
 import java.time.LocalDate;

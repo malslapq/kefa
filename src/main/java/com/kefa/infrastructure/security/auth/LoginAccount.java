@@ -1,7 +1,7 @@
 package com.kefa.infrastructure.security.auth;
 
 
-import com.kefa.domain.type.Role;
+import com.kefa.common.type.Role;
 import lombok.*;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)

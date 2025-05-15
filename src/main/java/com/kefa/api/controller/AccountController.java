@@ -3,7 +3,7 @@ package com.kefa.api.controller;
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
-import com.kefa.api.dto.account.response.AccountResponse;
+import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.api.dto.account.response.SocialInfoDeleteResponse;
 import com.kefa.application.service.AccountService;
@@ -36,7 +36,7 @@ public class AccountController {
     }
 
     @GetMapping("/accounts")
-    public ApiResponse<AccountResponse> get(@AuthenticationPrincipal LoginAccount loginAccount) {
+    public ApiResponse<AccountDetailResponse> get(@AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(accountService.getAccount(loginAccount.getId()));
     }
 

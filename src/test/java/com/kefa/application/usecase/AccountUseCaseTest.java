@@ -4,7 +4,7 @@ package com.kefa.application.usecase;
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
-import com.kefa.api.dto.account.response.AccountResponse;
+import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.ErrorCode;
@@ -162,7 +162,7 @@ public class AccountUseCaseTest {
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
 
         //when
-        AccountResponse result = accountUseCase.findByAccountId(targetId);
+        AccountDetailResponse result = accountUseCase.findByAccountId(targetId);
 
         //then
         assertThat(result).isNotNull();

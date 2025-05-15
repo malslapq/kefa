@@ -1,7 +1,7 @@
 package com.kefa.api.dto.consulting.response;
 
 import com.kefa.domain.entity.ConsultingSessionFeedback;
-import com.kefa.domain.type.FeedbackType;
+import com.kefa.common.type.FeedbackType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -11,7 +11,7 @@ import com.kefa.common.exception.FeedbackException;
 import com.kefa.domain.entity.Company;
 import com.kefa.domain.entity.ConsultingSession;
 import com.kefa.domain.entity.ConsultingSessionFeedback;
-import com.kefa.domain.type.ConsultingStatus;
+import com.kefa.common.type.ConsultingStatus;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionFeedbackRepository;
 import com.kefa.infrastructure.repository.ConsultingSessionRepository;

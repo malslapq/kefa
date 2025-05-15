@@ -1,7 +1,7 @@
 package com.kefa.infrastructure.repository;
 
 import com.kefa.domain.entity.SocialInfo;
-import com.kefa.domain.type.LoginType;
+import com.kefa.common.type.LoginType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

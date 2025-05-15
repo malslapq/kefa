@@ -1,6 +1,6 @@
 package com.kefa.domain.entity;
 
-import com.kefa.domain.type.LoginType;
+import com.kefa.common.type.LoginType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

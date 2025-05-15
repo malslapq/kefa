@@ -1,7 +1,9 @@
-package com.kefa.domain.type;
+package com.kefa.common.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
@@ -15,4 +17,13 @@ public enum Role {
     CONCIERGE_ACCOUNT("컨시어지");
 
     private final String role;
+
+    public static Role from(String value) {
+        if (value == null) return null;
+
+        return Arrays.stream(Role.values())
+            .filter(r -> r.name().equalsIgnoreCase(value))
+            .findFirst()
+            .orElse(null);
+    }
 }

@@ -3,7 +3,7 @@ package com.kefa.application.usecase;
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
-import com.kefa.api.dto.account.response.AccountResponse;
+import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.api.dto.account.response.SocialInfoDeleteResponse;
 import com.kefa.common.exception.AccountException;
@@ -11,7 +11,7 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.OAuth2Exception;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.SocialInfo;
-import com.kefa.domain.type.LoginType;
+import com.kefa.common.type.LoginType;
 import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.SocialInfoRepository;
@@ -95,8 +95,8 @@ import org.springframework.transaction.annotation.Transactional;
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse findByAccountId(Long loginAccountId) {
-        return AccountResponse.from(getAccount(loginAccountId));
+    public AccountDetailResponse findByAccountId(Long loginAccountId) {
+        return AccountDetailResponse.from(getAccount(loginAccountId));
     }
 
     private void validatePassword(String encodedPassword, String inputPassword) {

@@ -4,7 +4,7 @@ import com.kefa.api.dto.announcement.command.GetAnnouncementsCommand;
 import com.kefa.api.dto.announcement.response.AnnouncementResponse;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.domain.entity.Announcement;
-import com.kefa.domain.type.SearchType;
+import com.kefa.common.type.AnnouncementsSearchType;
 import com.kefa.infrastructure.repository.AnnouncementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ public class AnnouncementUseCase {
             Sort.by(Sort.Direction.DESC, "createdAt")
         );
 
-        Page<Announcement> announcements = getAnnouncementsFromSearchType(command, pageable);
+        Page<Announcement> announcements = getAnnouncementsFromSearchType(command.getKeyword(), command.getSearchType(), pageable);
 
         return PagedResponse.<AnnouncementResponse>builder()
             .content(announcements.map(AnnouncementResponse::from).getContent())
@@ -39,16 +39,15 @@ public class AnnouncementUseCase {
             .build();
     }
 
-    private Page<Announcement> getAnnouncementsFromSearchType(GetAnnouncementsCommand command, Pageable pageable) {
+    private Page<Announcement> getAnnouncementsFromSearchType(String keyword, String searchType, Pageable pageable) {
 
-        String keyword = command.getKeyword();
-        SearchType searchType = SearchType.from(command.getSearchType());
+        AnnouncementsSearchType announcementsSearchTypeFromEnum = AnnouncementsSearchType.from(searchType);
 
-        if (!StringUtils.hasText(keyword) || searchType == null) {
+        if (!StringUtils.hasText(keyword) || announcementsSearchTypeFromEnum == null) {
             return announcementRepository.findAll(pageable);
         }
 
-        return switch (searchType) {
+        return switch (announcementsSearchTypeFromEnum) {
             case TITLE -> announcementRepository.findByTitleContaining(keyword, pageable);
             case TAG -> announcementRepository.findByTagContaining(keyword, pageable);
             case TOTAL -> announcementRepository.findAll(pageable);
