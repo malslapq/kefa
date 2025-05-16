@@ -1,7 +1,7 @@
 package com.kefa.api.controller;
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdateRequest;
+import com.kefa.api.dto.account.request.AccountNameUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
 import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
@@ -31,8 +31,8 @@ public class AccountController {
     }
 
     @PutMapping("/accounts")
-    public ApiResponse<AccountUpdateResponse> update(@RequestBody @Valid AccountUpdateRequest accountUpdateRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
-        return ApiResponse.success(accountService.updateAccount(accountUpdateRequest, loginAccount.getId()));
+    public ApiResponse<AccountUpdateResponse> update(@RequestBody @Valid AccountNameUpdateRequest accountNameUpdateRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(accountService.updateAccount(accountNameUpdateRequest, loginAccount.getId()));
     }
 
     @GetMapping("/accounts")

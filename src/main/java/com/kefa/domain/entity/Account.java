@@ -71,8 +71,24 @@ public class Account extends BaseEntity {
         this.name = name;
     }
 
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void updateSubscriptionType(SubscriptionType subscriptionType) {
+        this.subscriptionType = subscriptionType;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
+
+    public void updateEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
 }

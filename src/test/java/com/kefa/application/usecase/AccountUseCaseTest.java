@@ -2,7 +2,7 @@ package com.kefa.application.usecase;
 
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdateRequest;
+import com.kefa.api.dto.account.request.AccountNameUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
 import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
@@ -118,7 +118,7 @@ public class AccountUseCaseTest {
     void updateAccountSuccess() {
         // given
         String newName = "updatedName";
-        AccountUpdateRequest request = new AccountUpdateRequest(newName);
+        AccountNameUpdateRequest request = new AccountNameUpdateRequest(newName);
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
 
@@ -140,7 +140,7 @@ public class AccountUseCaseTest {
     @Test
     void updateAccountFailAccountNotFound() {
         // given
-        AccountUpdateRequest request = new AccountUpdateRequest("newName");
+        AccountNameUpdateRequest request = new AccountNameUpdateRequest("newName");
 
 
         given(accountRepository.findById(targetId)).willReturn(Optional.empty());

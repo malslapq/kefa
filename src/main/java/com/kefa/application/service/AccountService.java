@@ -1,7 +1,7 @@
 package com.kefa.application.service;
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdateRequest;
+import com.kefa.api.dto.account.request.AccountNameUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
 import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
@@ -24,8 +24,8 @@ public class AccountService {
         return accountUseCase.delete(accountDeleteRequest, loginAccountId);
     }
 
-    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, Long loginAccountId) {
-        return accountUseCase.updateAccount(accountUpdateRequest, loginAccountId);
+    public AccountUpdateResponse updateAccount(AccountNameUpdateRequest accountNameUpdateRequest, Long loginAccountId) {
+        return accountUseCase.updateAccount(accountNameUpdateRequest, loginAccountId);
     }
 
     public AccountDetailResponse getAccount(Long loginAccountId) {

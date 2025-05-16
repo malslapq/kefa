@@ -14,6 +14,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
         AccountException.class,
+        AdminException.class,
         AuthenticationException.class,
         CipherException.class,
         CompanyException.class,

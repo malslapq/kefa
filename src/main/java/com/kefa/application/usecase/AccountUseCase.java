@@ -1,6 +1,7 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
+import com.kefa.api.dto.account.request.AccountNameUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
 import com.kefa.api.dto.account.response.AccountDetailResponse;
@@ -9,9 +10,9 @@ import com.kefa.api.dto.account.response.SocialInfoDeleteResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.OAuth2Exception;
+import com.kefa.common.type.LoginType;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.SocialInfo;
-import com.kefa.common.type.LoginType;
 import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.SocialInfoRepository;
@@ -23,12 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-    @RequiredArgsConstructor
-    public class AccountUseCase {
+@RequiredArgsConstructor
+public class AccountUseCase {
 
-        private final AccountRepository accountRepository;
-        private final PasswordEncoder passwordEncoder;
-        private final SocialInfoRepository socialInfoRepository;
+    private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final SocialInfoRepository socialInfoRepository;
 
     public AccountVO linkAccount(String providerUserId, LoginType loginType) {
 
@@ -85,10 +86,10 @@ import org.springframework.transaction.annotation.Transactional;
     }
 
     @Transactional
-    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, Long loginAccountId) {
+    public AccountUpdateResponse updateAccount(AccountNameUpdateRequest accountNameUpdateRequest, Long loginAccountId) {
 
         Account account = getAccount(loginAccountId);
-        account.updateName(accountUpdateRequest.getName());
+        account.updateName(accountNameUpdateRequest.getName());
 
         return AccountUpdateResponse.from(account);
 
