@@ -14,6 +14,7 @@ public class CacheConfig {
     public Cache<String, String> emailVerificationCache() {
         return Caffeine.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(200)
             .build();
     }
 
