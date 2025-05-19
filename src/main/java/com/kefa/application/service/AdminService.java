@@ -17,6 +17,10 @@ public class AdminService {
 
     private final AdminUseCase adminUseCase;
 
+    public void deleteAccountSocialInfo(Long accountId) {
+        adminUseCase.deleteAccountSocialInfo(accountId);
+    }
+
     public void deleteAccount(Long accountId) {
         adminUseCase.deleteAccount(accountId);
     }

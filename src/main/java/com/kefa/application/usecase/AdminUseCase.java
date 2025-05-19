@@ -13,7 +13,9 @@ import com.kefa.common.type.AccountsSearchType;
 import com.kefa.common.type.Role;
 import com.kefa.common.type.SubscriptionType;
 import com.kefa.domain.entity.Account;
+import com.kefa.domain.entity.SocialInfo;
 import com.kefa.infrastructure.repository.AccountRepository;
+import com.kefa.infrastructure.repository.SocialInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +35,19 @@ import java.util.stream.Collectors;
 public class AdminUseCase {
 
     private final AccountRepository accountRepository;
+    private final SocialInfoRepository socialInfoRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public void deleteAccountSocialInfo(Long accountId) {
+        Account account = accountRepository.findByIdWithSocialInfos(accountId).orElseThrow(() -> new AdminException(ErrorCode.NOT_FOUND_ACCOUNT));
+
+        List<SocialInfo> socialInfos = new ArrayList<>(account.getSocialInfos());
+
+        account.getSocialInfos().clear();
+
+        socialInfoRepository.deleteAll(socialInfos);
+    }
 
     @Transactional
     public void deleteAccount(Long accountId) {

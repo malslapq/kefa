@@ -7,6 +7,7 @@ import com.kefa.domain.entity.Announcement;
 import com.kefa.common.type.AnnouncementsSearchType;
 import com.kefa.infrastructure.repository.AnnouncementRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ public class AnnouncementUseCase {
 
     private final AnnouncementRepository announcementRepository;
 
+    @Cacheable(value = "announcements", key = "#command")
     public PagedResponse<AnnouncementResponse> getAnnouncements(GetAnnouncementsCommand command) {
 
         Pageable pageable = PageRequest.of(

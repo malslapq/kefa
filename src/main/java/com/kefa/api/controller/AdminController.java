@@ -14,12 +14,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@RequestMapping("/admin")
 @PreAuthorize("hasAnyRole('ADMIN')")
-@RestController("/admin")
+@RestController
 @RequiredArgsConstructor
 public class AdminController {
 
     private final AdminService adminService;
+
+    @DeleteMapping("/account/{accountId}/social-info")
+    public ApiResponse<Void> deleteAccountSocialInfo(@PathVariable("accountId") Long accountId) {
+        adminService.deleteAccountSocialInfo(accountId);
+        return ApiResponse.success();
+    }
 
     @DeleteMapping("/account/{accountId}")
     public ApiResponse<Void> deleteAccount(@PathVariable("accountId") Long accountId) {
@@ -27,12 +34,12 @@ public class AdminController {
         return ApiResponse.success();
     }
 
-    @PutMapping("/account/{accountId}/subscription-type")
+    @PutMapping("/account/{accountId}/role")
     public ApiResponse<AccountDetailResponse> updateAccountRole(@PathVariable("accountId") Long accountId, @RequestBody @Valid AccountUpdateRoleRequest request) {
         return ApiResponse.success(adminService.updateAccountRole(accountId, request));
     }
 
-    @PutMapping("/account/{accountId}/role")
+    @PutMapping("/account/{accountId}/subscription-type")
     public ApiResponse<AccountDetailResponse> updateAccountSubscriptionType(@PathVariable("accountId") Long accountId, @RequestBody @Valid AccountUpdateSubscriptionTypeRequest request) {
         return ApiResponse.success(adminService.updateAccountSubscriptionType(accountId, request));
     }
