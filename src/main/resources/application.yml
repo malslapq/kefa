@@ -59,6 +59,13 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT}
 
+  cache:
+    type: caffeine
+    cache-names:
+      - Announcements
+    caffeine:
+      spec: maximumSize=300,expireAfterWrite=1h
+
 jwt:
   key: ${JWT_KEY}
   access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
