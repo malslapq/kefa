@@ -7,6 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    //결제 관련
+    INVALID_PAYMENT_OPTION(400,"유효하지 않은 결제 수단입니다"),
+    INVALID_PAYMENT_STATUS(400, "유효하지 않은 결제 상태입니다"),
+
     //피드백 관련
     NOT_FOUND_CONSULTING_SESSION_FEEDBACK(404, "컨설팅 피드백을 찾을 수 없습니다"),
     NOT_FOUND_FEEDBACK(404, "피드백이 존재하지 않습니다"),

@@ -61,7 +61,6 @@ services:
       - JAVA_OPTS="-Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.PROXY_COMPATIBILITY=true"
     depends_on:
       - db
-      - redis
     networks:
       - app-network
 

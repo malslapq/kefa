@@ -10,6 +10,7 @@ import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.application.service.AuthService;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.infrastructure.security.auth.LoginAccount;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -59,13 +60,24 @@ public class AuthController {
 
     @PostMapping("/auth/login")
     public ApiResponse<TokenResponse> login(@RequestBody @Valid AccountLoginRequest accountLoginRequest,
-                                            HttpServletRequest request) {
+                                            HttpServletRequest request, HttpServletResponse response) {
 
         String deviceId = generateDeviceIdFromRequest(request);
         accountLoginRequest.setDeviceId(deviceId);
+        TokenResponse tokenResponse = authService.login(accountLoginRequest);
+        addTokenCookie(response, tokenResponse);
 
-        return ApiResponse.success(authService.login(accountLoginRequest));
+        return ApiResponse.success(tokenResponse);
     }
 
+    private void addTokenCookie(HttpServletResponse response, TokenResponse tokenResponse) {
+        Cookie accessTokenCookie = new Cookie("accessToken", tokenResponse.getAccessToken());
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(3600);
+
+        response.addCookie(accessTokenCookie);
+    }
 
 }
