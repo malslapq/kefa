@@ -2,7 +2,7 @@ package com.kefa.infrastructure.security.jwt;
 
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.JwtAuthenticationException;
-import com.kefa.domain.type.Role;
+import com.kefa.common.type.Role;
 import com.kefa.infrastructure.security.cipher.CipherService;
 import com.kefa.infrastructure.security.config.JwtProperties;
 import io.jsonwebtoken.*;
@@ -35,17 +35,19 @@ public class JwtProvider {
 
     }
 
-    private String createToken(Long id, Role role, long expirationTime) {
+    private String createToken(Long id, Role role, String name, long expirationTime) {
 
         Date nowDate = new Date();
         Date expirationDate = new Date(nowDate.getTime() + expirationTime);
 
         String encryptedId = cipherService.encrypt(String.valueOf(id));
         String encryptedRole = cipherService.encrypt(String.valueOf(role));
+        String encryptedName = cipherService.encrypt(name);
 
         return Jwts.builder()
             .subject(encryptedId)
             .claim("role", encryptedRole)
+            .claim("name", encryptedName)
             .issuedAt(nowDate)
             .expiration(expirationDate)
             .signWith(key)
@@ -53,12 +55,12 @@ public class JwtProvider {
 
     }
 
-    public String createAccessToken(Long id, Role role) {
-        return createToken(id, role, jwtProperties.getAccessExpirationTime());
+    public String createAccessToken(Long id, Role role, String name) {
+        return createToken(id, role, name, jwtProperties.getAccessExpirationTime());
     }
 
-    public String createRefreshToken(Long id, Role role) {
-        return createToken(id, role, jwtProperties.getRefreshExpirationTime());
+    public String createRefreshToken(Long id, Role role, String name) {
+        return createToken(id, role, name, jwtProperties.getRefreshExpirationTime());
     }
 
     public boolean validateToken(String token) {
@@ -73,7 +75,7 @@ public class JwtProvider {
             throw new JwtAuthenticationException(ErrorCode.INVALID_JWT_SIGNATURE);
         } catch (MalformedJwtException e) {
             log.info("잘못된 JWT 토큰입니다.: {}", e.getMessage());
-            throw new JwtAuthenticationException(ErrorCode.MALFORMED_JWT_TOKEN);
+            throw new JwtAuthenticationException(ErrorCode.INVALID_JWT_TOKEN);
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.: {}", e.getMessage());
             throw new JwtAuthenticationException(ErrorCode.EXPIRED_JWT_TOKEN);
@@ -102,6 +104,11 @@ public class JwtProvider {
     public Role getRole(String token) {
         String encryptedRole = getClaims(token).get("role", String.class);
         return Role.valueOf(cipherService.decrypt(encryptedRole));
+    }
+
+    public String getName(String token){
+        String encryptedName = getClaims(token).get("name", String.class);
+        return cipherService.decrypt(encryptedName);
     }
 
     public LocalDateTime getTokenExpiration(String token) {

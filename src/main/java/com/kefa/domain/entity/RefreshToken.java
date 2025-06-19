@@ -19,9 +19,10 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long accountId;
+    @OneToOne(mappedBy = "refreshToken")
+    private Account account;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 512)
     private String token;
 
     private String deviceId;
@@ -35,6 +36,19 @@ public class RefreshToken {
 
     public boolean isExpired() {
         return expiresAt.isBefore(LocalDateTime.now());
+    }
+
+    public void addAccount(Account account) {
+        this.account = account;
+    }
+
+    public void updateToken(String token, LocalDateTime expiresAt) {
+        this.token = token;
+        this.expiresAt = expiresAt;
+    }
+
+    public void updateDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
 }

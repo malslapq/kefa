@@ -1,9 +1,8 @@
 package com.kefa.infrastructure.security.auth;
 
 import com.kefa.domain.entity.Account;
-import com.kefa.domain.type.LoginType;
-import com.kefa.domain.type.Role;
-import com.kefa.domain.type.SubscriptionType;
+import com.kefa.common.type.Role;
+import com.kefa.common.type.SubscriptionType;
 import com.kefa.infrastructure.repository.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,7 +37,6 @@ class CustomUserDetailsServiceTest {
             .id(1L)
             .email("test@example.com")
             .password("password")
-            .loginTypes(Set.of(LoginType.LOCAL))
             .subscriptionType(SubscriptionType.FREE)
             .role(Role.FREE_ACCOUNT)
             .build();

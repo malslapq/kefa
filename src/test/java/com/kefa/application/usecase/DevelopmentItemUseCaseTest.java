@@ -9,7 +9,7 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.Company;
 import com.kefa.domain.entity.DevelopmentItem;
-import com.kefa.domain.type.Stage;
+import com.kefa.common.type.Stage;
 import com.kefa.infrastructure.repository.CompanyRepository;
 import com.kefa.infrastructure.repository.DevelopmentItemRepository;
 import org.junit.jupiter.api.BeforeEach;

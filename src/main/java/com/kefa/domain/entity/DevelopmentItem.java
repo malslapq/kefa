@@ -2,7 +2,7 @@ package com.kefa.domain.entity;
 
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemAddRequest;
 import com.kefa.api.dto.developmentItem.request.DevelopmentItemUpdateRequest;
-import com.kefa.domain.type.Stage;
+import com.kefa.common.type.Stage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,7 +34,7 @@ public class DevelopmentItem extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 

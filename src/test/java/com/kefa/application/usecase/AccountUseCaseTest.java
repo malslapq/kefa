@@ -2,14 +2,11 @@ package com.kefa.application.usecase;
 
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
-import com.kefa.api.dto.account.request.AccountUpdateRequest;
+import com.kefa.api.dto.account.request.AccountNameUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
-import com.kefa.api.dto.account.response.AccountResponse;
-import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
 import com.kefa.common.exception.AccountException;
-import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.infrastructure.repository.AccountRepository;
@@ -94,7 +91,7 @@ public class AccountUseCaseTest {
         // when & then
         assertThatThrownBy(() -> accountUseCase.delete(request, targetId))
             .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
     }
 
     @DisplayName("계정 삭제 실패 - 비밀번호 불일치")
@@ -116,94 +113,12 @@ public class AccountUseCaseTest {
             .hasMessage(ErrorCode.INVALID_CREDENTIALS.getMessage());
     }
 
-    @DisplayName("비밀번호 변경 성공")
-    @Test
-    void updatePasswordSuccess() {
-        // given
-        String prevPassword = "prevPass123!";
-        String newPassword = "newPass456@";
-        String encodedNewPassword = "encodedNewPassword";
-        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
-            .prevPassword(prevPassword)
-            .newPassword(newPassword)
-            .build();
-
-        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
-        given(passwordEncoder.matches(prevPassword, account.getPassword())).willReturn(true);
-        given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
-
-        // when
-        AccountUpdatePasswordResponse response = accountUseCase.updatePassword(request, targetId);
-
-        // then
-        assertThat(account.getPassword()).isEqualTo(encodedNewPassword);
-        assertThat(response).isNotNull();
-        assertThat(response.getMessage()).isEqualTo("비밀번호 변경 완료");
-        assertThat(response.getUpdateAt()).isNotNull();
-    }
-
-    @DisplayName("비밀번호 변경 실패 - 비밀번호 틀림")
-    @Test
-    void updatePasswordFailWrongPassword() {
-        // given
-        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
-            .prevPassword("wrongPass123!")
-            .newPassword("newPass456@")
-            .build();
-
-        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
-        given(passwordEncoder.matches(request.getPrevPassword(), account.getPassword())).willReturn(false);
-
-        // when & then
-        assertThatThrownBy(() -> accountUseCase.updatePassword(request, targetId))
-            .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.INVALID_CREDENTIALS.getMessage());
-    }
-
-    @DisplayName("비밀번호 변경 실패 - 새 비밀번호가 현재와 동일")
-    @Test
-    void updatePasswordFailSamePassword() {
-        // given
-        String password = "samePass123!";
-        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
-            .prevPassword(password)
-            .newPassword(password)
-            .build();
-
-        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
-        given(passwordEncoder.matches(password, account.getPassword())).willReturn(true);
-
-        // when & then
-        assertThatThrownBy(() -> accountUseCase.updatePassword(request, targetId))
-            .isInstanceOf(AuthenticationException.class)
-            .hasMessage(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT.getMessage());
-    }
-
-    @DisplayName("비밀번호 변경 실패 - 계정 없음")
-    @Test
-    void updatePasswordFailAccountNotFound() {
-        // given
-        AccountUpdatePasswordRequest request = AccountUpdatePasswordRequest.builder()
-            .prevPassword("prevPass123!")
-            .newPassword("newPass456@")
-            .build();
-
-        given(accountRepository.findById(targetId)).willReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() ->
-            accountUseCase.updatePassword(request, targetId)
-        )
-            .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
-    }
-
     @DisplayName("회원 정보 수정 성공 - 본인")
     @Test
     void updateAccountSuccess() {
         // given
         String newName = "updatedName";
-        AccountUpdateRequest request = new AccountUpdateRequest(newName);
+        AccountNameUpdateRequest request = new AccountNameUpdateRequest(newName);
 
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
 
@@ -225,7 +140,7 @@ public class AccountUseCaseTest {
     @Test
     void updateAccountFailAccountNotFound() {
         // given
-        AccountUpdateRequest request = new AccountUpdateRequest("newName");
+        AccountNameUpdateRequest request = new AccountNameUpdateRequest("newName");
 
 
         given(accountRepository.findById(targetId)).willReturn(Optional.empty());
@@ -235,7 +150,7 @@ public class AccountUseCaseTest {
             accountUseCase.updateAccount(request, targetId)
         )
             .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
         verify(accountRepository, times(1)).findById(targetId);
     }
 
@@ -247,7 +162,7 @@ public class AccountUseCaseTest {
         given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
 
         //when
-        AccountResponse result = accountUseCase.findByAccountId(targetId);
+        AccountDetailResponse result = accountUseCase.findByAccountId(targetId);
 
         //then
         assertThat(result).isNotNull();
@@ -267,7 +182,7 @@ public class AccountUseCaseTest {
         //when & then
         assertThatThrownBy(() -> accountUseCase.findByAccountId(targetId))
             .isInstanceOf(AccountException.class)
-            .hasMessage(ErrorCode.ACCOUNT_NOT_FOUND.getMessage());
+            .hasMessage(ErrorCode.NOT_FOUND_ACCOUNT.getMessage());
 
     }
 

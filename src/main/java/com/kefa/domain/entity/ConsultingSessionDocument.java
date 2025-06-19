@@ -10,6 +10,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -31,9 +33,13 @@ public class ConsultingSessionDocument {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "consulting_session_id", nullable = false)
     private ConsultingSession consultingSession;
+
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSessionDocument")
+    private List<DocumentFeedback> feedbacks = new ArrayList<>();
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -55,6 +61,10 @@ public class ConsultingSessionDocument {
 
     public void updateName(String name){
         this.name = name;
+    }
+
+    public void addFeedback(DocumentFeedback documentFeedback){
+        this.feedbacks.add(documentFeedback);
     }
 
 }

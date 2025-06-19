@@ -13,12 +13,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
-        NtsException.class,
-        CompanyException.class,
-        EmailException.class,
-        CipherException.class,
+        AccountException.class,
+        AdminException.class,
         AuthenticationException.class,
-        JwtAuthenticationException.class
+        CipherException.class,
+        CompanyException.class,
+        ConsultingSessionException.class,
+        DevelopmentItemException.class,
+        DocumentException.class,
+        EmailException.class,
+        FeedbackException.class,
+        JwtAuthenticationException.class,
+        NtsException.class,
+        OAuth2Exception.class,
+        S3FileUploadException.class
     })
     public ResponseEntity<ApiResponse<?>> handleException(CustomException e) {
         log.error("{} {} - {}",

@@ -1,16 +1,15 @@
 package com.kefa.domain.entity;
 
-import com.kefa.domain.type.LoginType;
-import com.kefa.domain.type.Role;
-import com.kefa.domain.type.SubscriptionType;
+import com.kefa.common.type.Role;
+import com.kefa.common.type.SubscriptionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -44,18 +43,24 @@ public class Account extends BaseEntity {
     @Column
     private boolean emailVerified;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(
-        name = "account_login_types",
-        joinColumns = @JoinColumn(name = "account_id")
-    )
-    @Column(name = "login_type")
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private Set<LoginType> loginTypes = new HashSet<>();
+    @OneToOne(fetch = FetchType.LAZY)
+    private RefreshToken refreshToken;
 
-    public void addLoginType(LoginType loginType) {
-        this.loginTypes.add(loginType);
+    @OneToMany(mappedBy = "account")
+    @Builder.Default
+    private List<SocialInfo> socialInfos = new ArrayList<>();
+
+    public void addRefreshToken(RefreshToken refreshToken) {
+        this.refreshToken = refreshToken;
+        refreshToken.addAccount(this);
+    }
+
+    public void addSocialInfo(SocialInfo socialInfo) {
+        this.socialInfos.add(socialInfo);
+    }
+
+    public void removeSocialInfo(SocialInfo socialInfo) {
+        this.socialInfos.remove(socialInfo);
     }
 
     public void verify() {
@@ -66,8 +71,24 @@ public class Account extends BaseEntity {
         this.name = name;
     }
 
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void updateSubscriptionType(SubscriptionType subscriptionType) {
+        this.subscriptionType = subscriptionType;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
+
+    public void updateEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
 }

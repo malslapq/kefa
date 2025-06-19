@@ -1,6 +1,8 @@
 package com.kefa.infrastructure.security.config;
 
+import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
+import com.kefa.infrastructure.security.auth.CustomOAuth2UserService;
 import com.kefa.infrastructure.security.auth.OAuth2SuccessHandler;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,12 @@ public class SecurityConfigTest {
 
     @MockBean
     private AuthenticationUseCase authenticationUseCase;
+
+    @MockBean
+    private AccountUseCase accountUseCase;
+
+    @MockBean
+    private CustomOAuth2UserService customOAuth2UserService;
 
     @Test
     @DisplayName("공개 엔드포인트 접근 가능 성공")

@@ -1,18 +1,24 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.account.request.AccountDeleteRequest;
-import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
+import com.kefa.api.dto.account.request.AccountNameUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.response.AccountDeleteResponse;
-import com.kefa.api.dto.account.response.AccountResponse;
-import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.api.dto.account.response.AccountDetailResponse;
 import com.kefa.api.dto.account.response.AccountUpdateResponse;
+import com.kefa.api.dto.account.response.SocialInfoDeleteResponse;
 import com.kefa.common.exception.AccountException;
-import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
+import com.kefa.common.exception.OAuth2Exception;
+import com.kefa.common.type.LoginType;
 import com.kefa.domain.entity.Account;
+import com.kefa.domain.entity.SocialInfo;
+import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.AccountRepository;
+import com.kefa.infrastructure.repository.SocialInfoRepository;
+import com.kefa.infrastructure.security.auth.LoginAccount;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +29,47 @@ public class AccountUseCase {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SocialInfoRepository socialInfoRepository;
+
+    public AccountVO linkAccount(String providerUserId, LoginType loginType) {
+
+        boolean existsSocialUser = socialInfoRepository.existsByProviderUserIdAndLoginType(providerUserId, loginType);
+
+        // 중복되는 소셜 아이디 있을 경우 예외 처리
+        if (existsSocialUser) {
+            throw new OAuth2Exception(ErrorCode.ALREADY_PROVIDER_USER_ID);
+        }
+
+        // 로그인한 회원 정보 가져와서 통합
+        LoginAccount loginAccount = (LoginAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Account account = accountRepository.findById(loginAccount.getId()).orElseThrow(() -> new OAuth2Exception(ErrorCode.NOT_FOUND_ACCOUNT));
+        SocialInfo socialInfo = SocialInfo.builder()
+            .loginType(loginType)
+            .providerUserId(providerUserId)
+            .account(account)
+            .build();
+
+        socialInfoRepository.save(socialInfo);
+        account.addSocialInfo(socialInfo);
+
+        return AccountVO.from(account);
+    }
+
+    @Transactional
+    public SocialInfoDeleteResponse deleteSocialInfo(Long accountId, Long socialInfoId) {
+
+        Account account = accountRepository.findByIdWithSocialInfos(accountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
+
+        SocialInfo socialInfo = account.getSocialInfos().stream()
+            .filter(si -> si.getId().equals(socialInfoId))
+            .findFirst()
+            .orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_SOCIAL_INFO));
+
+        account.removeSocialInfo(socialInfo);
+        socialInfoRepository.delete(socialInfo);
+
+        return new SocialInfoDeleteResponse();
+    }
 
     @Transactional
     public AccountDeleteResponse delete(AccountDeleteRequest accountDeleteRequest, Long loginAccountId) {
@@ -39,34 +86,18 @@ public class AccountUseCase {
     }
 
     @Transactional
-    public AccountUpdatePasswordResponse updatePassword(AccountUpdatePasswordRequest accountUpdatePasswordRequest, Long loginAccountId) {
+    public AccountUpdateResponse updateAccount(AccountNameUpdateRequest accountNameUpdateRequest, Long loginAccountId) {
 
         Account account = getAccount(loginAccountId);
-
-        validatePassword(account.getPassword(), accountUpdatePasswordRequest.getPrevPassword());
-
-        if (accountUpdatePasswordRequest.getPrevPassword().equals(accountUpdatePasswordRequest.getNewPassword())) {
-            throw new AuthenticationException(ErrorCode.NEW_PASSWORD_MUST_BE_DIFFERENT);
-        }
-
-        account.updatePassword(passwordEncoder.encode(accountUpdatePasswordRequest.getNewPassword()));
-
-        return new AccountUpdatePasswordResponse();
-    }
-
-    @Transactional
-    public AccountUpdateResponse updateAccount(AccountUpdateRequest accountUpdateRequest, Long loginAccountId) {
-
-        Account account = getAccount(loginAccountId);
-        account.updateName(accountUpdateRequest.getName());
+        account.updateName(accountNameUpdateRequest.getName());
 
         return AccountUpdateResponse.from(account);
 
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse findByAccountId(Long loginAccountId) {
-        return AccountResponse.from(getAccount(loginAccountId));
+    public AccountDetailResponse findByAccountId(Long loginAccountId) {
+        return AccountDetailResponse.from(getAccount(loginAccountId));
     }
 
     private void validatePassword(String encodedPassword, String inputPassword) {
@@ -76,7 +107,6 @@ public class AccountUseCase {
     }
 
     private Account getAccount(Long targetId) {
-        return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+        return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
     }
-
 }

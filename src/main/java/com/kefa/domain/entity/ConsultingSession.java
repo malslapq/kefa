@@ -1,6 +1,6 @@
 package com.kefa.domain.entity;
 
-import com.kefa.domain.type.ConsultingStatus;
+import com.kefa.common.type.ConsultingStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,24 +18,29 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "consulting_session")
-public class ConsultingSession extends BaseEntity{
+public class ConsultingSession extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consulting_session_id")
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
     private List<ConsultingSessionDocument> documents = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "consultingSession")
+    private List<ConsultingSessionFeedback> feedbacks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ConsultingStatus status;
 
+    @Builder.Default
     @ElementCollection
     @CollectionTable(name = "consulting_session_participants", joinColumns = @JoinColumn(name = "consulting_session_id"))
     @Column(name = "account_id")
@@ -43,6 +48,17 @@ public class ConsultingSession extends BaseEntity{
 
     public void addParticipantAccountId(Long accountId) {
         this.participantAccountIds.add(accountId);
+    }
+
+    public void addDocuments(List<ConsultingSessionDocument> documents) {
+        this.documents.addAll(documents);
+        for (ConsultingSessionDocument document : documents) {
+            document.addConsultingSession(this);
+        }
+    }
+
+    public void addFeedback(ConsultingSessionFeedback feedback) {
+        this.feedbacks.add(feedback);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.kefa.api.dto.account.response;
 
 import com.kefa.domain.entity.Account;
-import com.kefa.domain.type.SubscriptionType;
+import com.kefa.common.type.SubscriptionType;
 import lombok.*;
 
 import java.time.LocalDateTime;

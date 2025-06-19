@@ -1,16 +1,28 @@
 package com.kefa.api.dto.account.request;
 
+import com.kefa.common.type.Role;
+import com.kefa.common.type.SubscriptionType;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Getter
-@Setter
 public class AccountUpdateRequest {
 
-    @NotBlank(message = "공백은 불가능합니다.")
+    @NotBlank
     private String name;
+    @Email
+    @NotBlank
+    private String email;
+    @NotNull
+    private SubscriptionType subscriptionType;
+    @NotNull
+    private Role role;
+    private boolean emailVerified;
 
 }
