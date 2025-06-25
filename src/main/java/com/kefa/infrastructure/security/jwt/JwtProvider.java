@@ -17,11 +17,16 @@ import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
+
+    private static final String CLAIM_ROLE_SUBJECT = "role";
+    private static final String CLAIM_NAME_SUBJECT = "name";
+    private static final String CLAIM_JWT_ID_SUBJECT = "jwtId";
 
     private final JwtProperties jwtProperties;
     private final CipherService cipherService;
@@ -29,13 +34,11 @@ public class JwtProvider {
 
     @PostConstruct
     public void init() {
-
         byte[] keyByte = Decoders.BASE64.decode(jwtProperties.getKey());
         this.key = Keys.hmacShaKeyFor(keyByte);
-
     }
 
-    private String createToken(Long id, Role role, String name, long expirationTime) {
+    private String createToken(Long id, Role role, String name, long expirationTime, boolean includeJwtId) {
 
         Date nowDate = new Date();
         Date expirationDate = new Date(nowDate.getTime() + expirationTime);
@@ -44,23 +47,31 @@ public class JwtProvider {
         String encryptedRole = cipherService.encrypt(String.valueOf(role));
         String encryptedName = cipherService.encrypt(name);
 
-        return Jwts.builder()
+
+        JwtBuilder jwtBuilder = Jwts.builder()
             .subject(encryptedId)
-            .claim("role", encryptedRole)
-            .claim("name", encryptedName)
+            .claim(CLAIM_ROLE_SUBJECT, encryptedRole)
+            .claim(CLAIM_NAME_SUBJECT, encryptedName)
+
             .issuedAt(nowDate)
             .expiration(expirationDate)
-            .signWith(key)
-            .compact();
+            .signWith(key);
+
+        if(includeJwtId) {
+            String encryptedJwtId = cipherService.encrypt(UUID.randomUUID().toString());
+            jwtBuilder.claim(CLAIM_JWT_ID_SUBJECT, encryptedJwtId);
+        }
+
+        return jwtBuilder.compact();
 
     }
 
     public String createAccessToken(Long id, Role role, String name) {
-        return createToken(id, role, name, jwtProperties.getAccessExpirationTime());
+        return createToken(id, role, name, jwtProperties.getAccessExpirationTime(), true);
     }
 
     public String createRefreshToken(Long id, Role role, String name) {
-        return createToken(id, role, name, jwtProperties.getRefreshExpirationTime());
+        return createToken(id, role, name, jwtProperties.getRefreshExpirationTime(), false);
     }
 
     public boolean validateToken(String token) {
@@ -102,13 +113,18 @@ public class JwtProvider {
     }
 
     public Role getRole(String token) {
-        String encryptedRole = getClaims(token).get("role", String.class);
+        String encryptedRole = getClaims(token).get(CLAIM_ROLE_SUBJECT, String.class);
         return Role.valueOf(cipherService.decrypt(encryptedRole));
     }
 
     public String getName(String token){
-        String encryptedName = getClaims(token).get("name", String.class);
+        String encryptedName = getClaims(token).get(CLAIM_NAME_SUBJECT, String.class);
         return cipherService.decrypt(encryptedName);
+    }
+
+    public String getJwtId(String token){
+        String encryptedJwtId = getClaims(token).get(CLAIM_JWT_ID_SUBJECT, String.class);
+        return cipherService.decrypt(encryptedJwtId);
     }
 
     public LocalDateTime getTokenExpiration(String token) {

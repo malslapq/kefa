@@ -36,7 +36,8 @@ public class AuthController {
     }
 
     @PutMapping("/auth/password")
-    public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest, @AuthenticationPrincipal LoginAccount loginAccount) {
+    public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest,
+                                                                     @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(authService.updatePassword(accountUpdatePasswordRequest, loginAccount.getId()));
     }
 
@@ -70,12 +71,31 @@ public class AuthController {
         return ApiResponse.success(tokenResponse);
     }
 
+    @PostMapping("/auth/logout")
+    public ApiResponse<?> logout(@AuthenticationPrincipal LoginAccount loginAccount, HttpServletResponse response) {
+
+        authService.logout(loginAccount.getId(), loginAccount.getJwtId());
+        removeTokenCookie(response);
+
+        return ApiResponse.success();
+    }
+
     private void addTokenCookie(HttpServletResponse response, TokenResponse tokenResponse) {
         Cookie accessTokenCookie = new Cookie("accessToken", tokenResponse.getAccessToken());
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(true);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(3600);
+
+        response.addCookie(accessTokenCookie);
+    }
+
+    private void removeTokenCookie(HttpServletResponse response) {
+        Cookie accessTokenCookie = new Cookie("accessToken", "");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(0);
 
         response.addCookie(accessTokenCookie);
     }

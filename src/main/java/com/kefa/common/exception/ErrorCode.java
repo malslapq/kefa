@@ -57,6 +57,7 @@ public enum ErrorCode {
     NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
 
     //인증, 회원 관련,
+    BLACKLISTED_TOKEN(401, "블랙리스트에 등록된 토큰입니다 다시 로그인해주세요"),
     INVALID_DEVICE_ID(400, "디바이스 아이디가 올바르지 않습니다 다시 로그인하시길 바랍니다"),
     MISSING_USER_AGENT(400, "요청 헤더 User-Agent를 찾을 수 없습니다"),
     NOT_FOUND_SOCIAL_INFO(404, "통합된 소셜 계정 정보가 존재하지 않습니다"),

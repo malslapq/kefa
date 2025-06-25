@@ -55,6 +55,11 @@ public class Account extends BaseEntity {
         refreshToken.addAccount(this);
     }
 
+    public void removeRefreshToken(RefreshToken refreshToken) {
+        this.refreshToken = null;
+        refreshToken.removeAccount();
+    }
+
     public void addSocialInfo(SocialInfo socialInfo) {
         this.socialInfos.add(socialInfo);
     }

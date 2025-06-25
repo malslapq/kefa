@@ -42,6 +42,10 @@ public class RefreshToken {
         this.account = account;
     }
 
+    public void removeAccount() {
+        this.account = null;
+    }
+
     public void updateToken(String token, LocalDateTime expiresAt) {
         this.token = token;
         this.expiresAt = expiresAt;
