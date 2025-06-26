@@ -7,6 +7,7 @@ import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.RefreshToken;
 import com.kefa.common.type.Role;
 import com.kefa.infrastructure.repository.AccountRepository;
+import com.kefa.infrastructure.repository.ActiveTokenRepository;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtProvider jwtProvider;
     private final AccountRepository accountRepository;
+    private final ActiveTokenRepository activeTokenRepository;
 
     @Value("${oauth2.main-page-uri}")
     private String mainPageUri;
@@ -62,6 +64,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 refreshToken = createRefreshTokenEntity(account, deviceId, tokenResponse.getRefreshToken());
                 account.addRefreshToken(refreshToken);
             }
+
+            String jwtId = jwtProvider.getJwtId(tokenResponse.getAccessToken());
+            activeTokenRepository.save(account.getId(), jwtId);
 
             getRedirectStrategy().sendRedirect(request, response, mainPageUri);
 

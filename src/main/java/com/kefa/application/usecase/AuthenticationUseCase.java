@@ -9,15 +9,13 @@ import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
-import com.kefa.domain.entity.Account;
-import com.kefa.domain.entity.RefreshToken;
 import com.kefa.common.type.LoginType;
 import com.kefa.common.type.Role;
 import com.kefa.common.type.SubscriptionType;
+import com.kefa.domain.entity.Account;
+import com.kefa.domain.entity.RefreshToken;
 import com.kefa.domain.vo.AccountVO;
-import com.kefa.infrastructure.repository.AccountRepository;
-import com.kefa.infrastructure.repository.RefreshTokenRepository;
-import com.kefa.infrastructure.repository.SocialInfoRepository;
+import com.kefa.infrastructure.repository.*;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,13 +38,15 @@ public class AuthenticationUseCase {
     private final AccountRepository accountRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final SocialInfoRepository socialInfoRepository;
+    private final ActiveTokenRepository activeTokenRepository;
+    private final BlackListRepository blackListRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     public TokenResponse refreshToken(String refreshToken, String deviceId) {
 
         Long id = jwtProvider.getId(refreshToken);
-        Account account = accountRepository.findByIdWithRefreshToken(id).orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
+        Account account = getAccountWithRefreshTokenFromAccountId(id);
         RefreshToken savedRefreshToken = account.getRefreshToken();
 
         validateRefreshToken(savedRefreshToken, refreshToken);
@@ -117,9 +117,30 @@ public class AuthenticationUseCase {
             account.addRefreshToken(refreshToken);
         }
 
+        String jwtId = jwtProvider.getJwtId(tokenResponse.getAccessToken());
+        activeTokenRepository.save(account.getId(), jwtId);
+
         refreshTokenRepository.save(refreshToken);
 
         return tokenResponse;
+    }
+
+    @Transactional
+    public void logout(Long loginAccountId, String jwtId) {
+
+        Account account = getAccountWithRefreshTokenFromAccountId(loginAccountId);
+
+        activeTokenRepository.delete(account.getId(), jwtId);
+        blackListRepository.save(jwtId);
+        RefreshToken refreshToken = account.getRefreshToken();
+
+        if (refreshToken != null) {
+
+            account.removeRefreshToken(refreshToken);
+            refreshTokenRepository.delete(refreshToken);
+
+        }
+
     }
 
     public AccountSignupResponse signup(AccountSignupRequest request) {
@@ -129,6 +150,10 @@ public class AuthenticationUseCase {
 
         return AccountSignupResponse.from(account);
 
+    }
+
+    private Account getAccountWithRefreshTokenFromAccountId(Long accountId) {
+        return accountRepository.findByIdWithRefreshToken(accountId).orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
     }
 
     private void validateDeviceId(String deviceId, String requestDeviceId) {

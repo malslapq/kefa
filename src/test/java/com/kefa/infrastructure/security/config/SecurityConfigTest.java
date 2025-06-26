@@ -2,6 +2,7 @@ package com.kefa.infrastructure.security.config;
 
 import com.kefa.application.usecase.AccountUseCase;
 import com.kefa.application.usecase.AuthenticationUseCase;
+import com.kefa.infrastructure.repository.BlackListRepository;
 import com.kefa.infrastructure.security.auth.CustomOAuth2UserService;
 import com.kefa.infrastructure.security.auth.OAuth2SuccessHandler;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
@@ -44,13 +45,20 @@ public class SecurityConfigTest {
     @MockBean
     private CustomOAuth2UserService customOAuth2UserService;
 
+    @MockBean
+    private BlackListRepository blackListRepository;
+
     @Test
     @DisplayName("공개 엔드포인트 접근 가능 성공")
     void publicEndpointsSuccessTest() throws Exception {
+        
         List<String> publicUrls = Arrays.asList(
             "/auth/login",
-            "/auth/join",
-            "/index"
+            "/auth/signup",
+            "/auth/email-verify",
+            "/auth/email-verify/resend",
+            "/auth/token/refresh",
+            "/oauth2/**"
         );
 
         for (String url : publicUrls) {

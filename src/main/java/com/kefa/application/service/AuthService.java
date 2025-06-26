@@ -39,6 +39,10 @@ public class AuthService {
         return authenticationUseCase.login(accountLoginRequest);
     }
 
+    public void logout(Long loginAccountId, String jwtId) {
+        authenticationUseCase.logout(loginAccountId, jwtId);
+    }
+
     @Transactional
     public AccountSignupResponse signup(AccountSignupRequest request) {
 
