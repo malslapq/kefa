@@ -75,6 +75,8 @@ public class TokenResponseProviderTest {
         assertThat(jwtProvider.validateToken(token)).isTrue();
         assertThat(jwtProvider.getId(token)).isEqualTo(id);
         assertThat(jwtProvider.getRole(token)).isEqualTo(role);
+        assertThat(jwtProvider.getName(token)).isEqualTo(name);
+        assertThat(jwtProvider.getJwtId(token)).isNotBlank();
     }
 
     @Test
@@ -93,10 +95,12 @@ public class TokenResponseProviderTest {
         assertThat(jwtProvider.validateToken(token)).isTrue();
         assertThat(jwtProvider.getId(token)).isEqualTo(id);
         assertThat(jwtProvider.getRole(token)).isEqualTo(role);
+        assertThat(jwtProvider.getName(token)).isEqualTo(name);
+        assertThat(jwtProvider.getJwtId(token)).isBlank();
     }
 
     @Test
-    @DisplayName("관리자 권한으로 토큰 생성 성공 테스트")
+    @DisplayName("관리자 권한으로 엑세스 토큰 생성 성공 테스트")
     void createTokenWithAdminRoleSuccess() {
         // given
         Long id = 1L;
@@ -109,10 +113,14 @@ public class TokenResponseProviderTest {
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.ADMIN);
         assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("관리자");
+        assertThat(jwtProvider.getRole(token)).isEqualTo(role);
+        assertThat(jwtProvider.getName(token)).isEqualTo(name);
+        assertThat(jwtProvider.getJwtId(token)).isNotBlank();
+
     }
 
     @Test
-    @DisplayName("전문가 권한으로 토큰 생성 성공 테스트")
+    @DisplayName("전문가 권한으로 엑세스 토큰 생성 성공 테스트")
     void createTokenWithExpertRoleSuccess() {
         // given
         Long id = 1L;
@@ -125,10 +133,13 @@ public class TokenResponseProviderTest {
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.EXPERT);
         assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("전문가");
+        assertThat(jwtProvider.getRole(token)).isEqualTo(role);
+        assertThat(jwtProvider.getName(token)).isEqualTo(name);
+        assertThat(jwtProvider.getJwtId(token)).isNotBlank();
     }
 
     @Test
-    @DisplayName("직원 권한으로 토큰 생성 성공 테스트")
+    @DisplayName("직원 권한으로 엑세스 토큰 생성 성공 테스트")
     void createTokenWithStaffRoleSuccess() {
         // given
         Long id = 1L;
@@ -141,6 +152,9 @@ public class TokenResponseProviderTest {
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.STAFF);
         assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("직원");
+        assertThat(jwtProvider.getRole(token)).isEqualTo(role);
+        assertThat(jwtProvider.getName(token)).isEqualTo(name);
+        assertThat(jwtProvider.getJwtId(token)).isNotBlank();
     }
 
     @Test
@@ -195,6 +209,30 @@ public class TokenResponseProviderTest {
         // then
         assertThat(getRole).isEqualTo(role);
         assertThat(getRole.getRole()).isEqualTo("회원");
+    }
+
+    @Test
+    @DisplayName("토큰에서 Name 추출 성공 테스트")
+    void getNameSuccess() {
+        // given
+        String name = "test";
+        String token = jwtProvider.createAccessToken(1L, Role.FREE_ACCOUNT, "test");
+
+        // when
+        String getName = jwtProvider.getName(token);
+
+        // then
+        assertThat(getName).isEqualTo(name);
+    }
+
+    @Test
+    @DisplayName("토큰에서 JwtId 추출 성공 테스트")
+    void getJwtIdSuccess() {
+        // given
+        String token = jwtProvider.createAccessToken(1L, Role.FREE_ACCOUNT, "test");
+
+        // when & then
+        assertThat(jwtProvider.getJwtId(token)).isNotBlank();
     }
 
     @Test

@@ -12,8 +12,11 @@ import com.kefa.common.exception.ErrorCode;
 import com.kefa.domain.entity.Account;
 import com.kefa.common.type.Role;
 import com.kefa.common.type.SubscriptionType;
+import com.kefa.domain.entity.RefreshToken;
 import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.AccountRepository;
+import com.kefa.infrastructure.repository.ActiveTokenRepository;
+import com.kefa.infrastructure.repository.BlackListRepository;
 import com.kefa.infrastructure.repository.RefreshTokenRepository;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +55,12 @@ class AuthenticationUseCaseTest {
     @Mock
     private EmailVerificationUseCase emailVerificationUseCase;
 
+    @Mock
+    private ActiveTokenRepository activeTokenRepository;
+
+    @Mock
+    private BlackListRepository blackListRepository;
+
     @InjectMocks
     private AuthenticationUseCase authenticationUseCase;
 
@@ -59,6 +68,9 @@ class AuthenticationUseCaseTest {
     private final Long targetId = 1L;
     private AccountSignupRequest signupRequestDto;
     private AccountLoginRequest loginRequest;
+    private RefreshToken refreshToken;
+    private String jwtId = "testJwtId";
+
 
 
     @BeforeEach
@@ -82,6 +94,13 @@ class AuthenticationUseCaseTest {
             .email("test@test.com")
             .password("encodedPassword")
             .deviceId("device1")
+            .build();
+
+        refreshToken = RefreshToken.builder()
+            .id(10L)
+            .token("testRefreshToken")
+            .deviceId("testDevice1")
+            .expiresAt(LocalDateTime.now().plusDays(3))
             .build();
     }
 
@@ -196,7 +215,7 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 이메일로 로그인 실패")
+    @DisplayName("로그인 실패 - 존재하지 않는 이메일")
     void loginFailWhenEmailNotFound() {
 
         when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.empty());
@@ -208,7 +227,7 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("비밀번호 다름으로 인한 로그인 실패")
+    @DisplayName("로그인 실패 - 비밀번호 다름")
     void loginFailWhenPasswordWrong() {
 
         when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.of(account));
@@ -221,7 +240,7 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("이메일 미인증 계정으로 로그인 시도시 실패")
+    @DisplayName("로그인 실패 - 이메일 미인증 계정")
     void loginFailWhenAccountNotVerified() {
         // given
         Account account = Account.builder()
@@ -231,7 +250,7 @@ class AuthenticationUseCaseTest {
             .name("name")
             .subscriptionType(SubscriptionType.FREE)
             .role(Role.FREE_ACCOUNT)
-            .emailVerified(false)  // 미인증 계정
+            .emailVerified(false)
             .build();
 
         when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.of(account));
@@ -244,7 +263,37 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("일반 회원가입 성공")
+    @DisplayName("로그아웃 성공 - 리프레시 토큰 존재")
+    void logoutSuccessWithRefreshToken() {
+        // given
+        account.addRefreshToken(refreshToken);
+        when(accountRepository.findByIdWithRefreshToken(account.getId())).thenReturn(Optional.of(account));
+        System.out.println("RefreshToken 연결 확인: " + account.getRefreshToken());
+
+
+        // when
+        authenticationUseCase.logout(account.getId(), jwtId);
+
+        // then
+        verify(refreshTokenRepository, times(1)).delete(refreshToken);
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공 - 리프레시 토큰 없음")
+    void logoutSuccessWithoutRefreshToken() {
+        // given
+        account.removeRefreshToken(refreshToken);
+        when(accountRepository.findByIdWithRefreshToken(account.getId())).thenReturn(Optional.of(account));
+
+        // when
+        authenticationUseCase.logout(account.getId(), jwtId);
+
+        // then
+        verify(refreshTokenRepository, never()).delete(any(RefreshToken.class));
+    }
+
+    @Test
+    @DisplayName("회원가입 성공")
     void signupSuccess() {
         // given
         Account account = signupRequestDto.toEntity("encodedPassword");
@@ -267,7 +316,7 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("중복 이메일로 인한 회원가입 실패")
+    @DisplayName("회원가입 실패 - 중복 이메일")
     void signupDuplicateEmailFailure() {
         // given
         when(accountRepository.existsByEmail(signupRequestDto.getEmail())).thenReturn(true);
@@ -279,7 +328,7 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("소셜 로그인 성공, 신규 사용자 계정 생성")
+    @DisplayName("소셜 로그인 성공 - 신규 사용자 계정 생성")
     void Oauth2JoinAndLoginSuccess() {
         // given
         Account newAccount = Account.builder()
@@ -308,7 +357,7 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
-    @DisplayName("소셜 로그인 성공, 기존 사용자는 저장하지 않음")
+    @DisplayName("소셜 로그인 성공 - 기존 사용자")
     void Oauth2LoginSuccess() {
         // given
         Account existingAccount = Account.builder()

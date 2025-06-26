@@ -18,7 +18,14 @@ public class ActiveTokenRepository {
     }
 
     public void delete(Long accountId, String jwtId) {
-        findByAccountId(accountId).remove(jwtId);
+
+        Set<String> activeJwtIds = findByAccountId(accountId);
+        activeJwtIds.remove(jwtId);
+
+        if(activeJwtIds.isEmpty()) {
+            activeTokensCache.invalidate(accountId);
+        }
+
     }
 
     public Set<String> findByAccountId(Long accountId) {
