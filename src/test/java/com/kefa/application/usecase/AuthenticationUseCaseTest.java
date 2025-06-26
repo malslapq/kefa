@@ -69,7 +69,7 @@ class AuthenticationUseCaseTest {
     private AccountSignupRequest signupRequestDto;
     private AccountLoginRequest loginRequest;
     private RefreshToken refreshToken;
-    private String jwtId = "testJwtId";
+    private final String jwtId = "testJwtId";
 
 
 
@@ -193,12 +193,16 @@ class AuthenticationUseCaseTest {
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
         LocalDateTime expirationTime = LocalDateTime.now().plusDays(2);
+        String testJwtId = "testJwtId";
+
 
         when(accountRepository.findByEmailWithRefreshToken(loginRequest.getEmail())).thenReturn(Optional.of(account));
         when(passwordEncoder.matches(account.getPassword(), loginRequest.getPassword())).thenReturn(true);
         when(jwtProvider.createAccessToken(account.getId(), account.getRole(), account.getName())).thenReturn(accessToken);
         when(jwtProvider.createRefreshToken(account.getId(), account.getRole(), account.getName())).thenReturn(refreshToken);
         when(jwtProvider.getTokenExpiration(refreshToken)).thenReturn(expirationTime);
+        when(jwtProvider.getJwtId(accessToken)).thenReturn(testJwtId);
+
 
         // when
         TokenResponse response = authenticationUseCase.login(loginRequest);
@@ -212,6 +216,7 @@ class AuthenticationUseCaseTest {
                 savedToken.getAccount().getId().equals(account.getId()) &&
                 savedToken.getExpiresAt().equals(expirationTime)
         ));
+        verify(activeTokenRepository, times(1)).save(account.getId(), testJwtId);
     }
 
     @Test
