@@ -1,12 +1,13 @@
 package com.kefa.infrastructure.repository;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActiveTokenRepositoryTest {
 
     private ActiveTokenRepository activeTokenRepository;
-    private Cache<Long, Set<String>> activeTokensCache;
+    private LoadingCache<Long, Set<String>> activeTokensCache;
 
     private final Long accountId1 = 1L;
     private final String jwtId1 = "testJwtId1";
@@ -25,7 +26,7 @@ public class ActiveTokenRepositoryTest {
         activeTokensCache = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
             .maximumSize(1000)
-            .build();
+            .build(key -> ConcurrentHashMap.newKeySet());
 
         activeTokenRepository = new ActiveTokenRepository(activeTokensCache);
     }
@@ -133,7 +134,7 @@ public class ActiveTokenRepositoryTest {
         activeTokensCache = Caffeine.newBuilder()
             .expireAfterWrite(100, TimeUnit.MILLISECONDS)
             .maximumSize(100)
-            .build();
+            .build(key -> ConcurrentHashMap.newKeySet());
         activeTokenRepository = new ActiveTokenRepository(activeTokensCache);
 
         activeTokenRepository.save(accountId1, jwtId1);
