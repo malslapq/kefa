@@ -15,6 +15,23 @@ public class EmailSender {
 
     private final JavaMailSender javaMailSender;
 
+    public void sendPasswordResetEmail(String email, String token) {
+
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(email);
+            helper.setSubject("Kefa 비밀번호 재설정 링크");
+            helper.setText(EmailTemplate.createPasswordResetEmailContent(token), true);
+
+            javaMailSender.send(message);
+        } catch (MessagingException e) {
+            throw new EmailException(ErrorCode.SERVER_ERROR);
+        }
+
+    }
+
     public void sendVerificationEmail(String to, String token) {
 
         try {

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +19,8 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Entity
+@SQLDelete(sql = "UPDATE consulting_session SET deleted = true, deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted = false")
 @Table(name = "consulting_session")
 public class ConsultingSession extends BaseEntity {
 

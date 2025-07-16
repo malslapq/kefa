@@ -1,12 +1,18 @@
 package com.kefa.infrastructure.repository;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RequiredArgsConstructor
 public class EmailVerificationInMemoryRepository {
+
+    public EmailVerificationInMemoryRepository(
+        @Qualifier("emailVerificationCache") Cache<String, String> emailTokenCache,
+        @Qualifier("emailToTokenCache") Cache<String, String> emailToTokenCache) {
+        this.emailTokenCache = emailTokenCache;
+        this.emailToTokenCache = emailToTokenCache;
+    }
 
     private final Cache<String, String> emailTokenCache;
     private final Cache<String, String> emailToTokenCache;

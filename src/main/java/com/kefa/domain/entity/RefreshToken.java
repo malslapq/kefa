@@ -19,15 +19,15 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "refreshToken")
+    @OneToOne(fetch = FetchType.LAZY)
     private Account account;
 
-    @Column(nullable = false, length = 512)
+    @Column(length = 512)
     private String token;
 
     private String deviceId;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime expiresAt;
 
     @CreatedDate
@@ -53,6 +53,12 @@ public class RefreshToken {
 
     public void updateDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public void revoke(){
+        this.token = null;
+        this.deviceId = null;
+        this.expiresAt = null;
     }
 
 }

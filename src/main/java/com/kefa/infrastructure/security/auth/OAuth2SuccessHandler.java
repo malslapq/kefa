@@ -8,6 +8,7 @@ import com.kefa.domain.entity.RefreshToken;
 import com.kefa.common.type.Role;
 import com.kefa.infrastructure.repository.AccountRepository;
 import com.kefa.infrastructure.repository.ActiveTokenRepository;
+import com.kefa.infrastructure.repository.RefreshTokenRepository;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static com.kefa.common.util.RequestUtils.generateDeviceIdFromRequest;
 
@@ -32,9 +35,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JwtProvider jwtProvider;
     private final AccountRepository accountRepository;
     private final ActiveTokenRepository activeTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${oauth2.main-page-uri}")
-    private String mainPageUri;
+    @Value("${oauth2.login-success-redirect-url}")
+    private String redirectUrl;
 
     @Override
     @Transactional
@@ -42,13 +46,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         try {
-            String roleString = authentication.getAuthorities().stream()
+            String roleName = authentication.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
                 .orElseThrow(() -> new AuthenticationException(ErrorCode.ACCESS_DENIED))
                 .replace("ROLE_", "");
             Long accountId = oAuth2User.getAttribute("accountId");
-            Role role = Role.valueOf(roleString);
+            Role role = Role.from(roleName);
 
             TokenResponse tokenResponse = issueJwt(accountId, role, oAuth2User.getName());
             addTokenCookie(response, tokenResponse);
@@ -58,28 +62,32 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             RefreshToken refreshToken = account.getRefreshToken();
 
             if (refreshToken != null) {
+
                 refreshToken.updateToken(tokenResponse.getRefreshToken(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()));
                 refreshToken.updateDeviceId(deviceId);
+
             } else {
-                refreshToken = createRefreshTokenEntity(account, deviceId, tokenResponse.getRefreshToken());
+
+                refreshToken = createRefreshTokenEntity(tokenResponse.getRefreshToken(), deviceId);
                 account.addRefreshToken(refreshToken);
+                refreshTokenRepository.save(refreshToken);
+
             }
 
             String jwtId = jwtProvider.getJwtId(tokenResponse.getAccessToken());
             activeTokenRepository.save(account.getId(), jwtId);
 
-            getRedirectStrategy().sendRedirect(request, response, mainPageUri);
+            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+
 
         } catch (Exception e) {
-            response.sendRedirect(mainPageUri);
+            response.sendRedirect(redirectUrl);
         }
     }
 
-    private RefreshToken createRefreshTokenEntity(Account account, String refreshToken, String deviceId) {
-
+    private RefreshToken createRefreshTokenEntity(String refreshToken, String deviceId) {
         return RefreshToken.builder()
             .token(refreshToken)
-            .account(account)
             .deviceId(deviceId)
             .expiresAt(jwtProvider.getTokenExpiration(refreshToken))
             .build();
@@ -94,13 +102,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private void addTokenCookie(HttpServletResponse response, TokenResponse tokenResponse) {
-        Cookie accessTokenCookie = new Cookie("accessToken", tokenResponse.getAccessToken());
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(3600);
+        int maxAgeInSeconds = (int) Duration.between(LocalDateTime.now(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken())).getSeconds();
+        Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(maxAgeInSeconds);
 
-        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
     }
 
 }

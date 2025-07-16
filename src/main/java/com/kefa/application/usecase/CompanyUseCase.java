@@ -77,9 +77,9 @@ public class CompanyUseCase {
     }
 
     @Transactional
-    public CompanyResponse update(CompanyUpdateRequest request, Long loginAccountId) {
+    public CompanyResponse update(Long companyId, CompanyUpdateRequest request, Long loginAccountId) {
 
-        Company company = getCompanyById(request.getId());
+        Company company = getCompanyById(companyId);
 
         validateCompanyOwnership(loginAccountId, company.getAccount().getId());
 
@@ -102,7 +102,7 @@ public class CompanyUseCase {
 
     @Transactional(readOnly = true)
     public List<CompanyResponse> getMyCompanies(Long loginAccountId) {
-        return companyRepository.findAllByAccountId(loginAccountId).stream().map(CompanyResponse::from).toList();
+        return companyRepository.findAllByAccountIdOrderByCreatedAtDesc(loginAccountId).stream().map(CompanyResponse::from).toList();
     }
 
     public CompanyAddResponse add(CompanyAddRequest request, Long loginAccountId) {
@@ -186,8 +186,9 @@ public class CompanyUseCase {
 
     }
 
-    // EntityGraph 사용으로 Account 같이 가져옴
     private Company getCompanyById(Long companyId) {
         return companyRepository.findCompanyById(companyId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));
     }
+
+
 }

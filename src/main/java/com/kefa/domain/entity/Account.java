@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE accounts SET deleted = true, deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted = false")
 @Table(name = "accounts")
 public class Account extends BaseEntity {
 
@@ -62,6 +66,7 @@ public class Account extends BaseEntity {
 
     public void addSocialInfo(SocialInfo socialInfo) {
         this.socialInfos.add(socialInfo);
+        socialInfo.addAccount(this);
     }
 
     public void removeSocialInfo(SocialInfo socialInfo) {

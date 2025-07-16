@@ -95,7 +95,6 @@ public class CompanyUseCaseTest {
 
     private CompanyUpdateRequest createUpdateRequest(Long companyId) {
         return CompanyUpdateRequest.builder()
-            .id(companyId)
             .name(UPDATED_COMPANY_NAME)
             .address(UPDATED_ADDRESS)
             .industry(UPDATED_INDUSTRY)
@@ -199,10 +198,10 @@ public class CompanyUseCaseTest {
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when
-        CompanyResponse response = companyUseCase.update(request, ACCOUNT_ID);
+        CompanyResponse response = companyUseCase.update(COMPANY_ID, request, ACCOUNT_ID);
 
         //then
-        assertThat(response.getId()).isEqualTo(request.getId());
+        assertThat(response.getId()).isEqualTo(COMPANY_ID);
         assertThat(response.getName()).isEqualTo(request.getName());
         assertThat(response.getAddress()).isEqualTo(request.getAddress());
         assertThat(response.getIndustry()).isEqualTo(request.getIndustry());
@@ -218,7 +217,7 @@ public class CompanyUseCaseTest {
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.update(request, ACCOUNT_ID))
+        assertThatThrownBy(() -> companyUseCase.update(COMPANY_ID, request, ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
     }
@@ -235,7 +234,7 @@ public class CompanyUseCaseTest {
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.update(request, DIFFERENT_ACCOUNT_ID))
+        assertThatThrownBy(() -> companyUseCase.update(COMPANY_ID, request, DIFFERENT_ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
     }
@@ -302,7 +301,7 @@ public class CompanyUseCaseTest {
                 ADDRESS_2, INDUSTRY_2, REVENUE_2, account)
         );
 
-        when(companyRepository.findAllByAccountId(ACCOUNT_ID)).thenReturn(companies);
+        when(companyRepository.findAllByAccountIdOrderByCreatedAtDesc(ACCOUNT_ID)).thenReturn(companies);
 
         //when
         List<CompanyResponse> responses = companyUseCase.getMyCompanies(ACCOUNT_ID);
@@ -328,7 +327,7 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 목록 조회 회사가 없을 경우 빈 리스트")
     void findAllByAccountIdEmpty() {
         //given
-        when(companyRepository.findAllByAccountId(ACCOUNT_ID)).thenReturn(Collections.emptyList());
+        when(companyRepository.findAllByAccountIdOrderByCreatedAtDesc(ACCOUNT_ID)).thenReturn(Collections.emptyList());
 
         //when
         List<CompanyResponse> responses = companyUseCase.getMyCompanies(ACCOUNT_ID);

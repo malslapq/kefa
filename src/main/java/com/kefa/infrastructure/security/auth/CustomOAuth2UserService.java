@@ -48,7 +48,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             // 계정 통합일 경우 기존 로그인한 계정과 연결
             accountUseCase.linkAccount(providerUserId, loginType) :
             // 통합 로그인 or 회원가입 및 소셜 로그인
-            authenticationUseCase.loginOrSignUp(providerUserId, email);
+            authenticationUseCase.loginOrSignUp(providerUserId, email, loginType);
 
         return authenticationUseCase.createDefaultOauth2User(accountVO, loginType, attributes);
 

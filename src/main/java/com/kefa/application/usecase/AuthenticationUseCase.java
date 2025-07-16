@@ -5,6 +5,7 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.api.dto.auth.request.PasswordResetDto;
 import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
@@ -14,6 +15,7 @@ import com.kefa.common.type.Role;
 import com.kefa.common.type.SubscriptionType;
 import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.RefreshToken;
+import com.kefa.domain.entity.SocialInfo;
 import com.kefa.domain.vo.AccountVO;
 import com.kefa.infrastructure.repository.*;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -42,7 +45,17 @@ public class AuthenticationUseCase {
     private final BlackListRepository blackListRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final PasswordResetCacheRepository passwordResetCacheRepository;
 
+    public void validatePasswordReset(String passwordResetRequestEmail) {
+
+        if (!accountRepository.existsByEmail(passwordResetRequestEmail)) {
+            throw new AuthenticationException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+    }
+
+    @Transactional(readOnly = true)
     public TokenResponse refreshToken(String refreshToken, String deviceId) {
 
         Long id = jwtProvider.getId(refreshToken);
@@ -52,20 +65,24 @@ public class AuthenticationUseCase {
         validateRefreshToken(savedRefreshToken, refreshToken);
         validateDeviceId(savedRefreshToken.getDeviceId(), deviceId);
 
-        TokenResponse tokenResponse = issueJWT(account);
+        String accessToken = jwtProvider.createAccessToken(id, account.getRole(), account.getName());
 
-        savedRefreshToken.updateToken(tokenResponse.getRefreshToken(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken()));
+        Set<String> activeTokens = activeTokenRepository.findByAccountId(id);
+        activeTokenRepository.invalidateAccountAllActiveTokens(id);
+        blackListRepository.saveAll(activeTokens);
 
-        refreshTokenRepository.save(savedRefreshToken);
+        activeTokenRepository.save(id, jwtProvider.getJwtId(accessToken));
 
-        return tokenResponse;
+        return TokenResponse.builder()
+            .accessToken(accessToken)
+            .build();
     }
 
-    public AccountVO loginOrSignUp(String providerUserId, String email) {
+    public AccountVO loginOrSignUp(String providerUserId, String email, LoginType loginType) {
 
         return socialInfoRepository.findByProviderUserIdWithAccount(providerUserId)
             .map(socialInfo -> AccountVO.from(socialInfo.getAccount()))
-            .orElseGet(() -> authenticateSocialUser(email));
+            .orElseGet(() -> authenticateSocialUser(providerUserId, email, loginType));
     }
 
     public DefaultOAuth2User createDefaultOauth2User(AccountVO accountVO, LoginType loginType, Map<String, Object> attributes) {
@@ -80,6 +97,24 @@ public class AuthenticationUseCase {
             attributes,
             nameAttributeKey
         );
+    }
+
+    @Transactional
+    public void passwordReset(PasswordResetDto request) {
+
+        String email = passwordResetCacheRepository.findByToken(request.getToken())
+            .orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_PASSWORD_RESET_TOKEN));
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AuthenticationException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        Account account = accountRepository.findByEmail(email).orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
+        String encryptedPassword = passwordEncoder.encode(request.getNewPassword());
+        account.updatePassword(encryptedPassword);
+
+        accountRepository.save(account);
+        passwordResetCacheRepository.delete(request.getToken());
     }
 
     @Transactional
@@ -101,7 +136,7 @@ public class AuthenticationUseCase {
     @Transactional
     public TokenResponse login(AccountLoginRequest accountLoginRequest) {
 
-        Account account = getAccountFromEmail(accountLoginRequest.getEmail());
+        Account account = getAccountWithRefreshTokenFromEmail(accountLoginRequest.getEmail());
 
         validatePassword(accountLoginRequest.getPassword(), account.getPassword());
         validateEmailVerified(account);
@@ -135,10 +170,7 @@ public class AuthenticationUseCase {
         RefreshToken refreshToken = account.getRefreshToken();
 
         if (refreshToken != null) {
-
-            account.removeRefreshToken(refreshToken);
-            refreshTokenRepository.delete(refreshToken);
-
+            refreshToken.revoke();
         }
 
     }
@@ -198,7 +230,7 @@ public class AuthenticationUseCase {
             .build();
     }
 
-    private Account getAccountFromEmail(String email) {
+    private Account getAccountWithRefreshTokenFromEmail(String email) {
         return accountRepository.findByEmailWithRefreshToken(email).orElseThrow(() -> new AuthenticationException(ErrorCode.INVALID_CREDENTIALS));
     }
 
@@ -208,10 +240,11 @@ public class AuthenticationUseCase {
         }
     }
 
-    public AccountVO authenticateSocialUser(String email) {
+    public AccountVO authenticateSocialUser(String providerUserId, String email, LoginType loginType) {
 
-        return AccountVO.from(accountRepository.findByEmail(email).orElseGet(
-            () -> createSocialAccount(email))
+        return AccountVO.from(
+            accountRepository.findByEmail(email)
+                .orElseGet(() -> createSocialAccount(providerUserId, email, loginType))
         );
     }
 
@@ -224,17 +257,29 @@ public class AuthenticationUseCase {
 
     }
 
-    private Account createSocialAccount(String email) {
+    private Account createSocialAccount(String providerUserId, String email, LoginType loginType) {
 
-        return accountRepository.save(Account.builder()
+        Account account = Account.builder()
             .email(email)
             .name(email.split("@")[0])
             .password(passwordEncoder.encode(UUID.randomUUID().toString()))
             .subscriptionType(SubscriptionType.FREE)
             .emailVerified(true)
             .role(Role.FREE_ACCOUNT)
-            .build()
-        );
+            .build();
+
+        account = accountRepository.save(account);
+
+        SocialInfo socialInfo = SocialInfo.builder()
+            .providerUserId(providerUserId)
+            .loginType(loginType)
+            .build();
+
+        account.addSocialInfo(socialInfo);
+
+        socialInfoRepository.save(socialInfo);
+
+        return account;
     }
 
     private void validateDuplicateEmail(String email) {

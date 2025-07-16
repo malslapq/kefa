@@ -30,8 +30,8 @@ public class CompanyService {
         companyUseCase.delete(companyId, request, loginAccountId);
     }
 
-    public CompanyResponse updateCompany(CompanyUpdateRequest request, Long loginAccountId) {
-        return companyUseCase.update(request, loginAccountId);
+    public CompanyResponse updateCompany(Long companyId, CompanyUpdateRequest request, Long loginAccountId) {
+        return companyUseCase.update(companyId, request, loginAccountId);
     }
 
     public CompanyResponse getMyCompany(Long targetId, Long loginAccountId) {

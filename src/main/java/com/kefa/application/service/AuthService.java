@@ -5,9 +5,12 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.api.dto.auth.request.PasswordResetDto;
+import com.kefa.api.dto.auth.request.PasswordResetRequestDto;
 import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.application.usecase.AuthenticationUseCase;
 import com.kefa.application.usecase.EmailVerificationUseCase;
+import com.kefa.application.usecase.PasswordResetEmailSenderUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +21,17 @@ public class AuthService {
 
     private final AuthenticationUseCase authenticationUseCase;
     private final EmailVerificationUseCase emailVerificationUseCase;
+    private final PasswordResetEmailSenderUseCase passwordResetEmailSenderUseCase;
+
+    public void passwordReset(PasswordResetDto request) {
+        authenticationUseCase.passwordReset(request);
+    }
+
+    @Transactional
+    public void sendPasswordResetEmail(PasswordResetRequestDto passwordResetRequestDto) {
+        authenticationUseCase.validatePasswordReset(passwordResetRequestDto.getEmail());
+        passwordResetEmailSenderUseCase.sendPasswordResetEmail(passwordResetRequestDto.getEmail());
+    }
 
     public TokenResponse refreshToken(String refreshToken, String deviceId) {
         return authenticationUseCase.refreshToken(refreshToken, deviceId);
