@@ -12,6 +12,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Handles custom application exceptions and returns a standardized error response.
+     *
+     * This method intercepts various custom exceptions thrown within the application, logs the error details,
+     * and constructs an HTTP response containing an error payload based on the exception's error code.
+     *
+     * @param e the custom exception to handle
+     * @return a ResponseEntity containing an ApiResponse with error details and the appropriate HTTP status
+     */
     @ExceptionHandler({
         AccountException.class,
         AdminException.class,

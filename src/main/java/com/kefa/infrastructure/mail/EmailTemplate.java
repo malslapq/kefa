@@ -2,6 +2,12 @@ package com.kefa.infrastructure.mail;
 
 public class EmailTemplate {
 
+    /**
+     * Generates an HTML email template in Korean for password reset instructions, embedding the provided token in the reset URL.
+     *
+     * @param token the unique token to be included in the password reset link
+     * @return a complete HTML string for the password reset email, including a styled button and fallback link
+     */
     public static String createPasswordResetEmailContent(String token){
         // 프론트엔드의 비밀번호 재설정 페이지 URL (실제 배포 시 도메인 변경 필요)
         String resetUrl = String.format("http://localhost:3000/auth/password-reset?token=%s", token);
@@ -83,6 +89,12 @@ public class EmailTemplate {
         """.formatted(resetUrl, resetUrl, resetUrl);
     }
 
+    /**
+     * Generates an HTML email template for email verification, embedding the provided token in the verification link.
+     *
+     * @param token the unique token to be included in the verification URL
+     * @return a styled HTML string for email verification, including a button and fallback link
+     */
     public static String createVerificationEmailContent(String token) {
         String verificationUrl = String.format("http://localhost:8080/auth/email-verify?token=%s", token);
 

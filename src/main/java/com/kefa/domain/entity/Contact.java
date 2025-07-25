@@ -47,6 +47,12 @@ public class Contact extends BaseEntity {
 
     private LocalDateTime resolvedAt;
 
+    /**
+     * Creates a new Contact entity from the provided ContactRequest, initializing its status to PENDING.
+     *
+     * @param request the data transfer object containing contact details
+     * @return a new Contact instance populated with data from the request
+     */
     public static Contact from(ContactRequest request) {
         return Contact.builder()
             .name(request.getName())
@@ -58,6 +64,11 @@ public class Contact extends BaseEntity {
             .build();
     }
 
+    /**
+     * Updates the status of this contact to the specified value.
+     *
+     * @param status the new status to set for the contact
+     */
     public void updateStatus(ContactStatus status) {
         this.status = status;
     }

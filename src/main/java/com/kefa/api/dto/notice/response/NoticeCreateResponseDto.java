@@ -20,6 +20,12 @@ public class NoticeCreateResponseDto {
     private int viewCount;
     private boolean isPinned;
 
+    /**
+     * Creates a NoticeCreateResponseDto from a Notice entity by mapping its fields.
+     *
+     * @param notice the Notice entity to convert
+     * @return a NoticeCreateResponseDto representing the given Notice
+     */
     public static NoticeCreateResponseDto from(Notice notice) {
         return NoticeCreateResponseDto.builder()
             .id(notice.getId())

@@ -27,6 +27,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final AuthenticationUseCase authenticationUseCase;
     private final AccountUseCase accountUseCase;
 
+    /**
+     * Loads an OAuth2 user and processes authentication or account linking based on the OAuth2 request state.
+     *
+     * If the request state indicates account linking, associates the social account with an existing user account.
+     * Otherwise, performs login or registration using the social provider's user information.
+     *
+     * @param userRequest the OAuth2 user request containing client registration and additional parameters
+     * @return an OAuth2User representing the authenticated or linked user
+     * @throws OAuth2AuthenticationException if user authentication fails
+     */
     @Transactional
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {

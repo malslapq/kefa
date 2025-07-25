@@ -37,10 +37,23 @@ public class AdminService {
         return adminUseCase.updateAccountPassword(accountId, request);
     }
 
+    /**
+     * Updates general information for the specified account.
+     *
+     * @param accountId the unique identifier of the account to update
+     * @param request the details to update for the account
+     * @return the updated account details
+     */
     public AccountDetailResponse updateAccount(Long accountId, AccountUpdateRequest request) {
         return adminUseCase.updateAccount(accountId, request);
     }
 
+    /**
+     * Retrieves a paginated list of account details based on the specified command parameters.
+     *
+     * @param command the command containing filtering and pagination criteria for retrieving accounts
+     * @return a paged response containing account detail information
+     */
     public PagedResponse<AccountDetailResponse> getAccounts(AccountsGetCommand command) {
         return adminUseCase.getAccounts(command);
     }

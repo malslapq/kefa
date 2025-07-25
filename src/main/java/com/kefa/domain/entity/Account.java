@@ -64,11 +64,21 @@ public class Account extends BaseEntity {
         refreshToken.removeAccount();
     }
 
+    /**
+     * Associates a SocialInfo instance with this account and updates the bidirectional relationship.
+     *
+     * @param socialInfo the SocialInfo entity to be linked to this account
+     */
     public void addSocialInfo(SocialInfo socialInfo) {
         this.socialInfos.add(socialInfo);
         socialInfo.addAccount(this);
     }
 
+    /**
+     * Removes the specified social information from this account's list of associated social infos.
+     *
+     * @param socialInfo the social information to remove
+     */
     public void removeSocialInfo(SocialInfo socialInfo) {
         this.socialInfos.remove(socialInfo);
     }

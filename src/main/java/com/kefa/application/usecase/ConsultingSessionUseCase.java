@@ -30,6 +30,13 @@ public class ConsultingSessionUseCase {
     private final ConsultingSessionRepository consultingSessionRepository;
     private final CompanyRepository companyRepository;
 
+    /**
+     * Deletes a consulting session feedback if the requesting user is the author.
+     *
+     * @param feedbackId      the ID of the feedback to delete
+     * @param loginAccountId  the ID of the user attempting to delete the feedback
+     * @throws FeedbackException if the feedback does not exist or the user is not the author
+     */
     public void deleteFeedback(Long feedbackId, Long loginAccountId) {
         ConsultingSessionFeedback feedback = consultingSessionFeedbackRepository.findById(feedbackId)
             .orElseThrow(() -> new FeedbackException(ErrorCode.NOT_FOUND_CONSULTING_SESSION_FEEDBACK));
@@ -39,6 +46,15 @@ public class ConsultingSessionUseCase {
         consultingSessionFeedbackRepository.delete(feedback);
     }
 
+    /**
+     * Updates the content and type of a consulting session feedback if the requesting user is the author.
+     *
+     * @param feedbackId the ID of the feedback to update
+     * @param request the update request containing new content and feedback type
+     * @param loginAccountId the ID of the user attempting the update
+     * @return the updated feedback as a DTO
+     * @throws FeedbackException if the feedback is not found or the user is not the author
+     */
     public ConsultingSessionFeedbackDto updateFeedback(Long feedbackId, ConsultingFeedbackUpdateRequest request, Long loginAccountId) {
         ConsultingSessionFeedback feedback = consultingSessionFeedbackRepository.findById(feedbackId)
             .orElseThrow(() -> new FeedbackException(ErrorCode.NOT_FOUND_CONSULTING_SESSION_FEEDBACK));
@@ -50,6 +66,15 @@ public class ConsultingSessionUseCase {
         return ConsultingSessionFeedbackDto.from(consultingSessionFeedbackRepository.save(feedback));
     }
 
+    /**
+     * Adds feedback to a consulting session after validating company and participant information.
+     *
+     * @param command the command containing feedback details, session, company, and account information
+     * @return the saved feedback as a DTO
+     * @throws ConsultingSessionException if the consulting session is not found
+     * @throws ConsultingSessionException if the company ID does not match
+     * @throws ConsultingSessionException if the account is not a participant in the session
+     */
     public ConsultingSessionFeedbackDto addFeedback(ConsultingFeedbackAddCommand command) {
 
         ConsultingSession consultingSession = consultingSessionRepository.findByIdWithCompanyAndParticipant(command.getConsultingSessionId())

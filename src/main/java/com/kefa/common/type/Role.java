@@ -18,6 +18,12 @@ public enum Role {
 
     private final String description;
 
+    /**
+     * Returns the {@code Role} enum constant that matches the given string value, ignoring case.
+     *
+     * @param value the name of the role to match, case-insensitive
+     * @return the matching {@code Role} constant, or {@code null} if no match is found or if {@code value} is {@code null}
+     */
     public static Role from(String value) {
         if (value == null) return null;
 

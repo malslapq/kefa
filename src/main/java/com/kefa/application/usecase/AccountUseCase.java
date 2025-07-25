@@ -95,21 +95,49 @@ public class AccountUseCase {
 
     }
 
+    /**
+     * Retrieves detailed account information, including associated social information, for the specified account ID.
+     *
+     * @param loginAccountId the ID of the account to retrieve
+     * @return an {@link AccountDetailResponse} containing account and social info details
+     * @throws AccountException if the account is not found
+     */
     @Transactional(readOnly = true)
     public AccountDetailResponse findByAccountId(Long loginAccountId) {
         return AccountDetailResponse.from(getAccountWithSocialInfo(loginAccountId));
     }
 
+    /**
+     * Validates that the provided input password matches the encoded password.
+     *
+     * @param encodedPassword the stored encoded password
+     * @param inputPassword the raw password to validate
+     * @throws AccountException if the passwords do not match
+     */
     private void validatePassword(String encodedPassword, String inputPassword) {
         if (!passwordEncoder.matches(inputPassword, encodedPassword)) {
             throw new AccountException(ErrorCode.INVALID_CREDENTIALS);
         }
     }
 
+    /**
+     * Retrieves an account by its ID.
+     *
+     * @param accountId the unique identifier of the account to retrieve
+     * @return the Account entity corresponding to the given ID
+     * @throws AccountException if the account is not found
+     */
     private Account getAccount(Long accountId) {
         return accountRepository.findById(accountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
     }
 
+    /**
+     * Retrieves an account by ID along with its associated social information.
+     *
+     * @param accountId the ID of the account to retrieve
+     * @return the account entity with its social information
+     * @throws AccountException if the account is not found
+     */
     private Account getAccountWithSocialInfo(Long accountId) {
         return accountRepository.findByIdWithSocialInfos(accountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
     }

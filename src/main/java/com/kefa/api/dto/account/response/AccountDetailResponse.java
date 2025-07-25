@@ -28,6 +28,14 @@ public class AccountDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    /**
+     * Creates an AccountDetailResponse DTO from the given Account entity.
+     *
+     * Maps all relevant account fields and transforms the list of SocialInfo entities into SocialInfoDto objects for inclusion in the response.
+     *
+     * @param account the Account entity to convert
+     * @return an AccountDetailResponse populated with details from the provided Account
+     */
     public static AccountDetailResponse from(Account account) {
         return AccountDetailResponse.builder()
             .id(account.getId())

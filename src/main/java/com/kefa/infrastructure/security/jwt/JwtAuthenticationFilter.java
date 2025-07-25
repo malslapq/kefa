@@ -34,6 +34,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
+    /**
+     * Processes incoming HTTP requests to perform JWT-based authentication.
+     *
+     * Extracts the JWT token from the request, validates it, checks for blacklisting, and sets the authentication in the security context if valid. If the token is blacklisted, throws an authentication exception. Continues the filter chain after processing.
+     *
+     * @param request the HTTP request to authenticate
+     * @param response the HTTP response
+     * @param filterChain the filter chain to continue processing
+     * @throws ServletException if an authentication or servlet error occurs
+     * @throws IOException if an I/O error occurs during filtering
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
 

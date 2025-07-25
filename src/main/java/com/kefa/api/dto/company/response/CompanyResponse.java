@@ -15,6 +15,12 @@ public class CompanyResponse {
     private String industry;
     private Long revenueMillion;
 
+    /**
+     * Creates a CompanyResponse DTO from a Company entity by mapping its fields.
+     *
+     * @param company the Company entity to convert
+     * @return a CompanyResponse containing the corresponding company information
+     */
     public static CompanyResponse from(Company company) {
         return CompanyResponse.builder()
             .id(company.getId())

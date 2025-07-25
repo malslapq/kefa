@@ -40,6 +40,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${oauth2.login-success-redirect-url}")
     private String redirectUrl;
 
+    /****
+     * Handles successful OAuth2 authentication by issuing JWT tokens, persisting refresh token information, and redirecting the user.
+     *
+     * On successful authentication, generates access and refresh tokens for the authenticated user, stores or updates the refresh token entity associated with the user's account, saves the active access token, and sets the refresh token as a secure HTTP-only cookie in the response. Redirects the user to the configured success URL. If any error occurs during this process, redirects to the same URL without propagating the error.
+     *
+     * @param request the HTTP request containing authentication details
+     * @param response the HTTP response to which cookies and redirects are added
+     * @param authentication the authentication object representing the authenticated user
+     * @throws IOException if an input or output exception occurs during redirection
+     */
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -85,6 +95,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
     }
 
+    /**
+     * Creates a new RefreshToken entity with the specified token value and device ID.
+     *
+     * The expiration time is determined by extracting it from the provided refresh token.
+     *
+     * @param refreshToken the refresh token string to associate with the entity
+     * @param deviceId the identifier of the device for which the token is issued
+     * @return a new RefreshToken entity with the given token, device ID, and expiration time
+     */
     private RefreshToken createRefreshTokenEntity(String refreshToken, String deviceId) {
         return RefreshToken.builder()
             .token(refreshToken)
@@ -93,6 +112,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             .build();
     }
 
+    /**
+     * Generates and returns a TokenResponse containing access and refresh tokens for the specified account, role, and username.
+     *
+     * @param accountId the unique identifier of the account
+     * @param role the user's role
+     * @param name the username or display name
+     * @return a TokenResponse with newly issued access and refresh tokens
+     */
     private TokenResponse issueJwt(Long accountId, Role role, String name) {
 
         return TokenResponse.builder()
@@ -101,6 +128,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             .build();
     }
 
+    /**
+     * Adds a secure, HTTP-only refresh token cookie to the HTTP response with an expiration matching the token's validity period.
+     *
+     * @param response the HTTP response to which the cookie will be added
+     * @param tokenResponse the token response containing the refresh token
+     */
     private void addTokenCookie(HttpServletResponse response, TokenResponse tokenResponse) {
         int maxAgeInSeconds = (int) Duration.between(LocalDateTime.now(), jwtProvider.getTokenExpiration(tokenResponse.getRefreshToken())).getSeconds();
         Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.getRefreshToken());

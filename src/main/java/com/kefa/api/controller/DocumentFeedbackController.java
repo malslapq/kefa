@@ -21,11 +21,26 @@ public class DocumentFeedbackController {
 
     private final DocumentFeedbackService documentFeedbackService;
 
+    /**
+     * Retrieves all feedback entries for a specific document within a consulting session.
+     *
+     * @param consultingSessionId the ID of the consulting session
+     * @param documentId the ID of the document
+     * @return a successful API response containing a list of document feedback responses
+     */
     @GetMapping("/company/consulting/{consultingSessionId}/doc/{documentId}")
     public ApiResponse<List<DocumentFeedbackResponse>> getAll(@PathVariable Long consultingSessionId, @PathVariable Long documentId, @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(documentFeedbackService.getAll(consultingSessionId, documentId, loginAccount));
     }
 
+    /**
+     * Adds new feedback to a document within a specified consulting session.
+     *
+     * @param request the feedback details to add
+     * @param consultingSessionId the ID of the consulting session
+     * @param documentId the ID of the document to which feedback is added
+     * @return the created feedback wrapped in an ApiResponse
+     */
     @PostMapping("/company/consulting/{consultingSessionId}/doc/{documentId}")
     public ApiResponse<DocumentFeedbackResponse> add(@RequestBody @Valid DocumentFeedbackAddRequest request,
                                                      @PathVariable Long consultingSessionId,
@@ -42,6 +57,16 @@ public class DocumentFeedbackController {
         return ApiResponse.success(documentFeedbackService.add(command));
     }
 
+    /**
+     * Updates an existing document feedback entry within a consulting session.
+     *
+     * @param request the request containing updated feedback content
+     * @param consultingSessionId the ID of the consulting session
+     * @param documentId the ID of the document
+     * @param feedbackId the ID of the feedback to update
+     * @param loginAccount the authenticated user's account information
+     * @return the updated feedback wrapped in an ApiResponse
+     */
     @PutMapping("/company/consulting/{consultingSessionId}/doc/{documentId}/feedback/{feedbackId}")
     public ApiResponse<DocumentFeedbackResponse> update(@RequestBody @Valid DocumentFeedbackUpdateRequest request,
                                                         @PathVariable Long consultingSessionId,

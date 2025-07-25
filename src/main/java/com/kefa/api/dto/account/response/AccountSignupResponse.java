@@ -19,6 +19,12 @@ public class AccountSignupResponse {
     private String subscriptionType;
     private LocalDateTime createdAt;
 
+    /**
+     * Creates an AccountSignupResponse DTO from the given Account entity.
+     *
+     * @param account the Account entity to extract response data from
+     * @return an AccountSignupResponse populated with the account's details
+     */
     public static AccountSignupResponse from(Account account) {
         return AccountSignupResponse.builder()
             .id(account.getId())

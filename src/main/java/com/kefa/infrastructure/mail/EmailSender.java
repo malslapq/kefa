@@ -15,6 +15,13 @@ public class EmailSender {
 
     private final JavaMailSender javaMailSender;
 
+    /**
+     * Sends a password reset email with a reset link to the specified email address.
+     *
+     * @param email the recipient's email address
+     * @param token the password reset token to include in the email content
+     * @throws EmailException if sending the email fails due to a messaging error
+     */
     public void sendPasswordResetEmail(String email, String token) {
 
         try {
@@ -32,6 +39,15 @@ public class EmailSender {
 
     }
 
+    /**
+     * Sends a verification email with a unique token to the specified recipient.
+     *
+     * The email contains an HTML-formatted verification link generated using the provided token.
+     *
+     * @param to the recipient's email address
+     * @param token the unique verification token to include in the email content
+     * @throws EmailException if the email fails to send due to a messaging error
+     */
     public void sendVerificationEmail(String to, String token) {
 
         try {

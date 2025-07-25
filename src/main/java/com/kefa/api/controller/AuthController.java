@@ -30,23 +30,46 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Handles password reset requests by updating the user's password.
+     *
+     * Accepts a validated password reset payload and delegates the reset operation to the authentication service.
+     * Returns a success response upon completion.
+     */
     @PostMapping("/auth/password-reset")
     public ApiResponse<Void> passwordReset(@RequestBody @Valid PasswordResetDto request) {
         authService.passwordReset(request);
         return ApiResponse.success();
     }
 
+    /**
+     * Initiates a password reset process by sending a password reset email to the user.
+     *
+     * @param passwordResetRequestDto the request containing the user's email address for password reset
+     * @return a success response indicating the email was sent
+     */
     @PostMapping("/auth/password-reset-request")
     public ApiResponse<Void> passwordResetRequest(@RequestBody @Valid PasswordResetRequestDto passwordResetRequestDto) {
         authService.sendPasswordResetEmail(passwordResetRequestDto);
         return ApiResponse.success();
     }
 
+    /**
+     * Returns the currently authenticated user's account details.
+     *
+     * @return an API response containing the authenticated user's information
+     */
     @GetMapping("/auth/check")
     public ApiResponse<LoginAccount> checkAuth(@AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(loginAccount);
     }
 
+    /**
+     * Refreshes the authentication token using the "refreshToken" cookie and device ID from the request.
+     *
+     * @param request the HTTP request containing the "refreshToken" cookie
+     * @return a response containing the new authentication tokens
+     */
     @PostMapping("/auth/token/refresh")
     public ApiResponse<TokenResponse> refreshToken(HttpServletRequest request) {
 
@@ -57,6 +80,13 @@ public class AuthController {
         return ApiResponse.success(authService.refreshToken(refreshToken, deviceId));
     }
 
+    /**
+     * Updates the authenticated user's password.
+     *
+     * @param accountUpdatePasswordRequest the request containing the current and new password details
+     * @param loginAccount the currently authenticated user
+     * @return the response containing the result of the password update operation
+     */
     @PutMapping("/auth/password")
     public ApiResponse<AccountUpdatePasswordResponse> updatePassword(@RequestBody @Valid AccountUpdatePasswordRequest accountUpdatePasswordRequest,
                                                                      @AuthenticationPrincipal LoginAccount loginAccount) {
@@ -68,6 +98,14 @@ public class AuthController {
         return ApiResponse.success(authService.signup(accountSignupRequest));
     }
 
+    /**
+     * Verifies a user's email using the provided token and redirects to the frontend application.
+     *
+     * After successful verification, responds with an HTTP 302 redirect to "http://localhost:3000/".
+     *
+     * @param token the email verification token
+     * @param response the HTTP response used to set the redirect
+     */
     @GetMapping("/auth/email-verify")
     public void emailVerify(@RequestParam String token, HttpServletResponse response) {
         authService.emailVerify(token);
@@ -75,6 +113,12 @@ public class AuthController {
         response.setHeader("Location", "http://localhost:3000/");
     }
 
+    /**
+     * Resends the email verification message to the specified email address.
+     *
+     * @param email the email address to which the verification email will be resent
+     * @return a success response indicating the email was resent
+     */
     @PostMapping("/auth/email-verify/resend")
     public ApiResponse<String> resendEmailVerification(@RequestParam String email) {
         authService.resendVerificationEmail(email);
@@ -93,6 +137,11 @@ public class AuthController {
         return ApiResponse.success(tokenResponse);
     }
 
+    /**
+     * Logs out the authenticated user and removes the refresh token cookie from the response.
+     *
+     * @return a success response indicating the user has been logged out
+     */
     @PostMapping("/auth/logout")
     public ApiResponse<?> logout(@AuthenticationPrincipal LoginAccount loginAccount, HttpServletResponse response) {
 
@@ -102,6 +151,11 @@ public class AuthController {
         return ApiResponse.success();
     }
 
+    /**
+     * Adds a secure, HTTP-only "refreshToken" cookie with the provided token value to the HTTP response.
+     *
+     * The cookie is set with path "/", a max age of 3600 seconds, and is marked as secure and HTTP-only.
+     */
     private void addTokenCookie(HttpServletResponse response, TokenResponse tokenResponse) {
         Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
@@ -112,6 +166,11 @@ public class AuthController {
         response.addCookie(refreshTokenCookie);
     }
 
+    /**
+     * Removes the "refreshToken" cookie from the HTTP response by setting its value to empty and max age to zero.
+     *
+     * @param response the HTTP response to which the removal cookie is added
+     */
     private void removeTokenCookie(HttpServletResponse response) {
         Cookie refreshTokenCookie = new Cookie("refreshToken", "");
         refreshTokenCookie.setHttpOnly(true);

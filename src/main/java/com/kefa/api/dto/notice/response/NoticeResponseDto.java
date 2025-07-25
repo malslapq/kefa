@@ -22,6 +22,12 @@ public class NoticeResponseDto {
     private boolean isPinned;
     private LocalDateTime createdAt;
 
+    /**
+     * Creates a NoticeResponseDto from a Notice entity by mapping its properties.
+     *
+     * @param notice the Notice entity to convert
+     * @return a NoticeResponseDto representing the given Notice
+     */
     public static NoticeResponseDto from(Notice notice) {
         return NoticeResponseDto.builder()
                 .id(notice.getId())

@@ -54,6 +54,16 @@ public class CompanyUseCase {
         return CompanyResponse.from(company);
     }
 
+    /**
+     * Validates that the business information for a company is correct and not duplicated.
+     *
+     * Checks that the specified company exists, the logged-in user owns the company, and that the provided business number is not already registered to another company.
+     *
+     * @param companyId the ID of the company to validate
+     * @param request the business validation request containing business number information
+     * @param loginAccountId the ID of the currently logged-in account
+     * @throws CompanyException if the company does not exist, the user does not own the company, or the business number is duplicated
+     */
     public void validateBusinessInfo(Long companyId, BusinessValidateRequest request, Long loginAccountId) {
 
         Company company = getCompanyById(companyId);
@@ -64,6 +74,13 @@ public class CompanyUseCase {
 
     }
 
+    /**
+     * Deletes a company after verifying that the requesting user is the owner.
+     *
+     * @param companyId       the ID of the company to delete
+     * @param loginAccountId  the ID of the account requesting the deletion
+     * @throws CompanyException if the company does not exist or the user is not the owner
+     */
     @Transactional
     public void delete(Long companyId, Long loginAccountId) {
 
@@ -75,6 +92,16 @@ public class CompanyUseCase {
 
     }
 
+    /**
+     * Updates the details of a company owned by the logged-in user.
+     *
+     * Retrieves the company by ID, verifies ownership, applies updates from the request, and returns the updated company information.
+     *
+     * @param companyId the ID of the company to update
+     * @param request the update request containing new company details
+     * @param loginAccountId the ID of the logged-in account performing the update
+     * @return the updated company information as a response DTO
+     */
     @Transactional
     public CompanyResponse update(Long companyId, CompanyUpdateRequest request, Long loginAccountId) {
 
@@ -99,11 +126,25 @@ public class CompanyUseCase {
 
     }
 
+    /**
+     * Retrieves all companies owned by the specified account, ordered by creation date descending.
+     *
+     * @param loginAccountId the ID of the account whose companies are to be retrieved
+     * @return a list of response DTOs representing the companies owned by the account
+     */
     @Transactional(readOnly = true)
     public List<CompanyResponse> getMyCompanies(Long loginAccountId) {
         return companyRepository.findAllByAccountIdOrderByCreatedAtDesc(loginAccountId).stream().map(CompanyResponse::from).toList();
     }
 
+    /**
+     * Creates a new company associated with the specified account and returns the created company's response DTO.
+     *
+     * @param request the request containing company details to add
+     * @param loginAccountId the ID of the account to associate with the new company
+     * @return a response DTO representing the newly created company
+     * @throws AuthenticationException if the account with the given ID does not exist
+     */
     public CompanyAddResponse add(CompanyAddRequest request, Long loginAccountId) {
 
         Account account = accountRepository.findById(loginAccountId).orElseThrow(() -> new AuthenticationException(ErrorCode.NOT_FOUND_ACCOUNT));
@@ -149,12 +190,25 @@ public class CompanyUseCase {
         }
     }
 
+    /**
+     * Checks if a non-deleted company with the given business number already exists and throws an exception if it does.
+     *
+     * @param businessNumber the business number to check for duplication
+     * @throws CompanyException if a company with the same business number already exists
+     */
     private void validateDuplicateBusinessNumber(String businessNumber) {
         if (companyRepository.existsByBusinessNumberAndDeletedFalse(businessNumber)) {
             throw new CompanyException(ErrorCode.DUPLICATE_BUSINESS_NUMBER);
         }
     }
 
+    /**
+     * Ensures that the logged-in user is the owner of the company.
+     *
+     * @param loginUserId       the ID of the logged-in user
+     * @param companyAccountId  the account ID associated with the company
+     * @throws CompanyException if the user does not own the company
+     */
     private void validateCompanyOwnership(Long loginUserId, Long companyAccountId) {
         if (!companyAccountId.equals(loginUserId)) {
             throw new CompanyException(ErrorCode.NOT_COMPANY_OWNER);
@@ -167,6 +221,12 @@ public class CompanyUseCase {
         }
     }
 
+    /**
+     * Validates that the provided business number is registered and active.
+     *
+     * @param data the business status data to validate
+     * @throws CompanyException if the business number is not registered or is inactive
+     */
     private void validateBusinessNumberActive(BusinessStatusData data) {
 
         if (data.isNotRegistered()) {
@@ -179,6 +239,13 @@ public class CompanyUseCase {
 
     }
 
+    /**
+     * Retrieves a company by its ID or throws an exception if not found.
+     *
+     * @param companyId the ID of the company to retrieve
+     * @return the Company entity with the specified ID
+     * @throws CompanyException if the company does not exist
+     */
     private Company getCompanyById(Long companyId) {
         return companyRepository.findCompanyById(companyId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));
     }

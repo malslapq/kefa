@@ -40,6 +40,15 @@ public class DocumentController {
     }
 
 
+    /**
+     * Retrieves a paginated list of documents for a specific consulting session within a company.
+     *
+     * @param companyId the ID of the company
+     * @param consultingSessionId the ID of the consulting session
+     * @param page the page number to retrieve (default is 0)
+     * @param size the number of documents per page (default is 10)
+     * @return a successful API response containing a paginated list of document data
+     */
     @GetMapping("/company/{companyId}/consulting/{consultingSessionId}/docs")
     public ApiResponse<PagedResponse<SaveFileDto>> getDocs(@PathVariable Long companyId,
                                                            @PathVariable Long consultingSessionId,
@@ -58,6 +67,13 @@ public class DocumentController {
         return ApiResponse.success(consultingSessionDocumentService.getDocs(command));
     }
 
+    /**
+     * Updates the name of a consulting session document identified by its ID.
+     *
+     * @param documentId the ID of the document to update
+     * @param request the request containing the new document name
+     * @return a success response with no content
+     */
     @PatchMapping("/company/consulting/doc/{documentId}")
     public ApiResponse<Void> updateConsultingSessionDocsName(@PathVariable Long documentId,
                                                              @AuthenticationPrincipal LoginAccount loginAccount,

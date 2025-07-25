@@ -16,6 +16,15 @@ public enum NoticesSearchType {
 
     private final String type;
 
+    /**
+     * Returns the corresponding {@code NoticesSearchType} for the given string value.
+     *
+     * If the input matches either the enum's Korean label or its name (case-insensitive), the matching constant is returned.
+     * If no match is found, {@code TOTAL} is returned as the default.
+     *
+     * @param value the string to match against the enum's label or name
+     * @return the matching {@code NoticesSearchType}, or {@code TOTAL} if no match is found
+     */
     public static NoticesSearchType from(String value) {
 
         return Arrays.stream(values())

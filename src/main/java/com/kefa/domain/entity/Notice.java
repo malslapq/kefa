@@ -36,12 +36,26 @@ public class Notice extends BaseEntity {
     @Column(nullable = false)
     private boolean isPinned;
 
+    /**
+     * Updates the title, content, and pinned status of this notice.
+     *
+     * @param title    the new title for the notice
+     * @param content  the new content for the notice
+     * @param isPinned whether the notice should be pinned
+     */
     public void update(String title, String content, boolean isPinned) {
         this.title = title;
         this.content = content;
         this.isPinned = isPinned;
     }
 
+    /**
+     * Creates a new Notice instance from the provided request DTO and account.
+     *
+     * @param dto the data transfer object containing notice creation details
+     * @param account the account associated with the notice
+     * @return a new Notice entity populated with the given data
+     */
     public static Notice of(NoticeCreateRequestDto dto, Account account) {
         return Notice.builder()
             .title(dto.getTitle())

@@ -17,6 +17,13 @@ public enum ContactStatus {
 
     private final String description;
 
+    /**
+     * Converts a string to the corresponding {@code ContactStatus} enum constant, ignoring case.
+     *
+     * @param value the string representation of the contact status
+     * @return the matching {@code ContactStatus} constant
+     * @throws ContactException if the input is null or does not match any status
+     */
     public static ContactStatus from(String value) {
         if (value == null)
             throw new ContactException(ErrorCode.INVALID_CONTACT_STATUS);

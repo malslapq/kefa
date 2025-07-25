@@ -84,6 +84,15 @@ public class AdminUseCase {
         return saveAndReturnAccountDetailResponse(account);
     }
 
+    /**
+     * Updates an account's details with the provided information and returns the updated account details.
+     *
+     * Applies changes from the request to the account if any fields differ, saves the updated account, and returns a response containing the updated account information.
+     *
+     * @param accountId the ID of the account to update
+     * @param request the request containing updated account information
+     * @return the updated account details
+     */
     @Transactional
     public AccountDetailResponse updateAccount(Long accountId, AccountUpdateRequest request) {
 
@@ -93,6 +102,12 @@ public class AdminUseCase {
         return saveAndReturnAccountDetailResponse(account);
     }
 
+    /**
+     * Retrieves a paginated list of account details based on search criteria and pagination parameters.
+     *
+     * @param command the command containing pagination and search filter information
+     * @return a paged response containing account detail responses and pagination metadata
+     */
     @Transactional(readOnly = true)
     public PagedResponse<AccountDetailResponse> getAccounts(AccountsGetCommand command) {
 

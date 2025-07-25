@@ -50,6 +50,14 @@ public class DocumentUseCase {
         consultingSession.addDocuments(consultingSessionDocuments);
     }
 
+    /**
+     * Retrieves a paginated list of documents for a given consulting session.
+     *
+     * @param consultingSessionId the ID of the consulting session whose documents are to be retrieved
+     * @param page the zero-based page index to retrieve
+     * @param size the number of documents per page
+     * @return a paged response containing document metadata and pagination details
+     */
     public PagedResponse<SaveFileDto> getDocs(Long consultingSessionId, int page, int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -65,6 +73,14 @@ public class DocumentUseCase {
             .build();
     }
 
+    /**
+     * Updates the name of a consulting session document if the requesting account is the owner.
+     *
+     * @param documentId the ID of the document to update
+     * @param loginAccountId the ID of the account requesting the update
+     * @param request the request containing the new document name
+     * @throws DocumentException if the document is not found or the account is not authorized to edit it
+     */
     @Transactional
     public void updateName(Long documentId, Long loginAccountId, DocumentUpdateNameRequest request) {
 

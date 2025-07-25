@@ -23,16 +23,35 @@ public class AuthService {
     private final EmailVerificationUseCase emailVerificationUseCase;
     private final PasswordResetEmailSenderUseCase passwordResetEmailSenderUseCase;
 
+    /**
+     * Resets the user's password using the provided password reset request data.
+     *
+     * @param request the password reset request containing necessary information for resetting the password
+     */
     public void passwordReset(PasswordResetDto request) {
         authenticationUseCase.passwordReset(request);
     }
 
+    /**
+     * Validates a password reset request and sends a password reset email to the specified address.
+     *
+     * This method ensures the provided email is eligible for password reset and then triggers the sending of a password reset email.
+     *
+     * @param passwordResetRequestDto the request containing the email address for password reset
+     */
     @Transactional
     public void sendPasswordResetEmail(PasswordResetRequestDto passwordResetRequestDto) {
         authenticationUseCase.validatePasswordReset(passwordResetRequestDto.getEmail());
         passwordResetEmailSenderUseCase.sendPasswordResetEmail(passwordResetRequestDto.getEmail());
     }
 
+    /**
+     * Generates a new authentication token using the provided refresh token and device ID.
+     *
+     * @param refreshToken the refresh token to be validated and exchanged
+     * @param deviceId the identifier of the device requesting the token refresh
+     * @return a new {@link TokenResponse} containing refreshed authentication tokens
+     */
     public TokenResponse refreshToken(String refreshToken, String deviceId) {
         return authenticationUseCase.refreshToken(refreshToken, deviceId);
     }

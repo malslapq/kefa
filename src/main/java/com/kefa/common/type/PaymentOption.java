@@ -20,6 +20,13 @@ public enum PaymentOption {
 
     private final String description;
 
+    /**
+     * Returns the PaymentOption corresponding to the given description string, ignoring case.
+     *
+     * @param method the payment method description to match
+     * @return the matching PaymentOption
+     * @throws PaymentException if no PaymentOption matches the provided description
+     */
     public static PaymentOption fromMethod(String method) {
         return Arrays.stream(values())
             .filter(option -> option.getDescription().equalsIgnoreCase(method))

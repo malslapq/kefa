@@ -54,6 +54,15 @@ public class AdminController {
         return ApiResponse.success(adminService.updateAccount(accountId, request));
     }
 
+    /**
+     * Retrieves a paginated list of accounts matching the specified search criteria.
+     *
+     * @param keyword    the search keyword to filter accounts
+     * @param searchType the type of search to perform (e.g., by name, email)
+     * @param page       the page number to retrieve (zero-based)
+     * @param size       the number of accounts per page
+     * @return an ApiResponse containing a paged response of account details
+     */
     @GetMapping("/accounts")
     public ApiResponse<PagedResponse<AccountDetailResponse>> getAccounts(@RequestParam String keyword,
                                                                          @RequestParam String searchType,

@@ -30,6 +30,13 @@ public class ConsultingSessionController {
         return ApiResponse.success("삭제 성공");
     }
 
+    /**
+     * Updates an existing consulting feedback entry identified by its ID.
+     *
+     * @param feedbackId the ID of the feedback to update
+     * @param request the validated request containing updated feedback data
+     * @return the updated consulting session feedback DTO wrapped in a success response
+     */
     @PutMapping("/company/consulting/feedback/{feedbackId}")
     public ApiResponse<ConsultingSessionFeedbackDto> updateConsultingFeedback(@PathVariable Long feedbackId,
                                                                               @RequestBody @Valid ConsultingFeedbackUpdateRequest request,
@@ -37,6 +44,14 @@ public class ConsultingSessionController {
         return ApiResponse.success(consultingSessionService.updateFeedback(feedbackId, request, loginAccount.getId()));
     }
 
+    /**
+     * Adds new feedback to a specific consulting session for a company.
+     *
+     * @param companyId the ID of the company
+     * @param consultingSessionId the ID of the consulting session
+     * @param request the feedback details to add
+     * @return the created consulting session feedback DTO wrapped in a success response
+     */
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
     public ApiResponse<ConsultingSessionFeedbackDto> addFeedback(@PathVariable Long companyId,
                                                                  @PathVariable Long consultingSessionId,
@@ -54,6 +69,12 @@ public class ConsultingSessionController {
         return ApiResponse.success(consultingSessionService.addFeedback(consultingFeedbackAddCommand));
     }
 
+    /**
+     * Creates a new consulting session for the specified company.
+     *
+     * @param companyId the ID of the company for which to create the consulting session
+     * @return the created consulting session response wrapped in an ApiResponse
+     */
     @PostMapping("/company/{companyId}/consulting")
     public ApiResponse<ConsultingSessionResponse> addConsultingSession(@PathVariable Long companyId, @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(consultingSessionService.add(companyId, loginAccount.getId()));

@@ -41,6 +41,19 @@ public class AnnouncementUseCase {
             .build();
     }
 
+    /**
+     * Retrieves a paginated list of announcements filtered by the specified search type and keyword.
+     *
+     * If the search type is "TITLE", returns announcements whose titles contain the keyword.
+     * If the search type is "TAG", returns announcements whose tags contain the keyword.
+     * If the search type is "TOTAL", returns announcements whose titles or tags contain the keyword; if the keyword is empty, returns all announcements.
+     * If the search type is invalid or the keyword is empty, returns all announcements.
+     *
+     * @param keyword     the search keyword to filter announcements
+     * @param searchType  the type of search to perform ("TITLE", "TAG", or "TOTAL")
+     * @param pageable    pagination and sorting information
+     * @return a page of announcements matching the search criteria
+     */
     private Page<Announcement> getAnnouncementsFromSearchType(String keyword, String searchType, Pageable pageable) {
 
         AnnouncementsSearchType announcementsSearchTypeFromEnum = AnnouncementsSearchType.from(searchType);

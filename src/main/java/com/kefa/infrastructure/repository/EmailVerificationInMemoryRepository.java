@@ -7,6 +7,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class EmailVerificationInMemoryRepository {
 
+    /**
+     * Constructs an in-memory repository for managing email verification tokens using the provided caches.
+     *
+     * @param emailTokenCache   the cache mapping verification tokens to email addresses
+     * @param emailToTokenCache the cache mapping email addresses to verification tokens
+     */
     public EmailVerificationInMemoryRepository(
         @Qualifier("emailVerificationCache") Cache<String, String> emailTokenCache,
         @Qualifier("emailToTokenCache") Cache<String, String> emailToTokenCache) {

@@ -10,6 +10,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Long> {
 
-    Page<Contact> findByStatus(ContactStatus status, Pageable pageable);
+    /**
+ * Retrieves a paginated list of contacts filtered by the specified status.
+ *
+ * @param status   the status to filter contacts by
+ * @param pageable pagination and sorting information
+ * @return a page of contacts matching the given status
+ */
+Page<Contact> findByStatus(ContactStatus status, Pageable pageable);
 
 }

@@ -51,10 +51,18 @@ public class RefreshToken {
         this.expiresAt = expiresAt;
     }
 
+    /**
+     * Updates the device identifier associated with this refresh token.
+     *
+     * @param deviceId the new device identifier to associate
+     */
     public void updateDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
 
+    /**
+     * Revokes the refresh token by clearing its token value, device identifier, and expiration timestamp.
+     */
     public void revoke(){
         this.token = null;
         this.deviceId = null;

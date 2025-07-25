@@ -29,10 +29,18 @@ public class SocialInfo {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
+    /**
+     * Associates this social login information with the specified account.
+     *
+     * @param account the account to link to this social login information
+     */
     public void addAccount(Account account) {
         this.account = account;
     }
 
+    /**
+     * Dissociates this social login information from its linked account.
+     */
     public void removeAccount() {
         this.account = null;
     }

@@ -36,6 +36,15 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
+    /**
+     * Configures the application's security filter chain, including stateless session management, JWT and OAuth2 authentication, custom error handling for unauthorized access, and CORS settings.
+     *
+     * Permits unauthenticated access to authentication, OAuth2, announcements, notices, and contact endpoints, while requiring authentication for all other requests. Handles authentication failures by returning a JSON error response with a specific error code if available. Integrates a custom JWT authentication filter and disables form login, logout, and HTTP Basic authentication.
+     *
+     * @param http the {@link HttpSecurity} to modify
+     * @return the configured {@link SecurityFilterChain}
+     * @throws Exception if an error occurs during configuration
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -97,6 +106,12 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Defines the CORS configuration source bean, allowing cross-origin requests from http://localhost:3000
+     * with specified HTTP methods and headers, and enabling credentials for all endpoints.
+     *
+     * @return the configured CorsConfigurationSource
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

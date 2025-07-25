@@ -26,6 +26,12 @@ public class ContactDetailResponse {
     private LocalDateTime createdAt;
 
 
+    /**
+     * Creates a ContactDetailResponse by mapping fields from the given Contact entity.
+     *
+     * @param contact the Contact entity to convert
+     * @return a ContactDetailResponse containing detailed information from the provided Contact
+     */
     public static ContactDetailResponse from(Contact contact) {
         return ContactDetailResponse.builder()
             .id(contact.getId())
