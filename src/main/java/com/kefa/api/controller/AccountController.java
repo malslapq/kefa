@@ -37,8 +37,6 @@ public class AccountController {
 
     @GetMapping("/accounts")
     public ApiResponse<AccountDetailResponse> get(@AuthenticationPrincipal LoginAccount loginAccount) {
-        System.out.println("loginAccount.getId() = " + loginAccount.getId());
-        System.out.println("loginAccount.getName() = " + loginAccount.getName());
         return ApiResponse.success(accountService.getAccount(loginAccount.getId()));
     }
 
