@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetConsultingSessionDocsCommand {
+public class ConsultingSessionDocsGetCommand {
 
     private Long companyId;
     private Long consultingSessionId;

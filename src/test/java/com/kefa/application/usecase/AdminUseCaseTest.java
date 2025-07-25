@@ -1,8 +1,8 @@
 package com.kefa.application.usecase;
 
 
-import com.kefa.api.dto.AccountUpdateSubscriptionTypeRequest;
-import com.kefa.api.dto.account.command.GetAccountsCommand;
+import com.kefa.api.dto.account.request.AccountUpdateSubscriptionTypeRequest;
+import com.kefa.api.dto.account.command.AccountsGetCommand;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequestFromAdmin;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRoleRequest;
@@ -177,7 +177,7 @@ class AdminUseCaseTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Account> page = new PageImpl<>(accountList, pageable, accountList.size());
 
-        GetAccountsCommand command = GetAccountsCommand.builder()
+        AccountsGetCommand command = AccountsGetCommand.builder()
             .keyword("test")
             .searchType("email")
             .page(0)

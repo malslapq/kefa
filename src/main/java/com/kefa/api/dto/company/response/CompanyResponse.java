@@ -14,7 +14,6 @@ public class CompanyResponse {
     private String address;
     private String industry;
     private Long revenueMillion;
-    private String status;
 
     public static CompanyResponse from(Company company) {
         return CompanyResponse.builder()

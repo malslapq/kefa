@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GetAccountsCommand {
+public class AccountsGetCommand {
 
     private String keyword;
     private String searchType;

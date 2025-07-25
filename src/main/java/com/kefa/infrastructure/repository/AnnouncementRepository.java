@@ -13,4 +13,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
 
     Page<Announcement> findByTagContaining(String keyword, Pageable pageable);
 
+    Page<Announcement> findByTitleContainingOrTagContaining(String titleKeyword, String tagKeyword, Pageable pageable);
+
 }

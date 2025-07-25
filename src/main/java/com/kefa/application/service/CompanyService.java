@@ -26,12 +26,12 @@ public class CompanyService {
         return companyUseCase.updateBusinessNumber(companyId, request, ntsResponse);
     }
 
-    public void delete(Long companyId, CompanyDeleteRequest request, Long loginAccountId) {
-        companyUseCase.delete(companyId, request, loginAccountId);
+    public void delete(Long companyId, Long loginAccountId) {
+        companyUseCase.delete(companyId, loginAccountId);
     }
 
-    public CompanyResponse updateCompany(CompanyUpdateRequest request, Long loginAccountId) {
-        return companyUseCase.update(request, loginAccountId);
+    public CompanyResponse updateCompany(Long companyId, CompanyUpdateRequest request, Long loginAccountId) {
+        return companyUseCase.update(companyId, request, loginAccountId);
     }
 
     public CompanyResponse getMyCompany(Long targetId, Long loginAccountId) {

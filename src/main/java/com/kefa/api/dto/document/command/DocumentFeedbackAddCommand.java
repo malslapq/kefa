@@ -1,6 +1,5 @@
-package com.kefa.api.dto.consulting.command;
+package com.kefa.api.dto.document.command;
 
-import com.kefa.api.dto.consulting.request.AddConsultingFeedbackRequest;
 import com.kefa.infrastructure.security.auth.LoginAccount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,11 +10,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddConsultingFeedbackCommand {
+public class DocumentFeedbackAddCommand {
 
-    private Long companyId;
+    private String content;
     private Long consultingSessionId;
+    private Long documentId;
     private LoginAccount loginAccount;
-    private AddConsultingFeedbackRequest request;
 
 }

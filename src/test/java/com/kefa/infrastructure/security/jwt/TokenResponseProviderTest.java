@@ -112,7 +112,7 @@ public class TokenResponseProviderTest {
 
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.ADMIN);
-        assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("관리자");
+        assertThat(jwtProvider.getRole(token).getDescription()).isEqualTo("관리자");
         assertThat(jwtProvider.getRole(token)).isEqualTo(role);
         assertThat(jwtProvider.getName(token)).isEqualTo(name);
         assertThat(jwtProvider.getJwtId(token)).isNotBlank();
@@ -132,7 +132,7 @@ public class TokenResponseProviderTest {
 
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.EXPERT);
-        assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("전문가");
+        assertThat(jwtProvider.getRole(token).getDescription()).isEqualTo("전문가");
         assertThat(jwtProvider.getRole(token)).isEqualTo(role);
         assertThat(jwtProvider.getName(token)).isEqualTo(name);
         assertThat(jwtProvider.getJwtId(token)).isNotBlank();
@@ -151,7 +151,7 @@ public class TokenResponseProviderTest {
 
         // then
         assertThat(jwtProvider.getRole(token)).isEqualTo(Role.STAFF);
-        assertThat(jwtProvider.getRole(token).getRole()).isEqualTo("직원");
+        assertThat(jwtProvider.getRole(token).getDescription()).isEqualTo("직원");
         assertThat(jwtProvider.getRole(token)).isEqualTo(role);
         assertThat(jwtProvider.getName(token)).isEqualTo(name);
         assertThat(jwtProvider.getJwtId(token)).isNotBlank();
@@ -208,7 +208,7 @@ public class TokenResponseProviderTest {
 
         // then
         assertThat(getRole).isEqualTo(role);
-        assertThat(getRole.getRole()).isEqualTo("회원");
+        assertThat(getRole.getDescription()).isEqualTo("회원");
     }
 
     @Test

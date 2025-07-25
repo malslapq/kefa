@@ -65,21 +65,20 @@ public class CompanyUseCase {
     }
 
     @Transactional
-    public void delete(Long companyId, CompanyDeleteRequest request, Long loginAccountId) {
+    public void delete(Long companyId, Long loginAccountId) {
 
         Company company = getCompanyById(companyId);
 
         validateCompanyOwnership(loginAccountId, company.getAccount().getId());
-        validatePassword(request.getPassword(), company.getAccount().getPassword());
 
         companyRepository.delete(company);
 
     }
 
     @Transactional
-    public CompanyResponse update(CompanyUpdateRequest request, Long loginAccountId) {
+    public CompanyResponse update(Long companyId, CompanyUpdateRequest request, Long loginAccountId) {
 
-        Company company = getCompanyById(request.getId());
+        Company company = getCompanyById(companyId);
 
         validateCompanyOwnership(loginAccountId, company.getAccount().getId());
 
@@ -102,7 +101,7 @@ public class CompanyUseCase {
 
     @Transactional(readOnly = true)
     public List<CompanyResponse> getMyCompanies(Long loginAccountId) {
-        return companyRepository.findAllByAccountId(loginAccountId).stream().map(CompanyResponse::from).toList();
+        return companyRepository.findAllByAccountIdOrderByCreatedAtDesc(loginAccountId).stream().map(CompanyResponse::from).toList();
     }
 
     public CompanyAddResponse add(CompanyAddRequest request, Long loginAccountId) {
@@ -156,12 +155,6 @@ public class CompanyUseCase {
         }
     }
 
-    private void validatePassword(String inputPassword, String encodedPassword) {
-        if (!passwordEncoder.matches(inputPassword, encodedPassword)) {
-            throw new CompanyException(ErrorCode.INVALID_PASSWORD);
-        }
-    }
-
     private void validateCompanyOwnership(Long loginUserId, Long companyAccountId) {
         if (!companyAccountId.equals(loginUserId)) {
             throw new CompanyException(ErrorCode.NOT_COMPANY_OWNER);
@@ -186,8 +179,9 @@ public class CompanyUseCase {
 
     }
 
-    // EntityGraph 사용으로 Account 같이 가져옴
     private Company getCompanyById(Long companyId) {
         return companyRepository.findCompanyById(companyId).orElseThrow(() -> new CompanyException(ErrorCode.COMPANY_NOT_FOUND));
     }
+
+
 }

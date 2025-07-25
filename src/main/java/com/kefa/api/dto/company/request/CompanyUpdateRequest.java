@@ -12,9 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CompanyUpdateRequest {
 
-    @NotNull
-    private Long id;
-
     @NotBlank(message = "회사명은 필수입니다")
     private String name;
 

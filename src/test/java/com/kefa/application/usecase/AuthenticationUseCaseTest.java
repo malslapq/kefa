@@ -5,19 +5,18 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
+import com.kefa.api.dto.auth.request.PasswordResetDto;
 import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.common.exception.AccountException;
 import com.kefa.common.exception.AuthenticationException;
 import com.kefa.common.exception.ErrorCode;
-import com.kefa.domain.entity.Account;
+import com.kefa.common.type.LoginType;
 import com.kefa.common.type.Role;
 import com.kefa.common.type.SubscriptionType;
+import com.kefa.domain.entity.Account;
 import com.kefa.domain.entity.RefreshToken;
 import com.kefa.domain.vo.AccountVO;
-import com.kefa.infrastructure.repository.AccountRepository;
-import com.kefa.infrastructure.repository.ActiveTokenRepository;
-import com.kefa.infrastructure.repository.BlackListRepository;
-import com.kefa.infrastructure.repository.RefreshTokenRepository;
+import com.kefa.infrastructure.repository.*;
 import com.kefa.infrastructure.security.jwt.JwtProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -61,6 +60,12 @@ class AuthenticationUseCaseTest {
     @Mock
     private BlackListRepository blackListRepository;
 
+    @Mock
+    private SocialInfoRepository socialInfoRepository;
+
+    @Mock
+    private PasswordResetCacheRepository passwordResetCacheRepository;
+
     @InjectMocks
     private AuthenticationUseCase authenticationUseCase;
 
@@ -70,7 +75,7 @@ class AuthenticationUseCaseTest {
     private AccountLoginRequest loginRequest;
     private RefreshToken refreshToken;
     private final String jwtId = "testJwtId";
-
+    private final String providerUserId = "testProviderUserId";
 
 
     @BeforeEach
@@ -102,6 +107,77 @@ class AuthenticationUseCaseTest {
             .deviceId("testDevice1")
             .expiresAt(LocalDateTime.now().plusDays(3))
             .build();
+    }
+
+    @DisplayName("비밀번호 재설정 - 성공")
+    @Test
+    void passwordResetSuccess() {
+        // given
+        String token = "testToken";
+        String newPassword = "newPassword";
+        String confirmPassword = "newPassword";
+        String encodedNewPassword = "encodedNewPassword";
+        String userEmail = account.getEmail();
+
+        PasswordResetDto passwordResetDto = PasswordResetDto.builder()
+            .token(token)
+            .newPassword(newPassword)
+            .confirmPassword(confirmPassword)
+            .build();
+
+        given(passwordResetCacheRepository.findByToken(token)).willReturn(Optional.of(userEmail));
+        given(accountRepository.findByEmail(userEmail)).willReturn(Optional.of(account));
+        given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
+
+        // when
+        authenticationUseCase.passwordReset(passwordResetDto);
+
+        // then
+        assertThat(account.getPassword()).isEqualTo(encodedNewPassword);
+        verify(passwordResetCacheRepository, times(1)).delete(token);
+        verify(accountRepository, times(1)).save(account);
+    }
+
+    @DisplayName("비밀번호 재설정 실패 - 새 비밀번호 불일치")
+    @Test
+    void passwordResetFail_passwordMismatch() {
+        // given
+        String token = "testToken";
+        String newPassword = "newPassword";
+        String confirmPassword = "newPassword!";
+
+        PasswordResetDto passwordResetDto = PasswordResetDto.builder()
+            .token(token)
+            .newPassword(newPassword)
+            .confirmPassword(confirmPassword)
+            .build();
+
+        // when & then
+        assertThatThrownBy(() -> authenticationUseCase.passwordReset(passwordResetDto))
+            .isInstanceOf(AuthenticationException.class)
+            .hasMessage(ErrorCode.INVALID_PASSWORD_RESET_TOKEN.getMessage());
+    }
+
+    @DisplayName("비밀번호 재설정 실패 - 유효하지 않은 토큰")
+    @Test
+    void passwordResetFail_invalidToken() {
+        // given
+        String token = "invalidToken";
+        String newPassword = "newSecurePassword123!";
+        String confirmPassword = "newSecurePassword123!";
+
+        PasswordResetDto passwordResetDto = PasswordResetDto.builder()
+            .token(token)
+            .newPassword(newPassword)
+            .confirmPassword(confirmPassword)
+            .build();
+
+        given(passwordResetCacheRepository.findByToken(token)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> authenticationUseCase.passwordReset(passwordResetDto))
+            .isInstanceOf(AuthenticationException.class)
+            .hasMessage(ErrorCode.INVALID_PASSWORD_RESET_TOKEN.getMessage());
     }
 
     @DisplayName("비밀번호 변경 성공")
@@ -273,14 +349,14 @@ class AuthenticationUseCaseTest {
         // given
         account.addRefreshToken(refreshToken);
         when(accountRepository.findByIdWithRefreshToken(account.getId())).thenReturn(Optional.of(account));
-        System.out.println("RefreshToken 연결 확인: " + account.getRefreshToken());
-
 
         // when
         authenticationUseCase.logout(account.getId(), jwtId);
 
         // then
-        verify(refreshTokenRepository, times(1)).delete(refreshToken);
+        assertThat(refreshToken.getToken()).isNull();
+        assertThat(refreshToken.getDeviceId()).isNull();
+        assertThat(refreshToken.getExpiresAt()).isNull();
     }
 
     @Test
@@ -294,7 +370,7 @@ class AuthenticationUseCaseTest {
         authenticationUseCase.logout(account.getId(), jwtId);
 
         // then
-        verify(refreshTokenRepository, never()).delete(any(RefreshToken.class));
+        assertThat(account.getRefreshToken()).isNull();
     }
 
     @Test
@@ -344,12 +420,13 @@ class AuthenticationUseCaseTest {
             .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
             .build();
+        LoginType loginType = LoginType.KAKAO;
 
         when(accountRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(accountRepository.save(any(Account.class))).thenReturn(newAccount);
 
         // when
-        AccountVO accountVO = authenticationUseCase.authenticateSocialUser("test@example.com");
+        AccountVO accountVO = authenticationUseCase.authenticateSocialUser(providerUserId, "test@example.com", loginType);
 
         // then
         assertThat(accountVO.getEmail()).isEqualTo("test@example.com");
@@ -373,12 +450,13 @@ class AuthenticationUseCaseTest {
             .role(Role.FREE_ACCOUNT)
             .emailVerified(true)
             .build();
+        LoginType loginType = LoginType.KAKAO;
 
         when(accountRepository.findByEmail("test@example.com"))
             .thenReturn(Optional.of(existingAccount));
 
         // when
-        AccountVO accountVO = authenticationUseCase.authenticateSocialUser("test@example.com");
+        AccountVO accountVO = authenticationUseCase.authenticateSocialUser(providerUserId, "test@example.com", loginType);
 
         // then
         assertThat(accountVO.getEmail()).isEqualTo("test@example.com");

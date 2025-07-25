@@ -97,7 +97,7 @@ public class AccountUseCase {
 
     @Transactional(readOnly = true)
     public AccountDetailResponse findByAccountId(Long loginAccountId) {
-        return AccountDetailResponse.from(getAccount(loginAccountId));
+        return AccountDetailResponse.from(getAccountWithSocialInfo(loginAccountId));
     }
 
     private void validatePassword(String encodedPassword, String inputPassword) {
@@ -106,7 +106,11 @@ public class AccountUseCase {
         }
     }
 
-    private Account getAccount(Long targetId) {
-        return accountRepository.findById(targetId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
+    private Account getAccount(Long accountId) {
+        return accountRepository.findById(accountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
+    }
+
+    private Account getAccountWithSocialInfo(Long accountId) {
+        return accountRepository.findByIdWithSocialInfos(accountId).orElseThrow(() -> new AccountException(ErrorCode.NOT_FOUND_ACCOUNT));
     }
 }

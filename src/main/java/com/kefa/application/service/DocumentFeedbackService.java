@@ -1,7 +1,7 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.document.command.AddDocumentFeedbackCommand;
-import com.kefa.api.dto.document.command.UpdateDocumentFeedbackCommand;
+import com.kefa.api.dto.document.command.DocumentFeedbackAddCommand;
+import com.kefa.api.dto.document.command.DocumentFeedbackUpdateCommand;
 import com.kefa.api.dto.document.response.DocumentFeedbackResponse;
 import com.kefa.application.usecase.ConsultingSessionUseCase;
 import com.kefa.application.usecase.DocumentFeedbackUseCase;
@@ -26,13 +26,13 @@ public class DocumentFeedbackService {
     }
 
     @Transactional
-    public DocumentFeedbackResponse add(AddDocumentFeedbackCommand command) {
+    public DocumentFeedbackResponse add(DocumentFeedbackAddCommand command) {
         consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccount().getId());
         return documentFeedbackUseCase.add(command);
     }
 
     @Transactional
-    public DocumentFeedbackResponse update(UpdateDocumentFeedbackCommand command) {
+    public DocumentFeedbackResponse update(DocumentFeedbackUpdateCommand command) {
         consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccount().getId());
         return documentFeedbackUseCase.update(command);
     }

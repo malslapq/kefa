@@ -11,6 +11,6 @@ public enum ConsultingStatus {
     IN_PROGRESS("진행 중"),
     COMPLETED("완료");
 
-    private final String type;
+    private final String description;
 
 }

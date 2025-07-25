@@ -159,7 +159,7 @@ public class AccountUseCaseTest {
     void findByAccountIdSuccess() {
 
         //given
-        given(accountRepository.findById(targetId)).willReturn(Optional.of(account));
+        given(accountRepository.findByIdWithSocialInfos(targetId)).willReturn(Optional.of(account));
 
         //when
         AccountDetailResponse result = accountUseCase.findByAccountId(targetId);
@@ -177,7 +177,7 @@ public class AccountUseCaseTest {
     void findByAccountFailAccountIdNotFound() {
 
         //given
-        given(accountRepository.findById(any())).willReturn(Optional.empty());
+        given(accountRepository.findByIdWithSocialInfos(any())).willReturn(Optional.empty());
 
         //when & then
         assertThatThrownBy(() -> accountUseCase.findByAccountId(targetId))

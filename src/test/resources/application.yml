@@ -58,7 +58,7 @@ jwt:
   refresh-expiration-time: 1209600000
 
 oauth2:
-  main-page-uri: http://localhost:8080
+  login-success-redirect-url: http://localhost:3000/login/success
 
 cipher:
   secret-key: "TestSecretKey123456TestSecretKey12"

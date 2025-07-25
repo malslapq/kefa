@@ -1,6 +1,6 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.document.request.UpdateDocumentNameRequest;
+import com.kefa.api.dto.document.request.DocumentUpdateNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.common.exception.DocumentException;
 import com.kefa.common.exception.ErrorCode;
@@ -100,7 +100,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     @Test
     void updateDocumentNameSuccess() {
         // given
-        UpdateDocumentNameRequest request = UpdateDocumentNameRequest.builder()
+        DocumentUpdateNameRequest request = DocumentUpdateNameRequest.builder()
             .name("updatedName")
             .build();
 
@@ -117,7 +117,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     @Test
     void updateDocumentNameFailNotFound() {
         // given
-        UpdateDocumentNameRequest request = UpdateDocumentNameRequest.builder()
+        DocumentUpdateNameRequest request = DocumentUpdateNameRequest.builder()
             .name("updatedName")
             .build();
 
@@ -133,7 +133,7 @@ public class ConsultingSessionDetailDocumentUseCaseTest {
     @Test
     void updateDocumentNameFailUnauthorized() {
         // given
-        UpdateDocumentNameRequest request = UpdateDocumentNameRequest.builder()
+        DocumentUpdateNameRequest request = DocumentUpdateNameRequest.builder()
             .name("updatedName")
             .build();
 

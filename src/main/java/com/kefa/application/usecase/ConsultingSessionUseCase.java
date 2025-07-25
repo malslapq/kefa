@@ -1,7 +1,7 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
-import com.kefa.api.dto.consulting.request.UpdateConsultingFeedbackRequest;
+import com.kefa.api.dto.consulting.command.ConsultingFeedbackAddCommand;
+import com.kefa.api.dto.consulting.request.ConsultingFeedbackUpdateRequest;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
@@ -39,7 +39,7 @@ public class ConsultingSessionUseCase {
         consultingSessionFeedbackRepository.delete(feedback);
     }
 
-    public ConsultingSessionFeedbackDto updateFeedback(Long feedbackId, UpdateConsultingFeedbackRequest request, Long loginAccountId) {
+    public ConsultingSessionFeedbackDto updateFeedback(Long feedbackId, ConsultingFeedbackUpdateRequest request, Long loginAccountId) {
         ConsultingSessionFeedback feedback = consultingSessionFeedbackRepository.findById(feedbackId)
             .orElseThrow(() -> new FeedbackException(ErrorCode.NOT_FOUND_CONSULTING_SESSION_FEEDBACK));
 
@@ -50,7 +50,7 @@ public class ConsultingSessionUseCase {
         return ConsultingSessionFeedbackDto.from(consultingSessionFeedbackRepository.save(feedback));
     }
 
-    public ConsultingSessionFeedbackDto addFeedback(AddConsultingFeedbackCommand command) {
+    public ConsultingSessionFeedbackDto addFeedback(ConsultingFeedbackAddCommand command) {
 
         ConsultingSession consultingSession = consultingSessionRepository.findByIdWithCompanyAndParticipant(command.getConsultingSessionId())
             .orElseThrow(() -> new ConsultingSessionException(ErrorCode.NOT_FOUND_CONSULTING_SESSION));

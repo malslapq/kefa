@@ -1,7 +1,7 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
-import com.kefa.api.dto.consulting.request.UpdateConsultingFeedbackRequest;
+import com.kefa.api.dto.consulting.command.ConsultingFeedbackAddCommand;
+import com.kefa.api.dto.consulting.request.ConsultingFeedbackUpdateRequest;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
@@ -24,16 +24,16 @@ public class ConsultingSessionService {
         consultingSessionUseCase.deleteFeedback(feedbackId, loginAccountId);
     }
 
-    public ConsultingSessionFeedbackDto updateFeedback(Long feedbackId, UpdateConsultingFeedbackRequest request, Long loginAccountId) {
+    public ConsultingSessionFeedbackDto updateFeedback(Long feedbackId, ConsultingFeedbackUpdateRequest request, Long loginAccountId) {
         return consultingSessionUseCase.updateFeedback(feedbackId, request, loginAccountId);
     }
 
     @Transactional
-    public ConsultingSessionFeedbackDto addFeedback(AddConsultingFeedbackCommand addConsultingFeedbackCommand) {
+    public ConsultingSessionFeedbackDto addFeedback(ConsultingFeedbackAddCommand consultingFeedbackAddCommand) {
         consultingSessionUseCase.validateAccountIsParticipant(
-            addConsultingFeedbackCommand.getConsultingSessionId(), addConsultingFeedbackCommand.getLoginAccount().getId());
+            consultingFeedbackAddCommand.getConsultingSessionId(), consultingFeedbackAddCommand.getLoginAccount().getId());
 
-        return consultingSessionUseCase.addFeedback(addConsultingFeedbackCommand);
+        return consultingSessionUseCase.addFeedback(consultingFeedbackAddCommand);
     }
 
     @Transactional(readOnly = true)

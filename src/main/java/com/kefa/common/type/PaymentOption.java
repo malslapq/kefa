@@ -18,11 +18,11 @@ public enum PaymentOption {
     GIFT_CERTIFICATE("상품권"),
     EASY_PAYMENT("간편결제");
 
-    private final String type;
+    private final String description;
 
     public static PaymentOption fromMethod(String method) {
         return Arrays.stream(values())
-            .filter(option -> option.getType().equalsIgnoreCase(method))
+            .filter(option -> option.getDescription().equalsIgnoreCase(method))
             .findFirst()
             .orElseThrow(() -> new PaymentException(ErrorCode.INVALID_PAYMENT_OPTION));
     }

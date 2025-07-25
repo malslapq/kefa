@@ -22,18 +22,18 @@ public class CompanyController {
 
     @DeleteMapping("/companies/{companyId}")
     public ApiResponse<Void> deleteCompany(@PathVariable Long companyId, @RequestBody @Valid CompanyDeleteRequest request, @AuthenticationPrincipal LoginAccount loginAccount) {
-        companyService.delete(companyId, request, loginAccount.getId());
+        companyService.delete(companyId, loginAccount.getId());
         return ApiResponse.success();
     }
 
-    @PatchMapping("/company/{companyId}")
+    @PatchMapping("/company/{companyId}/business-number")
     public ApiResponse<CompanyResponse> updateBusinessNumber(@PathVariable Long companyId, @RequestBody @Valid BusinessValidateRequest request, @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(companyService.updateBusinessNumber(companyId, request, loginAccount.getId()));
     }
 
-    @PutMapping("/company")
-    public ApiResponse<CompanyResponse> updateCompany(@RequestBody @Valid CompanyUpdateRequest request, @AuthenticationPrincipal LoginAccount loginAccount) {
-        return ApiResponse.success(companyService.updateCompany(request, loginAccount.getId()));
+    @PutMapping("/company/{companyId}")
+    public ApiResponse<CompanyResponse> updateCompany(@PathVariable Long companyId, @RequestBody @Valid CompanyUpdateRequest request, @AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(companyService.updateCompany(companyId, request, loginAccount.getId()));
     }
 
     @GetMapping("/companies/{companyId}")

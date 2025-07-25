@@ -5,7 +5,8 @@ import com.kefa.api.dto.account.request.AccountSignupRequest;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequest;
 import com.kefa.api.dto.account.response.AccountSignupResponse;
 import com.kefa.api.dto.account.response.AccountUpdatePasswordResponse;
-import com.kefa.api.dto.auth.request.RefreshTokenRequest;
+import com.kefa.api.dto.auth.request.PasswordResetDto;
+import com.kefa.api.dto.auth.request.PasswordResetRequestDto;
 import com.kefa.api.dto.auth.response.TokenResponse;
 import com.kefa.application.service.AuthService;
 import com.kefa.common.response.ApiResponse;
@@ -19,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+
 import static com.kefa.common.util.RequestUtils.generateDeviceIdFromRequest;
 
 @RestController
@@ -27,12 +30,31 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @PostMapping("/auth/password-reset")
+    public ApiResponse<Void> passwordReset(@RequestBody @Valid PasswordResetDto request) {
+        authService.passwordReset(request);
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/auth/password-reset-request")
+    public ApiResponse<Void> passwordResetRequest(@RequestBody @Valid PasswordResetRequestDto passwordResetRequestDto) {
+        authService.sendPasswordResetEmail(passwordResetRequestDto);
+        return ApiResponse.success();
+    }
+
+    @GetMapping("/auth/check")
+    public ApiResponse<LoginAccount> checkAuth(@AuthenticationPrincipal LoginAccount loginAccount) {
+        return ApiResponse.success(loginAccount);
+    }
+
     @PostMapping("/auth/token/refresh")
-    public ApiResponse<TokenResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest, HttpServletRequest request) {
+    public ApiResponse<TokenResponse> refreshToken(HttpServletRequest request) {
 
         String deviceId = generateDeviceIdFromRequest(request);
+        Cookie cookie = Arrays.stream(request.getCookies()).filter(o -> o.getName().equals("refreshToken")).findFirst().orElseThrow();
+        String refreshToken = cookie.getValue();
 
-        return ApiResponse.success(authService.refreshToken(refreshTokenRequest.getRefreshToken(), deviceId));
+        return ApiResponse.success(authService.refreshToken(refreshToken, deviceId));
     }
 
     @PutMapping("/auth/password")
@@ -50,7 +72,7 @@ public class AuthController {
     public void emailVerify(@RequestParam String token, HttpServletResponse response) {
         authService.emailVerify(token);
         response.setStatus(HttpStatus.FOUND.value());
-        response.setHeader("Location", "http://localhost:8080/index");
+        response.setHeader("Location", "http://localhost:3000/");
     }
 
     @PostMapping("/auth/email-verify/resend")
@@ -81,23 +103,23 @@ public class AuthController {
     }
 
     private void addTokenCookie(HttpServletResponse response, TokenResponse tokenResponse) {
-        Cookie accessTokenCookie = new Cookie("accessToken", tokenResponse.getAccessToken());
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(3600);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", tokenResponse.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(3600);
 
-        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
     }
 
     private void removeTokenCookie(HttpServletResponse response) {
-        Cookie accessTokenCookie = new Cookie("accessToken", "");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0);
 
-        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
     }
 
 }

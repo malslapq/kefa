@@ -1,7 +1,7 @@
 package com.kefa.application.service;
 
-import com.kefa.api.dto.AccountUpdateSubscriptionTypeRequest;
-import com.kefa.api.dto.account.command.GetAccountsCommand;
+import com.kefa.api.dto.account.request.AccountUpdateSubscriptionTypeRequest;
+import com.kefa.api.dto.account.command.AccountsGetCommand;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequestFromAdmin;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRoleRequest;
@@ -41,7 +41,7 @@ public class AdminService {
         return adminUseCase.updateAccount(accountId, request);
     }
 
-    public PagedResponse<AccountDetailResponse> getAccounts(GetAccountsCommand command) {
+    public PagedResponse<AccountDetailResponse> getAccounts(AccountsGetCommand command) {
         return adminUseCase.getAccounts(command);
     }
 }

@@ -17,11 +17,11 @@ public enum PaymentStatus {
     FAILED("결제 실패"),
     REFUNDED("환불 완료");
 
-    private final String type;
+    private final String description;
 
     public static PaymentStatus fromMethod(String type) {
         return Arrays.stream(values())
-            .filter(status -> status.getType().equalsIgnoreCase(type))
+            .filter(status -> status.getDescription().equalsIgnoreCase(type))
             .findFirst()
             .orElseThrow(() -> new PaymentException(ErrorCode.INVALID_PAYMENT_STATUS));
     }

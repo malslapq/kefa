@@ -7,8 +7,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    //상담문의 관련
+    NOT_FOUND_CONTACT(404, "상담 신청을 찾을 수 없습니다."),
+    INVALID_CONTACT_STATUS(401, "유효하지 않은 문의 상태입니다"),
+
     //결제 관련
-    INVALID_PAYMENT_OPTION(400,"유효하지 않은 결제 수단입니다"),
+    INVALID_PAYMENT_OPTION(400, "유효하지 않은 결제 수단입니다"),
     INVALID_PAYMENT_STATUS(400, "유효하지 않은 결제 상태입니다"),
 
     //피드백 관련
@@ -22,6 +26,8 @@ public enum ErrorCode {
     INVALID_DOCUMENT_ID(400, "문서 ID가 일치하지 않습니다"),
 
     //컨설팅 세션 관련
+    NOT_FOUND_NOTICE(404, "해당 공지사항을 찾을 수 없습니다."),
+    FORBIDDEN_ACCESS(403, "해당 공지사항에 대한 접근 권한이 없습니다."),
     NOT_FOUND_CONSULTING_SESSION(404, "컨설팅 세션을 찾을 수 없습니다"),
     CONSULTING_ACCESS_DENIED(403, "컨설팅 세션에 대한 접근 권한이 없습니다"),
     INVALID_COMPANY(400, "회사가 일치하지 않습니다"),
@@ -31,7 +37,7 @@ public enum ErrorCode {
     FILE_TOO_LARGE(400, "업로드할 파일의 크기가 너무 큽니다"),
     INVALID_FILE_TYPE(400, "지원하지 않는 파일 형식입니다"),
     FILE_UPLOAD_FAILED(500, "파일 업로드에 실패했습니다"),
-    FILE_DELETE_FAILED(500,"파일 삭제에 실패했습니다"),
+    FILE_DELETE_FAILED(500, "파일 삭제에 실패했습니다"),
     INVALID_FILE_URL(500, "유효하지 않은 파일 URL입니다"),
 
     //개발 아이템 관련
@@ -57,13 +63,14 @@ public enum ErrorCode {
     NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
 
     //인증, 회원 관련,
+    INVALID_PASSWORD_RESET_TOKEN(400, "비밀번호 변경 토큰이 유효하지 않습니다."),
     BLACKLISTED_TOKEN(401, "블랙리스트에 등록된 토큰입니다 다시 로그인해주세요"),
     INVALID_DEVICE_ID(400, "디바이스 아이디가 올바르지 않습니다 다시 로그인하시길 바랍니다"),
     MISSING_USER_AGENT(400, "요청 헤더 User-Agent를 찾을 수 없습니다"),
     NOT_FOUND_SOCIAL_INFO(404, "통합된 소셜 계정 정보가 존재하지 않습니다"),
-    ALREADY_PROVIDER_USER_ID(400,"이미 연결이 완료된 계정입니다"),
+    ALREADY_PROVIDER_USER_ID(400, "이미 연결이 완료된 계정입니다"),
     NEW_PASSWORD_MUST_BE_DIFFERENT(400, "새 비밀번호는 현재 비밀번호와 달라야 합니다"),
-    ALREADY_VERIFIED_EMAIL(400,"이미 인증된 이메일입니다"),
+    ALREADY_VERIFIED_EMAIL(400, "이미 인증된 이메일입니다"),
     INVALID_CREDENTIALS(401, "이메일 또는 비밀번호가 일치하지 않습니다"),
     INVALID_PASSWORD(401, "비밀번호가 일치하지 않습니다"),
     INVALID_EMAIL_VERIFICATION_TOKEN(400, "유효하지 않은 메일 인증 토큰입니다"),
@@ -73,7 +80,7 @@ public enum ErrorCode {
     UNSUPPORTED_SOCIAL_PROVIDER(400, "지원하지 않는 소셜 로그인입니다"),
     NOT_FOUND_ACCOUNT(404, "계정을 찾을 수 없습니다"),
     EMAIL_VERIFICATION_REQUIRED(403, "이메일 인증이 필요합니다"),
-    UNAUTHORIZED(401, "인증이 필요한 서비스입니다"),
+    UNAUTHORIZED(401, "로그인이 필요한 서비스입니다"),
     ACCESS_DENIED(403, "접근 권한이 없습니다"),
     AUTHORITY_NOT_FOUND(401, "권한 정보를 찾을 수 없습니다"),
 

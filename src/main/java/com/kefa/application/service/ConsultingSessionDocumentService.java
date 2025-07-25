@@ -1,8 +1,8 @@
 package com.kefa.application.service;
 
 import com.kefa.api.dto.document.command.ConsultingDocumentUploadCommand;
-import com.kefa.api.dto.document.command.GetConsultingSessionDocsCommand;
-import com.kefa.api.dto.document.request.UpdateDocumentNameRequest;
+import com.kefa.api.dto.document.command.ConsultingSessionDocsGetCommand;
+import com.kefa.api.dto.document.request.DocumentUpdateNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.application.usecase.CompanyUseCase;
 import com.kefa.application.usecase.DocumentUseCase;
@@ -35,7 +35,7 @@ public class ConsultingSessionDocumentService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<SaveFileDto> getDocs(GetConsultingSessionDocsCommand command) {
+    public PagedResponse<SaveFileDto> getDocs(ConsultingSessionDocsGetCommand command) {
 
         companyUseCase.validateCompanyOwnershipAndProcess(command.getCompanyId(), command.getLoginAccountId());
         consultingSessionUseCase.validateAccountIsParticipant(command.getConsultingSessionId(), command.getLoginAccountId());
@@ -43,7 +43,7 @@ public class ConsultingSessionDocumentService {
         return documentUseCase.getDocs(command.getConsultingSessionId(), command.getPage(), command.getSize());
     }
 
-    public void updateName(Long documentId, Long loginAccountId, UpdateDocumentNameRequest request) {
+    public void updateName(Long documentId, Long loginAccountId, DocumentUpdateNameRequest request) {
         documentUseCase.updateName(documentId, loginAccountId, request);
     }
 

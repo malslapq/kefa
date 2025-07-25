@@ -4,9 +4,11 @@ import com.kefa.domain.entity.Account;
 import com.kefa.common.type.LoginType;
 import com.kefa.common.type.Role;
 import com.kefa.common.type.SubscriptionType;
+import com.kefa.domain.entity.SocialInfo;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -22,7 +24,7 @@ public class AccountDetailResponse {
     private SubscriptionType subscriptionType;
     private Role role;
     private boolean emailVerified;
-    private Set<LoginType> loginTypes;
+    private List<SocialInfoDto> SocialInfos;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -36,6 +38,7 @@ public class AccountDetailResponse {
             .emailVerified(account.isEmailVerified())
             .createdAt(account.getCreatedAt())
             .updatedAt(account.getUpdatedAt())
+            .SocialInfos(account.getSocialInfos().stream().map(socialInfo -> new SocialInfoDto(socialInfo.getLoginType())).toList())
             .build();
     }
 

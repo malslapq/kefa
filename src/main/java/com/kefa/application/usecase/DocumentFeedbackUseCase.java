@@ -1,7 +1,7 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.document.command.AddDocumentFeedbackCommand;
-import com.kefa.api.dto.document.command.UpdateDocumentFeedbackCommand;
+import com.kefa.api.dto.document.command.DocumentFeedbackAddCommand;
+import com.kefa.api.dto.document.command.DocumentFeedbackUpdateCommand;
 import com.kefa.api.dto.document.response.DocumentFeedbackResponse;
 import com.kefa.common.exception.DocumentException;
 import com.kefa.common.exception.ErrorCode;
@@ -27,7 +27,7 @@ public class DocumentFeedbackUseCase {
         return feedbacks.stream().map(DocumentFeedbackResponse::from).toList();
     }
 
-    public DocumentFeedbackResponse add(AddDocumentFeedbackCommand command) {
+    public DocumentFeedbackResponse add(DocumentFeedbackAddCommand command) {
 
         ConsultingSessionDocument document = documentRepository.findById(command.getDocumentId()).orElseThrow(() -> new DocumentException(ErrorCode.NOT_FOUND_DOCUMENT));
 
@@ -44,7 +44,7 @@ public class DocumentFeedbackUseCase {
         return DocumentFeedbackResponse.from(documentFeedbackRepository.save(feedback));
     }
 
-    public DocumentFeedbackResponse update(UpdateDocumentFeedbackCommand command) {
+    public DocumentFeedbackResponse update(DocumentFeedbackUpdateCommand command) {
 
         DocumentFeedback feedback = documentFeedbackRepository.findByIdWithDocument(command.getFeedbackId())
             .orElseThrow(()-> new FeedbackException(ErrorCode.NOT_FOUND_FEEDBACK));

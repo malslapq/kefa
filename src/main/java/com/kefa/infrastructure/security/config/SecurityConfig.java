@@ -1,6 +1,7 @@
 package com.kefa.infrastructure.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kefa.common.exception.CustomException;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.response.ApiResponse;
 import com.kefa.common.response.ErrorResponse;
@@ -51,7 +52,13 @@ public class SecurityConfig {
                     "/auth/email-verify",
                     "/auth/email-verify/resend",
                     "/auth/token/refresh",
-                    "/oauth2/**"
+                    "/auth/password-reset-request",
+                    "/auth/password-reset",
+                    "/oauth2/**",
+                    "/announcements",
+                    "/notice/**",
+                    "/notices/**",
+                    "/contact"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -60,7 +67,12 @@ public class SecurityConfig {
                     response.setContentType("application/json;charset=UTF-8");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-                    ApiResponse<Void> apiResponse = ApiResponse.error(ErrorResponse.of(ErrorCode.ACCESS_DENIED));
+                    ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+                    if (authException.getCause() instanceof CustomException customException) {
+                        errorCode = customException.getErrorCode();
+                    }
+
+                    ApiResponse<Void> apiResponse = ApiResponse.error(ErrorResponse.of(errorCode));
 
                     ObjectMapper objectMapper = new ObjectMapper();
                     String jsonResponse = objectMapper.writeValueAsString(apiResponse);
@@ -89,7 +101,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 실제 프론트엔드 도메인
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
 
