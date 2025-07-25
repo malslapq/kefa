@@ -105,7 +105,7 @@ class AnnouncementUseCaseTest {
         GetAnnouncementsCommand command = new GetAnnouncementsCommand("공고", "아무거나", page, size);
         Page<Announcement> pageResult = new PageImpl<>(Collections.singletonList(announcement));
 
-        given(announcementRepository.findAll(pageable)).willReturn(pageResult);
+        given(announcementRepository.findByTitleContainingOrTagContaining(command.getKeyword(), command.getKeyword(), pageable)).willReturn(pageResult);
 
         // when
         PagedResponse<AnnouncementResponse> response = announcementUseCase.getAnnouncements(command);

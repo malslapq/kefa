@@ -1,8 +1,8 @@
 package com.kefa.api.controller;
 
 import com.kefa.api.dto.document.command.ConsultingDocumentUploadCommand;
-import com.kefa.api.dto.document.command.GetConsultingSessionDocsCommand;
-import com.kefa.api.dto.document.request.UpdateDocumentNameRequest;
+import com.kefa.api.dto.document.command.ConsultingSessionDocsGetCommand;
+import com.kefa.api.dto.document.request.DocumentUpdateNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.application.service.ConsultingSessionDocumentService;
 import com.kefa.common.response.ApiResponse;
@@ -47,7 +47,7 @@ public class DocumentController {
                                                            @RequestParam(defaultValue = "10") int size,
                                                            @AuthenticationPrincipal LoginAccount loginAccount) {
 
-        GetConsultingSessionDocsCommand command = GetConsultingSessionDocsCommand.builder()
+        ConsultingSessionDocsGetCommand command = ConsultingSessionDocsGetCommand.builder()
             .companyId(companyId)
             .consultingSessionId(consultingSessionId)
             .loginAccountId(loginAccount.getId())
@@ -61,7 +61,7 @@ public class DocumentController {
     @PatchMapping("/company/consulting/doc/{documentId}")
     public ApiResponse<Void> updateConsultingSessionDocsName(@PathVariable Long documentId,
                                                              @AuthenticationPrincipal LoginAccount loginAccount,
-                                                             @RequestBody @Valid UpdateDocumentNameRequest request) {
+                                                             @RequestBody @Valid DocumentUpdateNameRequest request) {
 
         consultingSessionDocumentService.updateName(documentId, loginAccount.getId(), request);
         return ApiResponse.success();

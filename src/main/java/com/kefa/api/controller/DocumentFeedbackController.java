@@ -1,9 +1,9 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.document.command.AddDocumentFeedbackCommand;
-import com.kefa.api.dto.document.command.UpdateDocumentFeedbackCommand;
-import com.kefa.api.dto.document.request.AddDocumentFeedbackRequest;
-import com.kefa.api.dto.document.request.UpdateDocumentFeedbackRequest;
+import com.kefa.api.dto.document.command.DocumentFeedbackAddCommand;
+import com.kefa.api.dto.document.command.DocumentFeedbackUpdateCommand;
+import com.kefa.api.dto.document.request.DocumentFeedbackAddRequest;
+import com.kefa.api.dto.document.request.DocumentFeedbackUpdateRequest;
 import com.kefa.api.dto.document.response.DocumentFeedbackResponse;
 import com.kefa.application.service.DocumentFeedbackService;
 import com.kefa.common.response.ApiResponse;
@@ -27,12 +27,12 @@ public class DocumentFeedbackController {
     }
 
     @PostMapping("/company/consulting/{consultingSessionId}/doc/{documentId}")
-    public ApiResponse<DocumentFeedbackResponse> add(@RequestBody @Valid AddDocumentFeedbackRequest request,
+    public ApiResponse<DocumentFeedbackResponse> add(@RequestBody @Valid DocumentFeedbackAddRequest request,
                                                      @PathVariable Long consultingSessionId,
                                                      @PathVariable Long documentId,
                                                      @AuthenticationPrincipal LoginAccount loginAccount) {
 
-        AddDocumentFeedbackCommand command = AddDocumentFeedbackCommand.builder()
+        DocumentFeedbackAddCommand command = DocumentFeedbackAddCommand.builder()
             .content(request.getContent())
             .consultingSessionId(consultingSessionId)
             .documentId(documentId)
@@ -43,13 +43,13 @@ public class DocumentFeedbackController {
     }
 
     @PutMapping("/company/consulting/{consultingSessionId}/doc/{documentId}/feedback/{feedbackId}")
-    public ApiResponse<DocumentFeedbackResponse> update(@RequestBody @Valid UpdateDocumentFeedbackRequest request,
+    public ApiResponse<DocumentFeedbackResponse> update(@RequestBody @Valid DocumentFeedbackUpdateRequest request,
                                                         @PathVariable Long consultingSessionId,
                                                         @PathVariable Long documentId,
                                                         @PathVariable Long feedbackId,
                                                         @AuthenticationPrincipal LoginAccount loginAccount) {
 
-        UpdateDocumentFeedbackCommand command = UpdateDocumentFeedbackCommand.builder()
+        DocumentFeedbackUpdateCommand command = DocumentFeedbackUpdateCommand.builder()
             .content(request.getContent())
             .consultingSessionId(consultingSessionId)
             .documentId(documentId)

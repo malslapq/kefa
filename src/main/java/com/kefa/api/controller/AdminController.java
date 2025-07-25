@@ -1,7 +1,7 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.AccountUpdateSubscriptionTypeRequest;
-import com.kefa.api.dto.account.command.GetAccountsCommand;
+import com.kefa.api.dto.account.request.AccountUpdateSubscriptionTypeRequest;
+import com.kefa.api.dto.account.command.AccountsGetCommand;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequestFromAdmin;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRoleRequest;
@@ -60,7 +60,7 @@ public class AdminController {
                                                                          @RequestParam(defaultValue = "0") int page,
                                                                          @RequestParam(defaultValue = "10") int size) {
 
-        GetAccountsCommand command = GetAccountsCommand.builder()
+        AccountsGetCommand command = AccountsGetCommand.builder()
             .keyword(keyword)
             .searchType(searchType)
             .page(page)

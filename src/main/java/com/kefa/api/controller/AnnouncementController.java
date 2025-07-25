@@ -6,7 +6,6 @@ import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.application.service.AnnouncementService;
 import com.kefa.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

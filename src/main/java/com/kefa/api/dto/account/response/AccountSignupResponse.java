@@ -24,7 +24,7 @@ public class AccountSignupResponse {
             .id(account.getId())
             .name(account.getName())
             .email(account.getEmail())
-            .role(account.getRole().getRole())
+            .role(account.getRole().getDescription())
             .subscriptionType(account.getSubscriptionType().getType())
             .createdAt(account.getCreatedAt())
             .build();

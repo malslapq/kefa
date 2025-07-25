@@ -22,7 +22,7 @@ public class CompanyController {
 
     @DeleteMapping("/companies/{companyId}")
     public ApiResponse<Void> deleteCompany(@PathVariable Long companyId, @RequestBody @Valid CompanyDeleteRequest request, @AuthenticationPrincipal LoginAccount loginAccount) {
-        companyService.delete(companyId, request, loginAccount.getId());
+        companyService.delete(companyId, loginAccount.getId());
         return ApiResponse.success();
     }
 

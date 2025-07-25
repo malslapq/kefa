@@ -1,4 +1,4 @@
-package com.kefa.api.dto;
+package com.kefa.api.dto.account.request;
 
 import com.kefa.common.type.SubscriptionType;
 import jakarta.validation.constraints.NotNull;

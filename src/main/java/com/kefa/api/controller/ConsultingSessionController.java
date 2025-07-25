@@ -1,8 +1,8 @@
 package com.kefa.api.controller;
 
-import com.kefa.api.dto.consulting.command.AddConsultingFeedbackCommand;
-import com.kefa.api.dto.consulting.request.AddConsultingFeedbackRequest;
-import com.kefa.api.dto.consulting.request.UpdateConsultingFeedbackRequest;
+import com.kefa.api.dto.consulting.command.ConsultingFeedbackAddCommand;
+import com.kefa.api.dto.consulting.request.ConsultingFeedbackAddRequest;
+import com.kefa.api.dto.consulting.request.ConsultingFeedbackUpdateRequest;
 import com.kefa.api.dto.consulting.response.ConsultingSessionDetail;
 import com.kefa.api.dto.consulting.response.ConsultingSessionResponse;
 import com.kefa.api.dto.consulting.response.ConsultingSessionFeedbackDto;
@@ -32,7 +32,7 @@ public class ConsultingSessionController {
 
     @PutMapping("/company/consulting/feedback/{feedbackId}")
     public ApiResponse<ConsultingSessionFeedbackDto> updateConsultingFeedback(@PathVariable Long feedbackId,
-                                                                              @RequestBody @Valid UpdateConsultingFeedbackRequest request,
+                                                                              @RequestBody @Valid ConsultingFeedbackUpdateRequest request,
                                                                               @AuthenticationPrincipal LoginAccount loginAccount) {
         return ApiResponse.success(consultingSessionService.updateFeedback(feedbackId, request, loginAccount.getId()));
     }
@@ -40,18 +40,18 @@ public class ConsultingSessionController {
     @PostMapping("/company/{companyId}/consulting/{consultingSessionId}/feedback")
     public ApiResponse<ConsultingSessionFeedbackDto> addFeedback(@PathVariable Long companyId,
                                                                  @PathVariable Long consultingSessionId,
-                                                                 @RequestBody @Valid AddConsultingFeedbackRequest request,
+                                                                 @RequestBody @Valid ConsultingFeedbackAddRequest request,
                                                                  @AuthenticationPrincipal LoginAccount loginAccount
     ){
 
-        AddConsultingFeedbackCommand addConsultingFeedbackCommand = AddConsultingFeedbackCommand.builder()
+        ConsultingFeedbackAddCommand consultingFeedbackAddCommand = ConsultingFeedbackAddCommand.builder()
             .companyId(companyId)
             .consultingSessionId(consultingSessionId)
             .loginAccount(loginAccount)
             .request(request)
             .build();
 
-        return ApiResponse.success(consultingSessionService.addFeedback(addConsultingFeedbackCommand));
+        return ApiResponse.success(consultingSessionService.addFeedback(consultingFeedbackAddCommand));
     }
 
     @PostMapping("/company/{companyId}/consulting")

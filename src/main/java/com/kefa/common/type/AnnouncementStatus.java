@@ -10,6 +10,6 @@ public enum AnnouncementStatus {
     ONGOING("진행 중"),
     CLOSED("마감");
 
-    private final String type;
+    private final String description;
 
 }

@@ -52,7 +52,13 @@ public class AnnouncementUseCase {
         return switch (announcementsSearchTypeFromEnum) {
             case TITLE -> announcementRepository.findByTitleContaining(keyword, pageable);
             case TAG -> announcementRepository.findByTagContaining(keyword, pageable);
-            case TOTAL -> announcementRepository.findAll(pageable);
+            case TOTAL -> {
+                if (StringUtils.hasText(keyword)) {
+                    yield announcementRepository.findByTitleContainingOrTagContaining(keyword, keyword, pageable);
+                } else {
+                    yield announcementRepository.findAll(pageable);
+                }
+            }
         };
     }
 

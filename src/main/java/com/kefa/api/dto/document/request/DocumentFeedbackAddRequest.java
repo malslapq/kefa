@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddDocumentFeedbackRequest {
+public class DocumentFeedbackAddRequest {
 
     @NotBlank
     private String content;

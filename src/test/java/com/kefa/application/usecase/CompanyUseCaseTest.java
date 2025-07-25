@@ -1,7 +1,6 @@
 package com.kefa.application.usecase;
 
 import com.kefa.api.dto.company.request.CompanyAddRequest;
-import com.kefa.api.dto.company.request.CompanyDeleteRequest;
 import com.kefa.api.dto.company.request.CompanyUpdateRequest;
 import com.kefa.api.dto.company.response.CompanyAddResponse;
 import com.kefa.api.dto.company.response.CompanyResponse;
@@ -43,7 +42,6 @@ public class CompanyUseCaseTest {
     private static final Long REVENUE_2 = 2000L;
     private static final Long UPDATED_REVENUE = 2000L;
 
-    private static final String PASSWORD = "password123";
     private static final String WRONG_PASSWORD = "wrongPassword";
     private static final String ENCODED_PASSWORD = "encodedPassword123";
     private static final String COMPANY_NAME = "test";
@@ -112,12 +110,6 @@ public class CompanyUseCaseTest {
             .build();
     }
 
-    private CompanyDeleteRequest createDeleteRequest(String password) {
-        return CompanyDeleteRequest.builder()
-            .password(password)
-            .build();
-    }
-
     @Test
     @DisplayName("회사 삭제 성공")
     void deleteSuccess() {
@@ -125,13 +117,11 @@ public class CompanyUseCaseTest {
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
-        CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
-        when(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).thenReturn(true);
 
         //when
-        companyUseCase.delete(COMPANY_ID, request, ACCOUNT_ID);
+        companyUseCase.delete(COMPANY_ID, ACCOUNT_ID);
 
         //then
         verify(companyRepository).delete(company);
@@ -141,12 +131,10 @@ public class CompanyUseCaseTest {
     @DisplayName("회사 삭제 실패 - 회사가 존재하지 않음")
     void deleteFailCompanyNotFound() {
         //given
-        CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
-
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, ACCOUNT_ID))
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.COMPANY_NOT_FOUND.getMessage());
     }
@@ -158,32 +146,13 @@ public class CompanyUseCaseTest {
         Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
         Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
             ADDRESS, INDUSTRY, REVENUE, account);
-        CompanyDeleteRequest request = createDeleteRequest(PASSWORD);
 
         when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
 
         //when & then
-        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, DIFFERENT_ACCOUNT_ID))
+        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, DIFFERENT_ACCOUNT_ID))
             .isInstanceOf(CompanyException.class)
             .hasMessage(ErrorCode.NOT_COMPANY_OWNER.getMessage());
-    }
-
-    @Test
-    @DisplayName("회사 삭제 실패 - 비밀번호 불일치")
-    void deleteFailInvalidPassword() {
-        //given
-        Account account = createAccount(ACCOUNT_ID, ENCODED_PASSWORD);
-        Company company = createCompany(COMPANY_ID, COMPANY_NAME, BUSINESS_NUMBER,
-            ADDRESS, INDUSTRY, REVENUE, account);
-        CompanyDeleteRequest request = createDeleteRequest(WRONG_PASSWORD);
-
-        when(companyRepository.findCompanyById(COMPANY_ID)).thenReturn(Optional.of(company));
-        when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
-
-        //when & then
-        assertThatThrownBy(() -> companyUseCase.delete(COMPANY_ID, request, ACCOUNT_ID))
-            .isInstanceOf(CompanyException.class)
-            .hasMessage(ErrorCode.INVALID_PASSWORD.getMessage());
     }
 
     @Test

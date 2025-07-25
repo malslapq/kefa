@@ -1,6 +1,6 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.document.request.UpdateDocumentNameRequest;
+import com.kefa.api.dto.document.request.DocumentUpdateNameRequest;
 import com.kefa.api.dto.consulting.response.PagedResponse;
 import com.kefa.common.exception.DocumentException;
 import com.kefa.common.exception.ErrorCode;
@@ -66,7 +66,7 @@ public class DocumentUseCase {
     }
 
     @Transactional
-    public void updateName(Long documentId, Long loginAccountId, UpdateDocumentNameRequest request) {
+    public void updateName(Long documentId, Long loginAccountId, DocumentUpdateNameRequest request) {
 
         ConsultingSessionDocument document = getConsultingSessionDocumentById(documentId);
 

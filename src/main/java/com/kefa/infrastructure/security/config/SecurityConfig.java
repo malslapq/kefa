@@ -55,7 +55,10 @@ public class SecurityConfig {
                     "/auth/password-reset-request",
                     "/auth/password-reset",
                     "/oauth2/**",
-                    "/announcements"
+                    "/announcements",
+                    "/notice/**",
+                    "/notices/**",
+                    "/contact"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -98,7 +101,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 실제 프론트엔드 도메인
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
 

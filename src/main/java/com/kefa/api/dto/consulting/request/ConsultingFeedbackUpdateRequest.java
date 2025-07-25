@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateConsultingFeedbackRequest {
+public class ConsultingFeedbackUpdateRequest {
 
     @NotBlank
     private String content;

@@ -65,12 +65,11 @@ public class CompanyUseCase {
     }
 
     @Transactional
-    public void delete(Long companyId, CompanyDeleteRequest request, Long loginAccountId) {
+    public void delete(Long companyId, Long loginAccountId) {
 
         Company company = getCompanyById(companyId);
 
         validateCompanyOwnership(loginAccountId, company.getAccount().getId());
-        validatePassword(request.getPassword(), company.getAccount().getPassword());
 
         companyRepository.delete(company);
 
@@ -153,12 +152,6 @@ public class CompanyUseCase {
     private void validateDuplicateBusinessNumber(String businessNumber) {
         if (companyRepository.existsByBusinessNumberAndDeletedFalse(businessNumber)) {
             throw new CompanyException(ErrorCode.DUPLICATE_BUSINESS_NUMBER);
-        }
-    }
-
-    private void validatePassword(String inputPassword, String encodedPassword) {
-        if (!passwordEncoder.matches(inputPassword, encodedPassword)) {
-            throw new CompanyException(ErrorCode.INVALID_PASSWORD);
         }
     }
 

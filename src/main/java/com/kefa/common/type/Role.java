@@ -16,7 +16,7 @@ public enum Role {
     PAID_ACCOUNT("유료 회원"),
     CONCIERGE_ACCOUNT("컨시어지");
 
-    private final String role;
+    private final String description;
 
     public static Role from(String value) {
         if (value == null) return null;

@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderStatus {
 
-    COMPLETED("COMPLETED");
+    COMPLETED("완료");
 
-    private final String status;
+    private final String description;
 
 }

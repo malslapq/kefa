@@ -1,7 +1,7 @@
 package com.kefa.application.usecase;
 
-import com.kefa.api.dto.AccountUpdateSubscriptionTypeRequest;
-import com.kefa.api.dto.account.command.GetAccountsCommand;
+import com.kefa.api.dto.account.request.AccountUpdateSubscriptionTypeRequest;
+import com.kefa.api.dto.account.command.AccountsGetCommand;
 import com.kefa.api.dto.account.request.AccountUpdatePasswordRequestFromAdmin;
 import com.kefa.api.dto.account.request.AccountUpdateRequest;
 import com.kefa.api.dto.account.request.AccountUpdateRoleRequest;
@@ -94,7 +94,7 @@ public class AdminUseCase {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<AccountDetailResponse> getAccounts(GetAccountsCommand command) {
+    public PagedResponse<AccountDetailResponse> getAccounts(AccountsGetCommand command) {
 
         Pageable pageable = PageRequest.of(
             command.getPage(),
