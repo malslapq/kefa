@@ -5,8 +5,8 @@ import com.kefa.api.dto.company.request.BusinessValidateRequest;
 import com.kefa.common.exception.ErrorCode;
 import com.kefa.common.exception.NtsException;
 import com.kefa.infrastructure.client.nts.config.NtsApiProperties;
-import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
 import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusRequest;
+import com.kefa.infrastructure.client.nts.dto.status.BusinessStatusResponse;
 import com.kefa.infrastructure.client.nts.dto.validate.BusinessValidateResponse;
 import com.kefa.infrastructure.client.nts.handler.NtsApiErrorHandler;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class NtsBusinessValidationClient {
 
+    private static final String SERVICE_KEY_PARAM_NAME = "serviceKey";
     private final NtsApiErrorHandler ntsApiErrorHandler;
     private final RestClient restClient;
     private final NtsApiProperties properties;
@@ -34,12 +36,10 @@ public class NtsBusinessValidationClient {
                 "businesses", List.of(request)
             );
 
+            String url = buildNtsApiUrl(properties.getValidatePath());
+
             return restClient.post()
-                .uri(uriBuilder -> uriBuilder
-                    .path(properties.getValidatePath())
-                    .queryParam("serviceKey", properties.getKey())
-                    .build()
-                )
+                .uri(url)
                 .body(requestBody)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, ntsApiErrorHandler::errorHandler)
@@ -55,12 +55,10 @@ public class NtsBusinessValidationClient {
     public BusinessStatusResponse validateBusinessNumber(BusinessNumberValidateRequest request) {
         try {
 
+            String url = buildNtsApiUrl(properties.getStatusPath());
+
             return restClient.post()
-                .uri(uriBuilder -> uriBuilder
-                    .path(properties.getStatusPath())
-                    .queryParam("serviceKey", properties.getKey())
-                    .build()
-                )
+                .uri(url)
                 .body(BusinessStatusRequest.of(request.getB_no()))
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, ntsApiErrorHandler::errorHandler)
@@ -74,5 +72,11 @@ public class NtsBusinessValidationClient {
         }
     }
 
-
+    private String buildNtsApiUrl(String apiPath) {
+        return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
+            .path(apiPath)
+            .queryParam(SERVICE_KEY_PARAM_NAME, properties.getKey())
+            .build()
+            .toUriString();
+    }
 }
