@@ -62,6 +62,14 @@ public enum ErrorCode {
     NTS_INTERNAL_ERROR(500, "국세청 서버 내부 오류가 발생했습니다"),
     NTS_HTTP_ERROR(503, "국세청 API 통신 중 오류가 발생했습니다"),
 
+    //PortOne API 관련
+    PORT_ONE_HTTP_ERROR(503, "포트원 API 통신 중 오류가 발생했습니다."),
+    FAILED_JSON_FORMAT(500, "JSON 변환 실패"),
+    FAILED_ACCESS_TOKEN_GENERATION(500, "PortOne 액세스 토큰 발급에 실패했습니다."),
+    INVALID_ACCESS_TOKEN(401, "엑세스 토큰이 유효하지 않거나 전달되지 않았습니다."),
+    INVALID_IMP_UID(401,"유요하지 않은 imp_uid 입니다."),
+    METHOD_NOT_ALLOWED(405, "허용되지 않는 HTTP METHOD 입니다."),
+
     //인증, 회원 관련,
     INVALID_PASSWORD_RESET_TOKEN(400, "비밀번호 변경 토큰이 유효하지 않습니다."),
     BLACKLISTED_TOKEN(401, "블랙리스트에 등록된 토큰입니다 다시 로그인해주세요"),

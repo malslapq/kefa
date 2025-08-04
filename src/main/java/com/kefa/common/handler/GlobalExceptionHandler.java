@@ -29,6 +29,7 @@ public class GlobalExceptionHandler {
         NoticeException.class,
         NtsException.class,
         OAuth2Exception.class,
+        PortOneException.class,
         S3FileUploadException.class
     })
     public ResponseEntity<ApiResponse<?>> handleException(CustomException e) {

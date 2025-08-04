@@ -89,3 +89,8 @@ aws:
   region: ${AWS_REGION}
   s3:
     bucket: ${AWS_S3_BUCKET}
+
+port-one:
+  api-key: ${PORT_ONE_API_KEY}
+  api-secret: ${PORT_ONE_API_SECRET}
+  url: ${PORT_ONE_URL}
