@@ -54,8 +54,6 @@ pipeline {
                                 string(credentialsId: 'DB_USER', variable: 'DB_USER'),
                                 string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD'),
                                 string(credentialsId: 'DB_PORT', variable: 'DB_PORT'),
-                                string(credentialsId: 'REDIS_HOST', variable: 'REDIS_HOST'),
-                                string(credentialsId: 'REDIS_PORT', variable: 'REDIS_PORT'),
                                 string(credentialsId: 'SERVER_PORT', variable: 'SERVER_PORT'),
                                 string(credentialsId: 'JENKINS_PORT', variable: 'JENKINS_PORT'),
                                 string(credentialsId: 'JENKINS_AGENT_PORT', variable: 'JENKINS_AGENT_PORT'),
@@ -79,7 +77,10 @@ pipeline {
                                 string(credentialsId: 'AWS_ACCESS_KEY', variable: 'AWS_ACCESS_KEY'),
                                 string(credentialsId: 'AWS_SECRET_KEY', variable: 'AWS_SECRET_KEY'),
                                 string(credentialsId: 'AWS_REGION', variable: 'AWS_REGION'),
-                                string(credentialsId: 'AWS_S3_BUCKET', variable: 'AWS_S3_BUCKET')
+                                string(credentialsId: 'AWS_S3_BUCKET', variable: 'AWS_S3_BUCKET'),
+                                string(credentialsId: 'PORT_ONE_API_KEY', variable: 'PORT_ONE_API_KEY'),
+                                string(credentialsId: 'PORT_ONE_API_SECRET', variable: 'PORT_ONE_API_SECRET'),
+                                string(credentialsId: 'PORT_ONE_URL', variable: 'PORT_ONE_URL')
                             ]) {
                                 sh '''
                                     echo "DB_HOST=${DB_HOST}" > .env
@@ -87,8 +88,6 @@ pipeline {
                                     echo "DB_USER=${DB_USER}" >> .env
                                     echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
                                     echo "DB_PORT=${DB_PORT}" >> .env
-                                    echo "REDIS_HOST=${REDIS_HOST}" >> .env
-                                    echo "REDIS_PORT=${REDIS_PORT}" >> .env
                                     echo "SERVER_PORT=${SERVER_PORT}" >> .env
                                     echo "JENKINS_PORT=${JENKINS_PORT}" >> .env
                                     echo "JENKINS_AGENT_PORT=${JENKINS_AGENT_PORT}" >> .env
@@ -113,6 +112,9 @@ pipeline {
                                     echo "AWS_SECRET_KEY=${AWS_SECRET_KEY}" >> .env
                                     echo "AWS_REGION=${AWS_REGION}" >> .env
                                     echo "AWS_S3_BUCKET=${AWS_S3_BUCKET}" >> .env
+                                    echo "PORT_ONE_API_KEY=${PORT_ONE_API_KEY}" >> .env
+                                    echo "PORT_ONE_API_SECRET=${PORT_ONE_API_SECRET}" >> .env
+                                    echo "PORT_ONE_URL=${PORT_ONE_URL}" >> .env
                                 '''
                             }
                         }
